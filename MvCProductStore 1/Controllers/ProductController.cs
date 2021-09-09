@@ -52,7 +52,7 @@ namespace MvCProductStore_1.Controllers
             if (ModelState.IsValid)
             {
                 repository.Save(product);
-                TempData["message"] = string.Format("{0} har blitt opprettet", product.Name);
+                //TempData["message"] = string.Format("{0} har blitt opprettet", product.Name);
                 return RedirectToAction("Index");
             }
             else

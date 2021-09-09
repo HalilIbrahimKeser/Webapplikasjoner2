@@ -85,7 +85,7 @@ namespace ProductUnitTest
             Assert.AreEqual(5, products.Count, "Got wrong number of products");
         }
 
-        /*
+        
         [TestMethod]
         public void SaveIsCalledWhenProductIsCreated() 
         {
@@ -94,14 +94,14 @@ namespace ProductUnitTest
             var controller = new ProductController(_repository.Object);
 
             // Act
-            var result = controller.Create();
+            var result = controller.Create(new ProductEditViewModel());
 
             // Assert
             _repository.VerifyAll();
             // test på at save er kalt et bestemt antall ganger
             //_repository.Verify(x => x.Save(It.IsAny<ProductEditViewModel>()), Times.Exactly(1));
         }
-        */
+        
 
 
         [TestMethod]
