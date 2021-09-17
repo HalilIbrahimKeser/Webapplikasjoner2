@@ -27,9 +27,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebuggProg", "DebuggProg\De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C3765081-FA51-4134-9671-F8D68B254FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvCProductStore 1", "MvCProductStore 1\MvCProductStore 1.csproj", "{BE96CC6B-D998-4947-AF9C-BDD414B75EBC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcProductStore", "MvCProductStore 1\MvcProductStore.csproj", "{BE96CC6B-D998-4947-AF9C-BDD414B75EBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductUnitTest", "ProductUnitTest\ProductUnitTest.csproj", "{5997E244-56E5-48A2-9104-C185F58D15B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductUnitTest", "ProductUnitTest\ProductUnitTest.csproj", "{5997E244-56E5-48A2-9104-C185F58D15B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
