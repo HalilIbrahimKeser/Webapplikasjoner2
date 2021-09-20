@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31605.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{1F243CF4-DADD-4A4C-AB98-A1E80D2D0171}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modul2", "Modul2", "{EAF21F86-D7CC-4290-BEFD-8B28EA4479BF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modul2_3", "Modul2_3", "{EAF21F86-D7CC-4290-BEFD-8B28EA4479BF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "intro_csharp", "intro_csharp", "{5B36A378-2282-4A28-B783-28B9DC0409FF}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oppgave1b", "oppgave1b\oppg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oppgave1c", "oppgave1c\oppgave1c.csproj", "{ABDA5FEB-44AE-44EE-907B-0A8990071163}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder2", "NewFolder2", "{CA157DF2-77C0-4794-A925-14E221B3C508}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modul4", "Modul4", "{CA157DF2-77C0-4794-A925-14E221B3C508}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder3", "NewFolder3", "{E8106A3E-C75F-49D1-9FDB-BEF506D2C082}"
 EndProject
@@ -27,9 +27,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebuggProg", "DebuggProg\De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C3765081-FA51-4134-9671-F8D68B254FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcProductStore", "MvCProductStore 1\MvcProductStore.csproj", "{BE96CC6B-D998-4947-AF9C-BDD414B75EBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcProductStore", "MvCProductStore 1\MvcProductStore.csproj", "{BE96CC6B-D998-4947-AF9C-BDD414B75EBC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductUnitTest", "ProductUnitTest\ProductUnitTest.csproj", "{5997E244-56E5-48A2-9104-C185F58D15B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oblig2_Blogg", "Oblig2_Blogg\Oblig2_Blogg.csproj", "{6363C24A-D402-4803-AC01-6F49F2FEF001}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +79,10 @@ Global
 		{5997E244-56E5-48A2-9104-C185F58D15B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5997E244-56E5-48A2-9104-C185F58D15B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5997E244-56E5-48A2-9104-C185F58D15B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6363C24A-D402-4803-AC01-6F49F2FEF001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6363C24A-D402-4803-AC01-6F49F2FEF001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6363C24A-D402-4803-AC01-6F49F2FEF001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6363C24A-D402-4803-AC01-6F49F2FEF001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +97,7 @@ Global
 		{16C20982-32E9-4848-B007-0E80DF6DB7F4} = {EAF21F86-D7CC-4290-BEFD-8B28EA4479BF}
 		{C3765081-FA51-4134-9671-F8D68B254FC1} = {EAF21F86-D7CC-4290-BEFD-8B28EA4479BF}
 		{BE96CC6B-D998-4947-AF9C-BDD414B75EBC} = {EAF21F86-D7CC-4290-BEFD-8B28EA4479BF}
+		{6363C24A-D402-4803-AC01-6F49F2FEF001} = {CA157DF2-77C0-4794-A925-14E221B3C508}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2201BC3-A8C8-4562-B0E7-38729F13449A}

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MvCProductStore_1.Models;
 using MvCProductStore_1.Models.Entities;
 
 namespace MvCProductStore_1.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -20,7 +22,8 @@ namespace MvCProductStore_1.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Category>().ToTable("Category");
             modelBuilder.Entity<Manufacturer>().ToTable("Manufacturer");
             modelBuilder.Entity<Product>().ToTable("Product");
@@ -54,5 +57,19 @@ namespace MvCProductStore_1.Data
             modelBuilder.Entity<Product>().HasData(
                 new Product { ProductId = 5, Name = "Brød", Price = 25.50m, CategoryId = 3, ManufacturerId = 3 });
         }
+
+        /*
+        modelBuilder.Entity<Product>().HasData(
+        new Product
+        {
+            ProductId = 1, Name = "Hammer", Price = 121.50m, CategoryId = 1, ManufacturerId = 2, 
+            Owner = new IdentityUser()
+            {
+                UserName = "Testuser",
+                Id = "8844554-a24d-4"
+                PasswordHash = hash
+            }
+        });
+        */
     }
 }

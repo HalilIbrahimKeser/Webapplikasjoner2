@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MvCProductStore_1.Models.Entities;
 using MvCProductStore_1.Models.Repository;
 using MvCProductStore_1.Models.ViewModels;
@@ -8,6 +13,7 @@ namespace MvCProductStore_1.Controllers
     public class ProductController : Controller
     {
         private readonly IRepository repository;
+        private UserManager<IdentityUser> manager;
 
         public ProductController(IRepository repository) => this.repository = repository;
 
@@ -37,6 +43,7 @@ namespace MvCProductStore_1.Controllers
         */
 
         //GET
+        [Authorize]
         [HttpGet]
         public ActionResult Create()
         {
@@ -46,20 +53,35 @@ namespace MvCProductStore_1.Controllers
 
         //POST
         [HttpPost]
-        public ActionResult Create(
-            [Bind("Name,Description,Price,ManufacturerId,CategoryId")] ProductEditViewModel product)
+        //[ValidateAntiForgeryToken]
+        [Authorize]
+        public IActionResult Create(
+            [Bind("Name,Description,Price, modified, ManufacturerId,CategoryId, Owner")] ProductEditViewModel product)
         {
-            if (ModelState.IsValid)
+            try
             {
-                repository.Save(product);
-                //TempData["message"] = string.Format("{0} har blitt opprettet", product.Name);
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return View();
-            }
+                if (ModelState.IsValid)
+                {
+                    //var owner = manager.FindByNameAsync(principal.Identity.Name);
+                    var productToSave = new ProductEditViewModel();
+                    productToSave.Name = product.Name;
+                    productToSave.CategoryId = product.CategoryId;
+                    productToSave.Price = product.Price;
+                    productToSave.Description = product.Description;
+                    productToSave.ManufacturerId = product.ManufacturerId;
+                    //productToSave.Owner = owner.Result;
 
+                    repository.Save(productToSave, User);
+                    //TempData["message"] = string.Format("{0} har blitt opprettet", product.Name);
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(product);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
     }

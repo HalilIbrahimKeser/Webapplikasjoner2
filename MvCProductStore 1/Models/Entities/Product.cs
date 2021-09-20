@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace MvCProductStore_1.Models.Entities
 {
@@ -22,5 +23,7 @@ namespace MvCProductStore_1.Models.Entities
         public virtual Category Category { get; set; }
 
         public DateTime modified { get; internal set; }
+
+        public virtual IdentityUser Owner { get; set; }
     }
 }

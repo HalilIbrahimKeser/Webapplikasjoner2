@@ -2,6 +2,7 @@
 using MvCProductStore_1.Models.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using MvCProductStore_1.Data;
 
 namespace MvCProductStore_1.Models.Repository
@@ -12,7 +13,7 @@ namespace MvCProductStore_1.Models.Repository
         IEnumerable<Product> GetAll();
 
        
-        void Save(ProductEditViewModel product);
+        void Save(ProductEditViewModel product, IPrincipal principal);
 
         ProductEditViewModel GetProductEditViewModel();
 
