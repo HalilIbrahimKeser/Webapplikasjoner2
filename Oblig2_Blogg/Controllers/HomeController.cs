@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace Oblig2_Blogg.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
+    //[Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
