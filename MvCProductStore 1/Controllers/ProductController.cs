@@ -55,7 +55,7 @@ namespace MvCProductStore_1.Controllers
         [HttpPost]
         //[ValidateAntiForgeryToken]
         [Authorize]
-        public IActionResult Create(
+        public ActionResult Create(
             [Bind("Name,Description,Price, modified, ManufacturerId,CategoryId, Owner")] ProductEditViewModel product)
         {
             try

@@ -5,26 +5,53 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Oblig2_Blogg.Models;
 
 namespace Oblig2_Blogg.Controllers
 {
-    [AllowAnonymous]
     public class BlogController : Controller
     {
-        
+        private readonly IBlogRepository repository;
+        private UserManager<IdentityUser> manager;
+
+        public BlogController(IBlogRepository repository)
+        {
+            this.repository = repository;
+            this.manager = manager;
+        }
+
+        [AllowAnonymous]
         public ActionResult Index()
         {
-            string dateString = "Sep 17, 2021";
-            DateTime dateCreated = DateTime.Parse(dateString);
-            string dateString1 = "Sep 17, 2021";
-            DateTime dateModified = DateTime.Parse(dateString1);
+            return View(repository.GetAll());
+        }
 
-            List<Blog> blogs = new List<Blog>
-            {
-                new Blog {Name = "Tur til Australia", Closed = false, Created = dateCreated, Modified = dateModified, Description = "Fortelling av turopplevelser"}
-            };
+        // GET
+        // Blog/Create
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult Create()
+        {
+            return View();
+        }
 
-            return View(blogs);
+        // POST
+        // Blog/Create
+        [AllowAnonymous]
+        [HttpPost] 
+        public ActionResult Create([Bind("Name,Description,Created, Closed, Owner")] Blog blog) 
+        { 
+            try 
+            { 
+                repository.Save(blog);
+                return RedirectToAction("Index");
+            } 
+            catch 
+            { 
+                return View();
+            }
+
         }
     }
 }

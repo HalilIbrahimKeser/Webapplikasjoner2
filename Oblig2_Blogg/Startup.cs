@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Oblig2_Blogg.Models;
 
 namespace Oblig2_Blogg
 {
@@ -41,6 +42,9 @@ namespace Oblig2_Blogg
             });
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
+
+
+            services.AddTransient<IBlogRepository, FakeBlogRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

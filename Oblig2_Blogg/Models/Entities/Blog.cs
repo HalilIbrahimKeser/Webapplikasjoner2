@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using Oblig2_Blogg.Models.Entities;
@@ -8,6 +10,7 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class Blog
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }
 
         public string Name { get; set; }
@@ -20,15 +23,8 @@ namespace Oblig2_Blogg.Models.Entities
 
         public bool Closed { get; set; }
 
-        //KOMMENTAR
-        public int CommentId { get; set; }
-
-        public virtual Comment Comment { get; set; }
-
         //INNLEGG
-        public int PostId { get; set; }
-
-        public virtual Post Post { get; set; }
+        public virtual List<Post> Posts { get; set; }
 
         //EIER
         public virtual IdentityUser Owner { get; set; }

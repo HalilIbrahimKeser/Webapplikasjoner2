@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Velkommen! Oversikt over blogger.</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,9 +12,6 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BlogId)
-            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -27,24 +24,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.Modified)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Closed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CommentId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostId)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BlogId)
-            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
@@ -58,18 +43,11 @@
                 @Html.DisplayFor(modelItem => item.Modified)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Closed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CommentId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostId)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Enter the blog", "Enter", new { /* id=item.PrimaryKey */ }) |
+
+                @Html.ActionLink("Edit", "Edit", new {/* id=item.PrimaryKey */}) |
+
+                @Html.ActionLink("Delete", "Delete", new {/* id=item.PrimaryKey */})
             </td>
         </tr>
 }

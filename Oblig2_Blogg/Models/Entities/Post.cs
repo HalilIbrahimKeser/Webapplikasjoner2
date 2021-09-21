@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
@@ -15,9 +16,12 @@ namespace Oblig2_BloggModels.Entities
         public DateTime Created { get; internal set; }
         public DateTime Modified { get; internal set; }
 
+        //FREMMED NØKKEL
+        public int BlogId { get; set; }
+        public virtual Blog Blog { get; set; }
+
         //KOMMENTAR
-        public int CommentId { get; set; }
-        public virtual Comment Comment { get; set; }
+        public virtual List<Comment> Comments { get; set; }
 
         //EIER
         public virtual IdentityUser Owner { get; set; }
