@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using Oblig2_Blogg.Models.Entities;
 
-namespace Oblig2_BloggModels.Entities
+namespace Oblig2_Blogg.Models.Entities
 {
     public class Post
     {
@@ -14,7 +14,7 @@ namespace Oblig2_BloggModels.Entities
         [StringLength(500)]
         public string PostText { get; set; }
         public DateTime Created { get; internal set; }
-        public DateTime Modified { get; internal set; }
+        public DateTime? Modified { get; internal set; }
 
         //FREMMED NØKKEL
         public int BlogId { get; set; }

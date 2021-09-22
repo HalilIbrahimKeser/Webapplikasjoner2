@@ -15,7 +15,7 @@ namespace Oblig2_Blogg.Models.Entities
 
         public DateTime Created { get; internal set; }
 
-        public DateTime Modified { get; internal set; }
+        public DateTime? Modified { get; internal set; }
 
         //FREMMED NØKKEL
         public int PostId { get; set; }

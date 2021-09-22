@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Oblig2_Blogg.Models;
+using Oblig2_Blogg.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Oblig2_Blogg
 {
@@ -42,6 +44,11 @@ namespace Oblig2_Blogg
             });
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
+
+
+            //MS SqlServer
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+                Configuration.GetConnectionString("DefaultConnection")));
 
 
             services.AddTransient<IBlogRepository, FakeBlogRepository>();
