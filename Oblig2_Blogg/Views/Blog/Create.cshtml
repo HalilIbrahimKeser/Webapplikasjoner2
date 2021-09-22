@@ -22,15 +22,9 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Created" class="control-label"></label>
-                <input asp-for="Created" class="form-control" />
-                <span asp-validation-for="Created" class="text-danger"></span>
-            </div>
             <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Closed" /> @Html.DisplayNameFor(model => model.Closed)
-                </label>
+                <label asp-for="Closed" class="control-label">Open or closed? true/false</label><br/>
+                <input asp-for="Closed" class="form-check-input" /> @Html.DisplayNameFor(model => model.Closed)
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

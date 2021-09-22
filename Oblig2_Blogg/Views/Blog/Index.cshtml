@@ -1,4 +1,10 @@
-﻿@model IEnumerable<Oblig2_Blogg.Models.Entities.Blog>
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Principal
+
+@model IEnumerable<Oblig2_Blogg.Models.Entities.Blog>
+
+@inject SignInManager<IdentityUser> signInManager
+@inject UserManager<IdentityUser> userManager
 
 @{
     ViewData["Title"] = "Index";
@@ -7,7 +13,14 @@
 <h1>Velkommen! Oversikt over blogger.</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @if (signInManager.IsSignedIn(User))
+    {
+        <a asp-action="Create">Create New</a>
+    }
+    else
+    {
+        <a>You are currently not logged in, log in to create a new Blog</a>
+    }
 </p>
 <table class="table">
     <thead>
@@ -28,28 +41,29 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Modified)
-            </td>
-            <td>
-                @Html.ActionLink("Enter the blog", "Enter", new { /* id=item.PrimaryKey */ }) |
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+                <td>
+                    @Html.ActionLink("Enter the blog", "Enter", new { /* id=item.PrimaryKey */ }) |
 
-                @Html.ActionLink("Edit", "Edit", new {/* id=item.PrimaryKey */}) |
+                    @Html.ActionLink("Edit", "Edit", new {/* id=item.PrimaryKey */}) |
 
-                @Html.ActionLink("Delete", "Delete", new {/* id=item.PrimaryKey */})
-            </td>
-        </tr>
-}
+                    @Html.ActionLink("Delete", "Delete", new {/* id=item.PrimaryKey */})
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

@@ -9,6 +9,7 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class Post
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PostId { get; set; }
 
         [StringLength(500)]

@@ -1,24 +1,22 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oblig2_Blogg.Models.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Oblig2_Blogg.Models;
+using Oblig2_Blogg.Models.Repository;
 
 namespace Oblig2_Blogg.Controllers
 {
+    [AllowAnonymous]
     public class BlogController : Controller
     {
-        private readonly IBlogRepository repository;
-        private UserManager<IdentityUser> manager;
+        private readonly IRepository repository;
+        //private UserManager<IdentityUser> manager;
 
-        public BlogController(IBlogRepository repository)
+        public BlogController(IRepository repository)
         {
             this.repository = repository;
-            this.manager = manager;
+            //this.manager = manager;
         }
 
         [AllowAnonymous]
@@ -29,7 +27,7 @@ namespace Oblig2_Blogg.Controllers
 
         // GET
         // Blog/Create
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet]
         public ActionResult Create()
         {
@@ -38,20 +36,27 @@ namespace Oblig2_Blogg.Controllers
 
         // POST
         // Blog/Create
-        [AllowAnonymous]
+        [Authorize]
         [HttpPost] 
-        public ActionResult Create([Bind("Name,Description,Created, Closed, Owner")] Blog blog) 
+        public ActionResult Create([Bind("Name, Description, Created, Closed, Owner")] Blog blog) 
         { 
             try 
-            { 
-                repository.Save(blog);
-                return RedirectToAction("Index");
-            } 
-            catch 
-            { 
-                return View();
+            {
+                if (ModelState.IsValid)
+                {
+                    var owner = User;
+                    
+                    repository.Save(blog, owner);
+                    //TempData["message"] = string.Format("{0} har blitt opprettet", blog.Name);
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(blog);
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

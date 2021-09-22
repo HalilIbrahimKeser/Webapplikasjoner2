@@ -2,12 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
-using Oblig2_BloggModels.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
 {
     public class Comment
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CommentId { get; set; }
         
         [StringLength(200)]

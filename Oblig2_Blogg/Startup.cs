@@ -14,9 +14,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Oblig2_Blogg.Models;
 using Oblig2_Blogg.Data;
 using Microsoft.EntityFrameworkCore;
+using Oblig2_Blogg.Models.Repository;
 
 namespace Oblig2_Blogg
 {
@@ -51,7 +53,10 @@ namespace Oblig2_Blogg
                 Configuration.GetConnectionString("DefaultConnection")));
 
 
-            services.AddTransient<IBlogRepository, FakeBlogRepository>();
+            services.AddTransient<IRepository, Repository>();
+
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,9 +75,10 @@ namespace Oblig2_Blogg
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseAuthentication();
+
             app.UseRouting();
 
-            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

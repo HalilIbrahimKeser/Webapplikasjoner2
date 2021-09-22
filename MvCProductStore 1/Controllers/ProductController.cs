@@ -53,10 +53,10 @@ namespace MvCProductStore_1.Controllers
 
         //POST
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         [Authorize]
+        //[ValidateAntiForgeryToken]
         public ActionResult Create(
-            [Bind("Name,Description,Price, modified, ManufacturerId,CategoryId, Owner")] ProductEditViewModel product)
+            [Bind("Name, Description, Price, modified, ManufacturerId,CategoryId, Owner")] ProductEditViewModel product)
         {
             try
             {

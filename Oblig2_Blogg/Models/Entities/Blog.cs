@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
-using Oblig2_Blogg.Models.Entities;
-using Oblig2_BloggModels.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
 {
