@@ -19,7 +19,8 @@ namespace BlogTest
     [TestClass]
     public class UnitTest1
     {
-        private Mock<IRepository> repository;
+        //TODO skal det være Repository eller IRepository?
+        private Mock<Repository> repository;
         private Mock<IPrincipal> user;
 
         private List<Blog> blogs;
@@ -29,7 +30,7 @@ namespace BlogTest
         [TestInitialize]
         public void SetupContext()
         {
-            repository = new Mock<IRepository>();
+            repository = new Mock<Repository>();
             blogs = new List<Blog>
             {
                 new Blog {Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
@@ -68,7 +69,7 @@ namespace BlogTest
         public void IndexReturnsAllBlogs()
         {
             // Arrange
-            repository.Setup(x => x.GetAll()).Returns(blogs);
+            repository.Setup(x => x.GetAllBlogs()).Returns(blogs);
             var controller = new BlogController(repository.Object);
             
             // Act
@@ -101,7 +102,7 @@ namespace BlogTest
             // Arrange
             //repository = new Mock<IRepository>();
             //TODO mock user
-            //repository.Setup(x => x.Save(It.IsAny<Blog>(), user));
+            //repository.Setup(x => x.SaveBlog(It.IsAny<Blog>(), user));
             var controller = new BlogController(repository.Object);            
         
             // Act
@@ -111,7 +112,7 @@ namespace BlogTest
             //TODO
             repository.VerifyAll();
             // test på at save er kalt et bestemt antall ganger
-            //repository.Verify(x => x.Save(It.IsAny<Blog>(), new ClaimsPrincipal()), Times.Exactly(1));
+            //repository.Verify(x => x.SaveBlog(It.IsAny<Blog>(), new ClaimsPrincipal()), Times.Exactly(1));
         }
 
         [TestMethod]

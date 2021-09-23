@@ -23,7 +23,8 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
-                <label asp-for="Closed" class="control-label">Open or closed? true/false</label><br/>
+                <label asp-for="Closed" class="control-label"></label><br />
+                <p>Open or closed? Enter "true" or "false"</p>
                 <input asp-for="Closed" class="form-check-input" /> @Html.DisplayNameFor(model => model.Closed)
             </div>
             <div class="form-group">

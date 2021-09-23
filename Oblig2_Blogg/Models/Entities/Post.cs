@@ -9,20 +9,28 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class Post
     {
+
+        //PostId, PostText, Created, Modified, BlogId, Blog, Comments, Owner
+
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PostId { get; set; }
 
-        [StringLength(500)]
+        [StringLength(200)]
         [Required]
+        [Display(Name = "Post")]
         public string PostText { get; set; }
+
         public DateTime Created { get; internal set; }
+
         public DateTime? Modified { get; internal set; }
 
         //FREMMED NØKKEL
         public int BlogId { get; set; }
+
         public virtual Blog Blog { get; set; }
 
-        //KOMMENTAR
+        //KOMMENTARER
         public virtual List<Comment> Comments { get; set; }
 
         //EIER

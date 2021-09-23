@@ -10,7 +10,7 @@ namespace Oblig2_Blogg.Models.Repository
     public class FakeBlogRepository : IRepository
     {
         //GET ALL
-        public IEnumerable<Blog> GetAll()
+        public IEnumerable<Blog> GetAllBlogs()
         {
             string dateString = "Sep 17, 2021";
             DateTime dateCreated = DateTime.Parse(dateString);
@@ -20,12 +20,47 @@ namespace Oblig2_Blogg.Models.Repository
             return blogs;
         }
 
+        public IEnumerable<Comment> GetAllComments(int postIdToGet)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Post> GetAllPosts(int blogIdToGet)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Blog GetBlog(int blogIdToGet)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Comment GetComment(int commentIdToGet)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Post GetPost(int postIdToGet)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Save(Blog blog)
         {
             throw new NotImplementedException();
         }
 
-        public void Save(Blog blog, IPrincipal principal)
+        public void SaveBlog(Blog blog, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SaveComment(Comment comment, Post post, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SavePost(Post post, Blog blog, IPrincipal principal)
         {
             throw new NotImplementedException();
         }

@@ -8,10 +8,15 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class Blog
     {
+        //BlogId, Name, Description, Created, Modified, Closed, Posts, Owner
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }
 
         [Required]
+        [StringLength(50)]
+        [Column("Name")]
+        [Display(Name = "Blog")]
         public string Name { get; set; }
 
         public string Description { get; set; }
