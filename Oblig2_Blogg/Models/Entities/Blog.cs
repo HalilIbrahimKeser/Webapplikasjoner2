@@ -11,6 +11,7 @@ namespace Oblig2_Blogg.Models.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
         public string Description { get; set; }

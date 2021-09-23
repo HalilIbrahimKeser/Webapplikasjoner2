@@ -10,6 +10,9 @@ using Moq;
 using Oblig2_Blogg.Controllers;
 using Oblig2_Blogg.Models.Entities;
 using Oblig2_Blogg.Models.Repository;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace BlogTest
 {
@@ -17,6 +20,7 @@ namespace BlogTest
     public class UnitTest1
     {
         private Mock<IRepository> repository;
+        private Mock<IPrincipal> user;
 
         private List<Blog> blogs;
         private List<Post> posts;
@@ -26,20 +30,6 @@ namespace BlogTest
         public void SetupContext()
         {
             repository = new Mock<IRepository>();
-            string dateString = "Sep 17, 2021";
-            string dateString1 = "Sep 18, 2021";
-            string dateString2 = "Sep 19, 2021";
-            DateTime dateCreated = DateTime.Parse(dateString);
-            DateTime dateCreated1 = DateTime.Parse(dateString1);
-            DateTime dateCreated2 = DateTime.Parse(dateString2);
-
-            posts = new List<Post>
-                {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}};
-
-            comments = new List<Comment>
-                { new Comment { CommentId = 1, CommentText = "Så heldige dere er :)", PostId = 1}};
-
-
             blogs = new List<Blog>
             {
                 new Blog {Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
@@ -47,13 +37,24 @@ namespace BlogTest
                 new Blog {Name = "Tur til Afganistan", Closed = false,  Description = "Møtet med Taliban"},
                 new Blog {Name = "Tur til USA", Closed = false,  Description = "Fortelling av turopplevelser"}
             };
+
+
+            posts = new List<Post>
+                {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
+            };
+
+            comments = new List<Comment>
+                { new Comment { CommentId = 1, CommentText = "Så heldige dere er :)", PostId = 1}
+            };
+
+
+          
         }
 
         [TestMethod]
         public void IndexReturnsNotNullResult()
         {
             // Arrange
-            repository = new Mock<IRepository>();
             var controller = new BlogController(repository.Object);
 
             // Act
@@ -67,31 +68,31 @@ namespace BlogTest
         public void IndexReturnsAllBlogs()
         {
             // Arrange
-            Mock<IRepository> _repository2 = new Mock<IRepository>();
-
-            List<Blog> fakeBlogs = new List<Blog>
-            {
-                new Blog {Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
-                new Blog {Name = "Tur til Somalia", Closed = false,  Description = "Fortelling av turopplevelser"},
-                new Blog {Name = "Tur til Afganistan", Closed = false,  Description = "Møtet med Taliban"},
-                new Blog {Name = "Tur til USA", Closed = false,  Description = "Fortelling av turopplevelser"}
-            };
-            _repository2.Setup(x => x.GetAll()).Returns(fakeBlogs);
-            var controller = new BlogController(_repository2.Object);
+            repository.Setup(x => x.GetAll()).Returns(blogs);
+            var controller = new BlogController(repository.Object);
             
             // Act
-            var result = (ViewResult)controller.Index(); 
-            
-            // Assert
-            Debug.Assert(result != null, nameof(result) + " != null");
-            
+            var result = controller.Index() as ViewResult;
+
+            // Assert                
             CollectionAssert.AllItemsAreInstancesOfType((ICollection) result.ViewData.Model, typeof(Blog));
             Assert.IsNotNull(result, "View Result is null");
-            
-            var blogs = result.ViewData.Model as List<Blog>;
-            Debug.Assert(blogs != null, nameof(blogs) + " != null");
-            
-            Assert.AreEqual(4, blogs.Count, "Got wrong number of blogs");
+
+            var blogsOriginal = result.ViewData.Model as List<Blog>;
+            Assert.AreEqual(blogs.Count, blogsOriginal.Count, "Got wrong number of blogs");
+        }
+
+        [TestMethod]
+        public void CreateReturnsNotNullResult()
+        {
+            // Arrange
+            var controller = new BlogController(repository.Object);
+
+            // Act
+            var result = (ViewResult)controller.Create();
+
+            // Assert
+            Assert.IsNotNull(result, "View Result is null");
         }
 
         [TestMethod]
@@ -99,19 +100,63 @@ namespace BlogTest
         { 
             // Arrange
             //repository = new Mock<IRepository>();
-            //repository.Setup(x => x.Save(It.IsAny<Blog>()));
-            var controller = new BlogController(repository.Object);
-            
-            
+            //TODO mock user
+            //repository.Setup(x => x.Save(It.IsAny<Blog>(), user));
+            var controller = new BlogController(repository.Object);            
+        
             // Act
-            var result = controller.Create(new Blog());
-            
+            var result = controller.Create(new Blog());            
             
             // Assert
             //TODO
-            //repository.VerifyAll();
+            repository.VerifyAll();
             // test på at save er kalt et bestemt antall ganger
-            repository.Verify(x => x.Save(It.IsAny<Blog>(), new ClaimsPrincipal()), Times.Exactly(1));
+            //repository.Verify(x => x.Save(It.IsAny<Blog>(), new ClaimsPrincipal()), Times.Exactly(1));
+        }
+
+        [TestMethod]
+        public void CreateViewIsReturnedWhenInputIsNotValid()
+        {
+            // Arrange
+            var viewModel = new Blog { BlogId = 9990, Name = "", Closed = false, Description = "" };
+           
+            var controller = new BlogController(repository.Object);
+
+            // Act
+            var validationContext = new ValidationContext(viewModel, null, null);
+            var validationResults = new List<ValidationResult>();
+            Validator.TryValidateObject(viewModel, validationContext, validationResults, true);
+            foreach (var validationResult in validationResults)
+                controller.ModelState.AddModelError(validationResult.MemberNames.First(),
+                    validationResult.ErrorMessage);
+
+            var result = controller.Create(viewModel) as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(validationResults.Count > 0);
+        }
+
+
+        [TestMethod]
+        public void CreateRedirectActionRedirectsToIndexAction()
+        {
+            // Arrange
+            var controller = new BlogController(repository.Object)
+            {
+                ControllerContext = Oblig2_Blogg.MockHelpers.FakeControllerContext(false)
+            };
+            var tempData =
+                new TempDataDictionary(controller.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+            controller.TempData = tempData;
+            var viewModel = new Blog { BlogId = 1, Name = "Tur til Australia", Closed = false, Description = "Fortelling av turopplevelser" };
+
+            // Act
+            var result = controller.Create(viewModel) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result, "RedirectToIndex needs to redirect to the Index action");
+            Assert.AreEqual("Index", result.ActionName);
         }
     }
 }

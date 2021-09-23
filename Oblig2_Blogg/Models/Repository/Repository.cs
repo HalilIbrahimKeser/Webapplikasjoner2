@@ -37,9 +37,9 @@ namespace Oblig2_Blogg.Models.Repository
             blogToSave.Description = blog.Description;
             blogToSave.Created = DateTime.Now;
             blogToSave.Closed = blog.Closed;
-            blog.Owner = currentUser.Result;
+            blogToSave.Owner = currentUser.Result;
 
-            db.Add(blog);
+            db.Add(blogToSave);
             db.SaveChanges();
         }
     }

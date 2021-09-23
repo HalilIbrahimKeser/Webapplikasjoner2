@@ -13,6 +13,7 @@ namespace Oblig2_Blogg.Models.Entities
         public int PostId { get; set; }
 
         [StringLength(500)]
+        [Required]
         public string PostText { get; set; }
         public DateTime Created { get; internal set; }
         public DateTime? Modified { get; internal set; }

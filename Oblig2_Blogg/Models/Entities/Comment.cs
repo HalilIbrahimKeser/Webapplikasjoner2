@@ -11,6 +11,8 @@ namespace Oblig2_Blogg.Models.Entities
         public int CommentId { get; set; }
         
         [StringLength(200)]
+
+        [Required]
         public string CommentText { get; set; }
 
         public DateTime Created { get; internal set; }
