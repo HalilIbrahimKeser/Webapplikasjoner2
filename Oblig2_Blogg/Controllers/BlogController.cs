@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -6,16 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 using Oblig2_Blogg.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Oblig2_Blogg.Models.Repository;
+using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Controllers
 {
     [AllowAnonymous]
     public class BlogController : Controller
     {
-        private readonly Repository repository;
+        private readonly IRepository repository;
         //private UserManager<IdentityUser> manager;
 
-        public BlogController(Repository repository)
+        public BlogController(IRepository repository)
         {
             this.repository = repository;
             //this.manager = manager;
@@ -25,6 +27,21 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult Index()
         {
             return View(repository.GetAllBlogs());
+        }
+
+        [AllowAnonymous]
+        public ActionResult ReadBlog(int id)
+        {
+            var blog = repository.GetBlog(id);
+            var posts = repository.GetAllPosts(id);
+
+            var viewModel = new BlogViewModel()
+            {
+                BlogId = id, Name = blog.Name, Posts = posts.ToList()
+            };
+            
+
+            return View(viewModel);
         }
 
         // GET

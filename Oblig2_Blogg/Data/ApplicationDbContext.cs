@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Data
 {
@@ -30,8 +31,10 @@ namespace Oblig2_Blogg.Data
             modelBuilder.Entity<Comment>().ToTable("Comment")
                 .HasOne(p => p.Post);
 
+            modelBuilder.Entity<BlogViewModel>().HasNoKey();
+
             // Seeding
-            
+
             //BLOG
             modelBuilder.Entity<Blog>()
                .HasData(
@@ -71,5 +74,7 @@ namespace Oblig2_Blogg.Data
                 .HasData(
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
         }
+
+        public DbSet<Oblig2_Blogg.Models.ViewModels.BlogViewModel> BlogViewModel { get; set; }
     }
 }
