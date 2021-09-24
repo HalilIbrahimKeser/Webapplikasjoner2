@@ -17,31 +17,57 @@ namespace Oblig2_Blogg.Controllers
         private readonly IRepository repository;
         //private UserManager<IdentityUser> manager;
 
+        //CONSTRUCTOR
         public BlogController(IRepository repository)
         {
             this.repository = repository;
             //this.manager = manager;
         }
 
+        //VIEW
         [AllowAnonymous]
         public ActionResult Index()
         {
             return View(repository.GetAllBlogs());
         }
 
+        //VIEW
         [AllowAnonymous]
         public ActionResult ReadBlog(int id)
         {
             var blog = repository.GetBlog(id);
             var posts = repository.GetAllPosts(id);
 
-            var viewModel = new BlogViewModel()
+            var blogViewModel = new BlogViewModel()
             {
-                BlogId = id, Name = blog.Name, Posts = posts.ToList()
+                BlogId = id, Name = blog.Name, 
+                Description = blog.Description,
+                Created = blog.Created,
+                Modified = blog.Modified,
+                Closed = blog.Closed,
+                Owner = blog.Owner,
+                Posts = posts.ToList()
             };
-            
+            return View(blogViewModel);
+        }
+        //VIEW
+        [AllowAnonymous]
+        public ActionResult ReadPost(int id)
+        {
+            var post = repository.GetPost(id);
+            var comments = repository.GetAllComments(id);
 
-            return View(viewModel);
+            var postViewModel = new PostViewModel()
+            {
+                PostId = id,
+                PostText = post.PostText,
+                Created = post.Created,
+                Modified = post.Modified,
+                BlogId = post.BlogId,
+                Comments = comments.ToList(),
+                Owner = post.Owner
+            };
+            return View(postViewModel);
         }
 
         // GET
@@ -67,7 +93,7 @@ namespace Oblig2_Blogg.Controllers
                     var owner = User;
                     
                     repository.SaveBlog(blog, owner);
-                    //TempData["message"] = string.Format("{0} har blitt opprettet", blog.Name);
+                    TempData["message"] = string.Format("{0} har blitt opprettet", blog.Name);
                     return RedirectToAction(nameof(Index));
                 }
                 return View(blog);
@@ -88,31 +114,29 @@ namespace Oblig2_Blogg.Controllers
             return View(blogToEdit);
         }
 
-        // POST: BlogController/Edit/5
+        // POST:
+        // BlogController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Blog blog)
         {
-            try
+            if (ModelState.IsValid)
             {
-                Blog newBlog = new Blog();
-                newBlog.BlogId = blog.BlogId;
-                newBlog.Name = blog.Name;
-                newBlog.Description = blog.Description;
-                newBlog.Created = blog.Created;
-                newBlog.Modified = DateTime.Now;
-                newBlog.Closed = blog.Closed;
-                newBlog.Posts = blog.Posts;
-                var owner = User;
+                try
+                {
+                    blog.Modified = DateTime.Now;
+                    var owner = User;
 
-                repository.SaveBlog(newBlog, owner);
+                    repository.UpdateBlog(blog, owner);
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    return View();
+                }
             }
-            catch
-            {
-                return View();
-            }
+            return View();
         }
 
         // GET:

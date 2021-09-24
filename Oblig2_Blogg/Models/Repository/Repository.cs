@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Data;
 
 namespace Oblig2_Blogg.Models.Repository
@@ -17,18 +18,20 @@ namespace Oblig2_Blogg.Models.Repository
         private ApplicationDbContext db;
         private UserManager<IdentityUser> manager;
 
+        //COSNTRUCTOR
         public Repository(UserManager<IdentityUser> userManager, ApplicationDbContext db)
         {
             this.db = db;
             this.manager = userManager;
         }
 
-        //GETTERS
+        //GET BLOGS
         public IEnumerable<Blog> GetAllBlogs()
         {
             IEnumerable<Blog> blogs = db.Blogs; 
             return blogs;
         }
+        //GET BLOG
         public Blog GetBlog(int blogIdToGet)
         {
             IEnumerable<Blog> blogs = db.Blogs;
@@ -37,7 +40,7 @@ namespace Oblig2_Blogg.Models.Repository
                                   select blog;
             return singleBlogQuery.FirstOrDefault();
         }
-
+        //GET POSTS
         public IEnumerable<Post> GetAllPosts(int blogIdToGet)
         {
             IEnumerable<Post> posts = db.Posts;
@@ -47,6 +50,7 @@ namespace Oblig2_Blogg.Models.Repository
                                         select post; 
             return postQuery;
         }
+        //GET POST
         public Post GetPost(int postIdToGet)
         {
             IEnumerable<Post> posts = db.Posts;
@@ -55,8 +59,7 @@ namespace Oblig2_Blogg.Models.Repository
                             select post;
             return singlePostQuery.FirstOrDefault();
         }
-
-     
+        //GET COMMENTS
         public IEnumerable<Comment> GetAllComments(int postIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments;
@@ -66,7 +69,7 @@ namespace Oblig2_Blogg.Models.Repository
                                             select comment;
             return commentsQuery;
         }
-
+        //GET COMMENT
         public Comment GetComment(int commentIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments;
@@ -76,9 +79,7 @@ namespace Oblig2_Blogg.Models.Repository
             return singleCommentQuery.FirstOrDefault();
         }
 
-
-        //EDIT / SAVE 
-
+        //SAVE BLOG
         [Authorize]
         public async void SaveBlog(Blog blog, IPrincipal principal)
         {
@@ -94,23 +95,25 @@ namespace Oblig2_Blogg.Models.Repository
             db.SaveChanges();
         }
 
+        //UPDATE BLOG
         [Authorize]
         public async void UpdateBlog(Blog blog, IPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
-            var blogToEdit = new Blog();
-            blogToEdit.Name = blog.Name;
-            blogToEdit.Description = blog.Description;
-            blogToEdit.Created = blog.Created;
-            blogToEdit.Modified = DateTime.Now;   //<----NB modified
-            blogToEdit.Closed = blog.Closed;
-            blogToEdit.Owner = currentUser.Result;
+            blog.Modified = DateTime.Now;   //<----NB modified
+            blog.Owner = currentUser.Result;
 
-            db.Update(blogToEdit);
+            db.Entry(blog).State = EntityState.Modified;
             db.SaveChanges();
         }
 
+        //DELETE BLOG
+        public void DeleteBlog(Blog blog, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
+        //SAVE POST
         [Authorize]
         public async void SavePost(Post post, Blog blog, IPrincipal principal)
         {
@@ -125,9 +128,20 @@ namespace Oblig2_Blogg.Models.Repository
             db.SaveChanges();
         }
 
+        //UPDATE POST
+        public void UpdatePost(Post post, Blog blog, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
-        //TODO update post
+        //DELETE POST
+        public void DeletePost(Post post, Blog blog, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
+
+        //SAVE COMMENT
         [Authorize]
         public async void SaveComment(Comment comment, Post post, IPrincipal principal)
         {
@@ -142,8 +156,17 @@ namespace Oblig2_Blogg.Models.Repository
             db.SaveChanges();
         }
 
-        //TODO update comment
+        //UPDATE COMMENT
+        public void UpdateComment(Comment comment, Post post, IPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
 
+        //DELETE COMMENT
+        public void DeleteComment(Comment comment, Post post, IPrincipal principal)
+        {
+            throw new NotImplementedException();
 
+        }
     }
 }

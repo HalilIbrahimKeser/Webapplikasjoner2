@@ -9,24 +9,22 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.ViewModels
 {
-    public class BlogViewModel
+    public class PostViewModel
     {
-        public int BlogId { get; set; }
+        public int PostId { get; set; }
 
-        public string Name { get; set; }
-
-        public string Description { get; set; }
+        public string PostText { get; set; }
 
         public DateTime Created { get; internal set; }
 
         public DateTime? Modified { get; internal set; }
 
-        public bool? Closed { get; set; }
+        public int BlogId { get; set; }
 
-        //INNLEGG
-        public virtual List<Post> Posts { get; set; }
+        public virtual Blog Blog { get; set; }
 
-        //EIER
+        public virtual List<Comment> Comments { get; set; }
+
         public virtual IdentityUser Owner { get; set; }
     }
 }
