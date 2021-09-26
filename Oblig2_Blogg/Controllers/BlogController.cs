@@ -81,7 +81,7 @@ namespace Oblig2_Blogg.Controllers
                     var blog = new Blog() {
                         Name = blogViewModel.Name,
                         Description = blogViewModel.Description,
-                        Created = blogViewModel.Created,
+                        Created = DateTime.Now,
                         Closed = blogViewModel.Closed,
                         Owner = blogViewModel.Owner
                     };
@@ -119,7 +119,7 @@ namespace Oblig2_Blogg.Controllers
                     };
                     repository.SavePost(post, User).Wait();
                     TempData["message"] = $"{post.PostId} har blitt opprettet";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("ReadBlog", new { id = blogId });
                 }
             } catch (Exception e) 
             { Console.WriteLine(e); 
