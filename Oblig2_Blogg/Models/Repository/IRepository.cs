@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Oblig2_Blogg.Models.Entities;
+using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Models.Repository
 {
@@ -11,22 +13,23 @@ namespace Oblig2_Blogg.Models.Repository
     {
         IEnumerable<Blog> GetAllBlogs();
         Blog GetBlog(int blogIdToGet);
-        void SaveBlog(Blog blog, IPrincipal principal);
-        void UpdateBlog(Blog blog, IPrincipal principal);
-        void DeleteBlog(Blog blog, IPrincipal principal);
+        Task SaveBlog(Blog blog, ClaimsPrincipal principal);
+        Task UpdateBlog(Blog blog, ClaimsPrincipal principal);
+        Task DeleteBlog(Blog blog, ClaimsPrincipal principal);
 
 
         IEnumerable<Post> GetAllPosts(int blogIdToGet);
+        PostViewModel GetPostViewModel(int? id);
         Post GetPost(int postIdToGet);
-        void SavePost(Post post, Blog blog, IPrincipal principal);
-        void UpdatePost(Post post, Blog blog, IPrincipal principal);
-        void DeletePost(Post post, Blog blog, IPrincipal principal);
+        Task SavePost(Post post, ClaimsPrincipal principal);
+        Task UpdatePost(Post post, ClaimsPrincipal principal);
+        Task DeletePost(Post post, ClaimsPrincipal principal);
 
 
-        IEnumerable<Comment> GetAllComments(int postIdToGet);
+        IEnumerable<Comment> GetAllComments(int? postIdToGet);
         Comment GetComment(int commentIdToGet);
-        void SaveComment(Comment comment, Post post, IPrincipal principal);
-        void UpdateComment(Comment comment, Post post, IPrincipal principal);
-        void DeleteComment(Comment comment, Post post, IPrincipal principal);
+        Task SaveComment(Comment comment, ClaimsPrincipal principal);
+        Task UpdateComment(Comment comment, ClaimsPrincipal principal);
+        Task DeleteComment(Comment comment, ClaimsPrincipal principal);
     }
 }

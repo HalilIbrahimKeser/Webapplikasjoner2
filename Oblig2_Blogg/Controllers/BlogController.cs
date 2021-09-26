@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Oblig2_Blogg.Models.Entities;
 using Microsoft.AspNetCore.Identity;
+using Oblig2_Blogg.Authorization;
 using Oblig2_Blogg.Models.Repository;
 using Oblig2_Blogg.Models.ViewModels;
 
@@ -16,12 +18,14 @@ namespace Oblig2_Blogg.Controllers
     {
         private readonly IRepository repository;
         //private UserManager<IdentityUser> manager;
+        IAuthorizationService _authorizationService;
 
         //CONSTRUCTOR
-        public BlogController(IRepository repository)
+        public BlogController(IRepository repository, IAuthorizationService authorizationService)
         {
             this.repository = repository;
             //this.manager = manager;
+            _authorizationService = authorizationService;
         }
 
         //VIEW
@@ -54,19 +58,8 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult ReadPost(int id)
         {
-            var post = repository.GetPost(id);
-            var comments = repository.GetAllComments(id);
+            var postViewModel = repository.GetPostViewModel(id);
 
-            var postViewModel = new PostViewModel()
-            {
-                PostId = id,
-                PostText = post.PostText,
-                Created = post.Created,
-                Modified = post.Modified,
-                BlogId = post.BlogId,
-                Comments = comments.ToList(),
-                Owner = post.Owner
-            };
             return View(postViewModel);
         }
 
@@ -84,59 +77,74 @@ namespace Oblig2_Blogg.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Name, Description, Created, Closed, Owner")] Blog blog) 
+        public ActionResult Create([Bind("Name, Description, Created, Closed, Owner")] CreateBlogViewModel blogViewModel) 
         { 
             try 
             {
                 if (ModelState.IsValid)
                 {
-                    var owner = User;
-                    
-                    repository.SaveBlog(blog, owner);
+                    var blog = new Blog()
+                    {
+                        Name = blogViewModel.Name,
+                        Description = blogViewModel.Description,
+                        Created = blogViewModel.Created,
+                        Closed = blogViewModel.Closed,
+                        Owner = blogViewModel.Owner
+                    };
+
+                    repository.SaveBlog(blog, User).Wait();
                     TempData["message"] = string.Format("{0} har blitt opprettet", blog.Name);
                     return RedirectToAction(nameof(Index));
                 }
-                return View(blog);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return RedirectToAction(nameof(Index));
+                return View();
             }
+            return View();
         }
 
         // GET:
-        // BlogController/Edit/5
-        public ActionResult Edit(int id)
+        // Post/Edit/5
+        public async Task<ActionResult> EditPost(int id)
         {
-            var blogToEdit = repository.GetBlog(id);
-            
-            return View(blogToEdit);
+            var postToEdit = repository.GetPost(id);
+
+            var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
+            if (!isAutorized.Succeeded)
+            {
+                return View("Ingen tilgang");
+            }
+
+            return View(postToEdit);
         }
 
         // POST:
-        // BlogController/Edit/5
+        // Post/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Blog blog)
+        public async Task<ActionResult> EditPost(int? BlogId, [Bind("PostId, PostText, Modified, BlogId, Owner")]Post post)
         {
-            if (ModelState.IsValid)
+            if (BlogId == null)
             {
-                try
-                {
-                    blog.Modified = DateTime.Now;
+                return NotFound();
+            }
+
+            try {
+                if (ModelState.IsValid) {
+                    post.Modified = DateTime.Now;
                     var owner = User;
 
-                    repository.UpdateBlog(blog, owner);
+                    repository.UpdatePost(post, User);
 
-                    return RedirectToAction(nameof(Index));
-                }
-                catch
-                {
-                    return View();
-                }
+                    TempData["message"] = $"{post.PostText} has been updated";
+
+                    return RedirectToAction(nameof(ReadPost));
+                } else return new ChallengeResult();
+            } catch {
+                return View(post);
             }
-            return View();
         }
 
         // GET:
@@ -154,6 +162,38 @@ namespace Oblig2_Blogg.Controllers
         {
             try
             {
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        //GET post
+        [Authorize]
+        [HttpGet]
+        public ActionResult CreatePost(int BlogId)
+        {
+            return View();
+        }
+
+        //POST post: Blog/Create
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreatePost(int BlogId,/*[Bind("Title, Content, Created, Modified, NumberOfComments")]*/ Post newPost)
+        {
+            try
+            {
+                if (!ModelState.IsValid) { return View(); }
+
+                newPost.BlogId = BlogId;
+                newPost.Created = DateTime.Now;
+
+                repository.SavePost(newPost, User);
+
+                TempData["message"] = $"{newPost.PostId} har blitt opprettet";
                 return RedirectToAction(nameof(Index));
             }
             catch

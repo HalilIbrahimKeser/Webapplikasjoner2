@@ -15,8 +15,9 @@
 </p>
 <hr />
 <h4> @Model.Description</h4>
+<p>@Html.ActionLink("Create new post", "CreatePost", new { BlogId = @Model.BlogId })</p>
 <hr />
-<p>Comments:....</p>
+<p>Posts:....</p>
 <hr />
 
 <table class="table table-hover">

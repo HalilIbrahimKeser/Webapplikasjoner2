@@ -1,4 +1,4 @@
-﻿@model Oblig2_Blogg.Models.Entities.Post
+﻿@model Oblig2_Blogg.Models.ViewModels.PostViewModel
 
 @{
     ViewData["Title"] = "ReadPost";
@@ -8,6 +8,8 @@
 
 <div>
     <h4>Post</h4>
+    <hr />
+    <p>Comments:....</p>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -37,6 +39,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.PostId">Edit</a> |
+    <a asp-action="EditPost" asp-route-id="@Model.PostId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Data;
+using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Models.Repository
 {
@@ -59,8 +61,33 @@ namespace Oblig2_Blogg.Models.Repository
                             select post;
             return singlePostQuery.FirstOrDefault();
         }
+        public PostViewModel GetPostViewModel(int? id)
+        {
+            PostViewModel p;
+            if (id == null)
+            {
+                p = new PostViewModel();
+            }
+            else
+            {
+                p = (db.Posts.Include(o => o.Comments)
+                    .Where(o => o.PostId == id)
+                    .Select(o => new PostViewModel()
+                        {
+                            PostId = o.PostId,
+                            PostText = o.PostText,
+                            Created = o.Created,
+                            Modified = o.Modified,
+                            BlogId = o.BlogId,
+                            Comments = GetAllComments(id).ToList(),
+                            Owner = o.Owner
+                        }
+                    ).FirstOrDefault());
+            }
+            return p;
+        }
         //GET COMMENTS
-        public IEnumerable<Comment> GetAllComments(int postIdToGet)
+        public IEnumerable<Comment> GetAllComments(int? postIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments;
             var commentsQuery = from comment in comments
@@ -81,61 +108,57 @@ namespace Oblig2_Blogg.Models.Repository
 
         //SAVE BLOG
         [Authorize]
-        public async void SaveBlog(Blog blog, IPrincipal principal)
+        public async Task SaveBlog(Blog blog, ClaimsPrincipal user)
         {
-            var currentUser = manager.FindByNameAsync(principal.Identity.Name);
-            var blogToSave = new Blog();
-            blogToSave.Name = blog.Name;
-            blogToSave.Description = blog.Description;
-            blogToSave.Created = DateTime.Now;  //<----NB created
-            blogToSave.Closed = blog.Closed;
-            blogToSave.Owner = currentUser.Result;
+            var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
 
-            db.Add(blogToSave);
-            db.SaveChanges();
+            blog.Owner = currentUser;
+
+            db.Blogs.Add(blog);
+            await db.SaveChangesAsync();
         }
 
         //UPDATE BLOG
         [Authorize]
-        public async void UpdateBlog(Blog blog, IPrincipal principal)
+        public async void UpdateBlog(Blog blog, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             blog.Modified = DateTime.Now;   //<----NB modified
             blog.Owner = currentUser.Result;
 
             db.Entry(blog).State = EntityState.Modified;
-            db.SaveChanges();
+            db.SaveChangesAsync();
         }
 
         //DELETE BLOG
-        public void DeleteBlog(Blog blog, IPrincipal principal)
+        public void DeleteBlog(Blog blog, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //SAVE POST
         [Authorize]
-        public async void SavePost(Post post, Blog blog, IPrincipal principal)
+        public void SavePost(Post post, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             var postToSave = new Post();
             postToSave.PostText = post.PostText;
             postToSave.Created = DateTime.Now;
-            postToSave.BlogId = blog.BlogId;
+            //postToSave.BlogId = blog.BlogId;
             postToSave.Owner = currentUser.Result;
 
             db.Add(postToSave);
-            db.SaveChanges();
+            db.SaveChangesAsync();
         }
 
         //UPDATE POST
-        public void UpdatePost(Post post, Blog blog, IPrincipal principal)
+        public void UpdatePost(Post post, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //DELETE POST
-        public void DeletePost(Post post, Blog blog, IPrincipal principal)
+        public void DeletePost(Post post, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
@@ -143,30 +166,70 @@ namespace Oblig2_Blogg.Models.Repository
 
         //SAVE COMMENT
         [Authorize]
-        public async void SaveComment(Comment comment, Post post, IPrincipal principal)
+        public async void SaveComment(Comment comment, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             var commentToSave = new Comment();
             commentToSave.CommentText = comment.CommentText;
             commentToSave.Created = DateTime.Now;
-            commentToSave.PostId = post.PostId;
+            //commentToSave.PostId = post.PostId;
             commentToSave.Owner = currentUser.Result;
 
             db.Add(commentToSave);
-            db.SaveChanges();
+            db.SaveChangesAsync();
         }
 
         //UPDATE COMMENT
-        public void UpdateComment(Comment comment, Post post, IPrincipal principal)
+        public void UpdateComment(Comment comment, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //DELETE COMMENT
-        public void DeleteComment(Comment comment, Post post, IPrincipal principal)
+        public void DeleteComment(Comment comment, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
 
+        }
+
+        Task IRepository.UpdateBlog(Blog blog, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.DeleteBlog(Blog blog, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.SavePost(Post post, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.UpdatePost(Post post, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.DeletePost(Post post, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.SaveComment(Comment comment, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.UpdateComment(Comment comment, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IRepository.DeleteComment(Comment comment, ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
         }
     }
 }
