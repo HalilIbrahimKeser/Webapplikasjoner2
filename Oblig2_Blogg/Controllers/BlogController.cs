@@ -21,7 +21,7 @@ namespace Oblig2_Blogg.Controllers
         IAuthorizationService _authorizationService;
 
         //CONSTRUCTOR
-        public BlogController(IRepository repository, IAuthorizationService authorizationService)
+        public BlogController(IRepository repository, IAuthorizationService authorizationService = null)
         {
             this.repository = repository;
             //this.manager = manager;
@@ -127,32 +127,72 @@ namespace Oblig2_Blogg.Controllers
             }
             return View();
         }
+        //GET post
+        //Blog/Comment/Create
+        [Authorize]
+        [HttpGet]
+        public ActionResult CreateComment(int PostId) { return View(); }
+
+        //POST post:
+        //Blog/Comment/Create
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateComment(int PostId, [Bind("CommentId, CommentText, Created, PostId, Owner")] CommentViewModel newCommentViewModel)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var comment = new Comment()
+                    {
+                        CommentText = newCommentViewModel.CommentText,
+                        Created = DateTime.Now,
+                        PostId = PostId,
+                    };
+                    repository.SaveComment(comment, User).Wait();
+                    TempData["message"] = $"{comment.PostId} har blitt opprettet";
+                    return RedirectToAction("ReadPost", new { id = PostId });
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return View();
+            }
+            return View();
+        }
 
         // GET:
         // Post/Edit/5
+        [Authorize]
+        [HttpGet]
         public async Task<ActionResult> EditPost(int id)
         {
             var postToEdit = repository.GetPost(id);
 
-            var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
-            if (!isAutorized.Succeeded)
-            {
-                return View("Ingen tilgang");
-            }
+            //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
+            //if (!isAutorized.Succeeded)
+            //{
+                //return View("Ingen tilgang");
+            //}
 
             return View(postToEdit);
         }
 
         // POST:
         // Post/Edit/5
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditPost(int? BlogId, [Bind("PostId, PostText, Modified, BlogId, Owner")]Post post)
+        public async Task<ActionResult> EditPost(int? id, [Bind("PostId, PostText, Modified, BlogId, Owner")]Post post)
         {
-            if (BlogId == null)
+            if (id == null)
             {
                 return NotFound();
             }
+
+            var blogId = post.BlogId;
 
             try {
                 if (ModelState.IsValid) {
@@ -163,7 +203,7 @@ namespace Oblig2_Blogg.Controllers
 
                     TempData["message"] = $"{post.PostText} has been updated";
 
-                    return RedirectToAction(nameof(ReadPost));
+                    return RedirectToAction("ReadBlog", new { id = blogId });
                 } else return new ChallengeResult();
             } catch {
                 return View(post);
@@ -171,25 +211,37 @@ namespace Oblig2_Blogg.Controllers
         }
 
         // GET:
-        // Blog/Delete/5
-        public ActionResult Delete(int id)
+        // Post/Delete/5
+        public ActionResult DeletePost(int id)
         {
-            return View();
+            var postToDelete = repository.GetPost(id);
+            return View(postToDelete);
         }
 
         // POST:
-        // Blog/Delete/5
+        // Post/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeletePost(int id, IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    var owner = User;
+                    var postToDelete = repository.GetPost(id);
+                    var blogId = postToDelete.BlogId;
+
+                    repository.DeletePost(postToDelete, User).Wait();
+                    TempData["message"] = $"{postToDelete.PostText} has been updated";
+
+                    return RedirectToAction("ReadBlog", new { id = blogId });
+                }
+                else return new ChallengeResult();
             }
             catch
             {
-                return View();
+                return View("Exception thrown");
             }
         }
 

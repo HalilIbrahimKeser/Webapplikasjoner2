@@ -13,7 +13,9 @@
     else
     {@Model.Owner.UserName}
 </p>
+
 <hr />
+
 <h4> @Model.Description</h4>
 <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
 <hr />
@@ -27,26 +29,33 @@
         <th>Created</th>
         <th>Options</th>
     </tr>
-    @foreach (var item in Model.Posts)
+    @try
     {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Owner)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostText)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.ActionLink("Read comments", "ReadPost", new { id = item.PostId }) |
+        @foreach (var item in Model.Posts)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PostText)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.ActionLink("Read comments", "ReadPost", new { id = item.PostId }) |
 
-                @*@Html.ActionLink("Edit", "EditPost", new { id = item.BlogId }) |
+                    @Html.ActionLink("Edit", "EditPost", new { id = item.PostId }) |
 
-                @Html.ActionLink("Delete", "DeletePost", new { id = item.BlogId })*@
-            </td>
-        </tr>
+                    @Html.ActionLink("Delete", "DeletePost", new { id = item.PostId })
+                </td>
+            </tr>
+        }
+    }
+    catch (NullReferenceException e)
+    {
+        //do nothing
     }
 </table>
 

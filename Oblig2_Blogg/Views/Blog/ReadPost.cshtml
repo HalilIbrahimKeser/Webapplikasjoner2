@@ -1,13 +1,15 @@
-﻿@model Oblig2_Blogg.Models.ViewModels.PostViewModel
+﻿@using System.Linq.Expressions
+@model Oblig2_Blogg.Models.ViewModels.PostViewModel
 
 @{
-    ViewData["Title"] = "ReadPost";
-}
+    ViewData["Title"] = "ReadPost"; }
 
-<h1>@Model.Name</h1>
+<h1>Comments on blog</h1>
 <hr />
 <div>
     <h4>Post</h4>
+    <hr />
+    <p>@Html.ActionLink("Create new comment", "CreateComment", new { PostId = @Model.PostId, id = @Model.PostId })</p>
     <hr />
     <p>Comments:....</p>
     <hr />
@@ -19,30 +21,38 @@
         <th>Comment </th>
         <th>Created</th>
     </tr>
-    @foreach (var item in Model.Comment)
+    @try
     {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Owner)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Created)
-        </td>
-        <td>
-            @Html.ActionLink("Read comments", "ReadPost", new { id = item.PostId }) |
+        @foreach (var item in Model.Comments)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CommentText)
+                </td>
+                <td>
+                    @Html.ActionLink("Read comments", "ReadPost", new {id = item.PostId}) |
 
-            @*@Html.ActionLink("Edit", "EditPost", new { id = item.BlogId }) |
+                    @*@Html.ActionLink("Edit", "EditPost", new { id = item.BlogId }) |
 
-            @Html.ActionLink("Delete", "DeletePost", new { id = item.BlogId })*@
-        </td>
-    </tr>
+                    @Html.ActionLink("Delete", "DeletePost", new { id = item.BlogId })*@
+                </td>
+            </tr>
+        }
+    }
+    catch (NullReferenceException e)
+    {
+        //do nothing
     }
 </table>
 
 <div>
     <a asp-action="EditPost" asp-route-id="@Model.PostId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+    <a asp-action="Index">Back to List</a> |
+    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlog", new { id = Model.BlogId })
+    </div>
