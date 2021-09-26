@@ -118,6 +118,18 @@ namespace Oblig2_Blogg.Models.Repository
             await db.SaveChangesAsync();
         }
 
+        //SAVE POST
+        [Authorize]
+        public async Task SavePost(Post post, ClaimsPrincipal user)
+        {
+            var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
+
+            post.Owner = currentUser;
+
+            db.Posts.Add(post);
+            await db.SaveChangesAsync();
+        }
+
         //UPDATE BLOG
         [Authorize]
         public async Task UpdateBlog(Blog blog, ClaimsPrincipal principal)
@@ -136,20 +148,7 @@ namespace Oblig2_Blogg.Models.Repository
             throw new NotImplementedException();
         }
 
-        //SAVE POST
-        [Authorize]
-        public async Task SavePost(Post post, ClaimsPrincipal principal)
-        {
-            var currentUser = manager.FindByNameAsync(principal.Identity.Name);
-            var postToSave = new Post();
-            postToSave.PostText = post.PostText;
-            postToSave.Created = DateTime.Now;
-            //postToSave.BlogId = blog.BlogId;
-            postToSave.Owner = currentUser.Result;
-
-            db.Add(postToSave);
-            await db.SaveChangesAsync();
-        }
+   
 
         //UPDATE POST
         public async Task UpdatePost(Post post, ClaimsPrincipal principal)

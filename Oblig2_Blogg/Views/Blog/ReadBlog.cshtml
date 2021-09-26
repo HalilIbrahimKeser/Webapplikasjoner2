@@ -15,7 +15,7 @@
 </p>
 <hr />
 <h4> @Model.Description</h4>
-<p>@Html.ActionLink("Create new post", "CreatePost", new { BlogId = @Model.BlogId })</p>
+<p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId })</p>
 <hr />
 <p>Posts:....</p>
 <hr />
@@ -42,9 +42,9 @@
             <td>
                 @Html.ActionLink("Read comments", "ReadPost", new { id = item.PostId }) |
 
-                @Html.ActionLink("Edit", "Edit", new { id = item.BlogId }) |
+                @*@Html.ActionLink("Edit", "EditPost", new { id = item.BlogId }) |
 
-                @Html.ActionLink("Delete", "Delete", new { id = item.BlogId })
+                @Html.ActionLink("Delete", "DeletePost", new { id = item.BlogId })*@
             </td>
         </tr>
     }

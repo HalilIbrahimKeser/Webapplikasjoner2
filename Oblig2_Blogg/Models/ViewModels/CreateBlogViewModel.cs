@@ -17,7 +17,6 @@ namespace Oblig2_Blogg.Models.ViewModels
         public string Description { get; set; }
         
         public bool? Closed { get; set; }
-        //public string Description { get; set; } not a requirement
 
         public DateTime Created { get; internal set; }
 
