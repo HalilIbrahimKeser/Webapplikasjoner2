@@ -170,7 +170,7 @@ namespace Oblig2_Blogg.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return View("Feil Terror");
+                return View("Feil kan ikke lage kommentar");
             }
             return View();
         }
@@ -213,9 +213,17 @@ namespace Oblig2_Blogg.Controllers
                     if (ModelState.IsValid)
                     {
                         post.Modified = DateTime.Now;
-                        var owner = User;
+                        //var owner = post.Owner.UserName;
 
-                        repository.UpdatePost(post, User).Wait();
+                        //if (owner == User.Identity.Name.ToString())
+                        //{
+                            repository.UpdatePost(post, User).Wait();
+                        //}
+                        //else
+                        // {
+                            //return View("Kan ikke endre andre sine post");
+                        //}
+                        
 
                         TempData["message"] = $"{post.PostText} has been updated";
 
@@ -225,7 +233,7 @@ namespace Oblig2_Blogg.Controllers
                 }
                 catch
                 {
-                    return View("Virker ikke!");
+                    return View("Kan ikke redigere post");
                 }
             }
             else
@@ -277,8 +285,6 @@ namespace Oblig2_Blogg.Controllers
             }
         }
 
-
-
         // GET:
         // Post/Comment/Delete/5
         public ActionResult DeleteComment(int id)
@@ -309,8 +315,6 @@ namespace Oblig2_Blogg.Controllers
                 return View("Fikk ikk slettett kommentar");
             }
         }
-
-
 
         // GET:
         // Post/Coomment/Edit/5

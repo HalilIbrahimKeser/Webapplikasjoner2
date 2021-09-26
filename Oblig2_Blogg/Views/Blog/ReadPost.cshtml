@@ -19,28 +19,33 @@
     <tr>
         <th>User</th>
         <th>Created</th>
+        <th>Modified </th>
         <th>Comment </th>
+        <th>Options</th>
     </tr>
     @try
     {
         @foreach (var item in Model.Comments)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Owner.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Created)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CommentText)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "EditComment", new { id = item.PostId }) |
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => item.Owner.UserName)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Created)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Modified)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.CommentText)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "EditComment", new { id = item.PostId }) |
 
-                    @Html.ActionLink("Delete", "DeleteComment", new { id = item.PostId })
-                </td>
-            </tr>
+        @Html.ActionLink("Delete", "DeleteComment", new { id = item.PostId })
+    </td>
+</tr>
         }
     }
     catch (NullReferenceException e)
