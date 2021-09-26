@@ -120,7 +120,7 @@ namespace Oblig2_Blogg.Models.Repository
 
         //UPDATE BLOG
         [Authorize]
-        public async void UpdateBlog(Blog blog, ClaimsPrincipal principal)
+        public async Task UpdateBlog(Blog blog, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             blog.Modified = DateTime.Now;   //<----NB modified
@@ -131,14 +131,14 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
         //DELETE BLOG
-        public void DeleteBlog(Blog blog, ClaimsPrincipal principal)
+        public async Task DeleteBlog(Blog blog, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //SAVE POST
         [Authorize]
-        public void SavePost(Post post, ClaimsPrincipal principal)
+        public async Task SavePost(Post post, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             var postToSave = new Post();
@@ -148,17 +148,17 @@ namespace Oblig2_Blogg.Models.Repository
             postToSave.Owner = currentUser.Result;
 
             db.Add(postToSave);
-            db.SaveChangesAsync();
+            await db.SaveChangesAsync();
         }
 
         //UPDATE POST
-        public void UpdatePost(Post post, ClaimsPrincipal principal)
+        public async Task UpdatePost(Post post, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //DELETE POST
-        public void DeletePost(Post post, ClaimsPrincipal principal)
+        public async Task DeletePost(Post post, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
@@ -166,7 +166,7 @@ namespace Oblig2_Blogg.Models.Repository
 
         //SAVE COMMENT
         [Authorize]
-        public async void SaveComment(Comment comment, ClaimsPrincipal principal)
+        public async Task SaveComment(Comment comment, ClaimsPrincipal principal)
         {
             var currentUser = manager.FindByNameAsync(principal.Identity.Name);
             var commentToSave = new Comment();
@@ -176,60 +176,20 @@ namespace Oblig2_Blogg.Models.Repository
             commentToSave.Owner = currentUser.Result;
 
             db.Add(commentToSave);
-            db.SaveChangesAsync();
+            await db.SaveChangesAsync();
         }
 
         //UPDATE COMMENT
-        public void UpdateComment(Comment comment, ClaimsPrincipal principal)
+        public async Task UpdateComment(Comment comment, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
         }
 
         //DELETE COMMENT
-        public void DeleteComment(Comment comment, ClaimsPrincipal principal)
+        public async Task DeleteComment(Comment comment, ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
 
-        }
-
-        Task IRepository.UpdateBlog(Blog blog, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.DeleteBlog(Blog blog, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.SavePost(Post post, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.UpdatePost(Post post, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.DeletePost(Post post, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.SaveComment(Comment comment, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.UpdateComment(Comment comment, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IRepository.DeleteComment(Comment comment, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
         }
     }
 }
