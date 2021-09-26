@@ -18,8 +18,8 @@
 <table class="table table-hover">
     <tr>
         <th>User</th>
-        <th>Comment </th>
         <th>Created</th>
+        <th>Comment </th>
     </tr>
     @try
     {
@@ -36,11 +36,9 @@
                     @Html.DisplayFor(modelItem => item.CommentText)
                 </td>
                 <td>
-                    @Html.ActionLink("Read comments", "ReadPost", new {id = item.PostId}) |
+                    @Html.ActionLink("Edit", "EditComment", new { id = item.PostId }) |
 
-                    @*@Html.ActionLink("Edit", "EditPost", new { id = item.BlogId }) |
-
-                    @Html.ActionLink("Delete", "DeletePost", new { id = item.BlogId })*@
+                    @Html.ActionLink("Delete", "DeleteComment", new { id = item.PostId })
                 </td>
             </tr>
         }

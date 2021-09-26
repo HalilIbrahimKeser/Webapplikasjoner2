@@ -110,16 +110,28 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult CreatePost(int blogId, [Bind("PostText, Created, BlogId, Owner")] PostViewModel newPostViewModel) 
         {
             try {
-                if (ModelState.IsValid) {
-                    var post = new Post()
+                if (ModelState.IsValid)
+                {
+                    var blog = repository.GetBlog(blogId);
+                    if (blog.Closed == false)
                     {
-                        PostText = newPostViewModel.PostText,
-                        Created = DateTime.Now,
-                        BlogId = blogId,
-                    };
-                    repository.SavePost(post, User).Wait();
-                    TempData["message"] = $"{post.PostId} har blitt opprettet";
-                    return RedirectToAction("ReadBlog", new { id = blogId });
+                        var post = new Post()
+                        {
+                            PostText = newPostViewModel.PostText,
+                            Created = DateTime.Now,
+                            BlogId = blogId,
+                        };
+                        repository.SavePost(post, User).Wait();
+                        TempData["message"] = $"{post.PostId} har blitt opprettet";
+                        return RedirectToAction("ReadBlog", new { id = blogId });
+                    }
+                    else
+                    {
+                        return View("Låst for endringer");
+                    }
+
+
+                   
                 }
             } catch (Exception e) 
             { Console.WriteLine(e); 
@@ -158,7 +170,7 @@ namespace Oblig2_Blogg.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return View();
+                return View("Feil Terror");
             }
             return View();
         }
@@ -191,22 +203,34 @@ namespace Oblig2_Blogg.Controllers
             {
                 return NotFound();
             }
-
             var blogId = post.BlogId;
 
-            try {
-                if (ModelState.IsValid) {
-                    post.Modified = DateTime.Now;
-                    var owner = User;
+            var blog = repository.GetBlog(blogId);
+            if (blog.Closed == false)
+            {
+                try
+                {
+                    if (ModelState.IsValid)
+                    {
+                        post.Modified = DateTime.Now;
+                        var owner = User;
 
-                    repository.UpdatePost(post, User).Wait();
+                        repository.UpdatePost(post, User).Wait();
 
-                    TempData["message"] = $"{post.PostText} has been updated";
+                        TempData["message"] = $"{post.PostText} has been updated";
 
-                    return RedirectToAction("ReadBlog", new { id = blogId });
-                } else return new ChallengeResult();
-            } catch {
-                return View(post);
+                        return RedirectToAction("ReadBlog", new { id = blogId });
+                    }
+                    else return new ChallengeResult();
+                }
+                catch
+                {
+                    return View("Virker ikke!");
+                }
+            }
+            else
+            {
+                return View("Låst for endringer");
             }
         }
 
@@ -232,10 +256,18 @@ namespace Oblig2_Blogg.Controllers
                     var postToDelete = repository.GetPost(id);
                     var blogId = postToDelete.BlogId;
 
-                    repository.DeletePost(postToDelete, User).Wait();
-                    TempData["message"] = $"{postToDelete.PostText} has been updated";
+                    var blog = repository.GetBlog(blogId);
+                    if (blog.Closed == false)
+                    {
+                        repository.DeletePost(postToDelete, User).Wait();
+                        TempData["message"] = $"{postToDelete.PostText} has been updated";
 
-                    return RedirectToAction("ReadBlog", new { id = blogId });
+                        return RedirectToAction("ReadBlog", new { id = blogId });
+                    }
+                    else
+                    {
+                        return View("Kan ikke slette");
+                    }
                 }
                 else return new ChallengeResult();
             }
@@ -244,6 +276,86 @@ namespace Oblig2_Blogg.Controllers
                 return View("Exception thrown");
             }
         }
+
+
+
+        // GET:
+        // Post/Comment/Delete/5
+        public ActionResult DeleteComment(int id)
+        {
+            var commentToDelete = repository.GetComment(id);
+            return View(commentToDelete);
+        }
+        // POST:
+        // Post/Comment/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteComment(int id, IFormCollection collection)
+        {
+            try {
+                if (ModelState.IsValid)
+                {
+                    var owner = User;
+                    var commentToDelete = repository.GetComment(id);
+                    var postId = commentToDelete.PostId;
+
+                    repository.DeleteComment(commentToDelete, User).Wait();
+                    TempData["message"] = $"{commentToDelete.CommentText} has been updated";
+
+                    return RedirectToAction("ReadPost", new { id = postId });
+                }
+                else return new ChallengeResult();
+            } catch {
+                return View("Fikk ikk slettett kommentar");
+            }
+        }
+
+
+
+        // GET:
+        // Post/Coomment/Edit/5
+        [Authorize]
+        [HttpGet]
+        public ActionResult EditComment(int id)
+        {
+            var commentToEdit = repository.GetComment(id);
+
+            //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
+            //if (!isAutorized.Succeeded)
+            //{
+            //return View("Ingen tilgang");
+            //}
+
+            return View(commentToEdit);
+        }
+
+        // POST:
+        // Post/Coomment/Edit/5
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post, Owner")] Comment comment)
+        {
+            if (id == null) {
+                return NotFound();
+            }
+            var postId = comment.PostId;
+            try {
+                if (ModelState.IsValid) {
+                    comment.Modified = DateTime.Now;
+                    var owner = User;
+
+                    repository.UpdateComment(comment, User).Wait();
+
+                    TempData["message"] = $"{comment.CommentText} has been updated";
+
+                    return RedirectToAction("ReadPost", new { id = postId });
+                } else return new ChallengeResult();
+            } catch {
+                return View("Fikk ikke endret commentar");
+            }
+        }
+
 
     }
 }

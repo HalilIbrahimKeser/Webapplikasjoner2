@@ -17,7 +17,12 @@
 <hr />
 
 <h4> @Model.Description</h4>
-<p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
+
+@if (@Model.Closed == false)
+{
+    <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
+}
+
 <hr />
 <p>Posts:....</p>
 <hr />
@@ -44,7 +49,7 @@
                     @Html.DisplayFor(modelItem => item.Created)
                 </td>
                 <td>
-                    @Html.ActionLink("Read comments", "ReadPost", new { id = item.PostId }) |
+                    @Html.ActionLink("Read post", "ReadPost", new { id = item.PostId }) |
 
                     @Html.ActionLink("Edit", "EditPost", new { id = item.PostId }) |
 

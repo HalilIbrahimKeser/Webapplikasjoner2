@@ -164,6 +164,17 @@ namespace Oblig2_Blogg.Models.Repository
             db.Entry(post).State = EntityState.Modified;
             await db.SaveChangesAsync();
         }
+        //UPDATE COMMENT
+        public async Task UpdateComment(Comment comment, ClaimsPrincipal principal)
+        {
+            var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
+            comment.Modified = DateTime.Now;   //<----NB modified
+            comment.Owner = currentUser;
+
+            db.Entry(comment).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+        }
+
 
         //DELETE BLOG
         public async Task DeleteBlog(Blog blog, ClaimsPrincipal principal)
@@ -179,18 +190,14 @@ namespace Oblig2_Blogg.Models.Repository
             await db.SaveChangesAsync();
         }
 
-
-        //UPDATE COMMENT
-        public async Task UpdateComment(Comment comment, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         //DELETE COMMENT
         public async Task DeleteComment(Comment comment, ClaimsPrincipal principal)
         {
-            throw new NotImplementedException();
+            db.Comments.Remove(comment);
+            await db.SaveChangesAsync();
 
         }
+
     }
 }
