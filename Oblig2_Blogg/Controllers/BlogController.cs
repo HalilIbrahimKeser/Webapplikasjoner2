@@ -101,7 +101,17 @@ namespace Oblig2_Blogg.Controllers
         //Blog/Post/Create
         [Authorize]
         [HttpGet]
-        public ActionResult CreatePost(int blogId) { return View(); }
+        public ActionResult CreatePost(int blogId)
+        {
+            var blog = repository.GetBlog(blogId);
+            if (!blog.Closed)
+            {
+                return View();
+            }
+            TempData["message"] = "Bloggen er stengt for kommentar og innlegg";
+
+            return RedirectToAction("ReadBlog", new { id = blogId });
+        }
 
         //POST post:
         //Blog/Post/Create
@@ -130,9 +140,6 @@ namespace Oblig2_Blogg.Controllers
                     {
                         return ViewBag("Låst for endringer");
                     }
-
-
-                   
                 }
             } catch (Exception e) 
             { Console.WriteLine(e); 
