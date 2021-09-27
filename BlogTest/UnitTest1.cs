@@ -54,6 +54,7 @@ namespace BlogTest
             posts = new List<Post>
                 {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
             };
+
             post = new Post
             {PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1
             };

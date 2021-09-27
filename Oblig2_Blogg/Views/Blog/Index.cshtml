@@ -34,9 +34,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Created)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Modified)
-            </th>
+            
             <th></th>
         </tr>
     </thead>
@@ -52,9 +50,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Modified)
                 </td>
                 <td>
                     @Html.ActionLink("Enter the blog", "ReadBlog", new {  id=item.BlogId }) |
