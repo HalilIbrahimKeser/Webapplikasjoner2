@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "ReadPost"; }
 
-<h1>Comments on blog</h1>
+<h1>@Model.PostText</h1>
 <hr />
 <div>
     <h4>Post</h4>
@@ -27,35 +27,34 @@
     {
         @foreach (var item in Model.Comments)
         {
-<tr>
-    <td>
-        @Html.DisplayFor(modelItem => item.Owner.UserName)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.Created)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.Modified)
-    </td>
-    <td>
-        @Html.DisplayFor(modelItem => item.CommentText)
-    </td>
-    <td>
-        @Html.ActionLink("Edit", "EditComment", new { id = item.PostId }) |
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Modified)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CommentText)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "EditComment", new { id = item.CommentId }) |
 
-        @Html.ActionLink("Delete", "DeleteComment", new { id = item.PostId })
-    </td>
-</tr>
+                    @Html.ActionLink("Delete", "DeleteComment", new { id = item.CommentId })
+                </td>
+            </tr>
         }
     }
     catch (NullReferenceException e)
     {
-        //do nothing
+        //Ingen kommentarer
     }
 </table>
 
 <div>
-    <a asp-action="EditPost" asp-route-id="@Model.PostId">Edit</a> |
     <a asp-action="Index">Back to List</a> |
     @Html.ActionLink("Gå tilbake til innlegg", "ReadBlog", new { id = Model.BlogId })
     </div>

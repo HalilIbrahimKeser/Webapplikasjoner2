@@ -102,14 +102,14 @@ namespace Oblig2_Blogg.Models.Repository
         {
             IEnumerable<Comment> comments = db.Comments;
             var singleCommentQuery = from comment in comments
-                                  where comment.PostId == commentIdToGet
+                                  where comment.CommentId == commentIdToGet
                                   select comment;
             return singleCommentQuery.FirstOrDefault();
         }
 
         //SAVE BLOG
         [Authorize]
-        public async Task SaveBlog(Blog blog, ClaimsPrincipal user)
+        public async Task SaveBlog(Blog blog)
         {
             var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
 

@@ -20,6 +20,7 @@ namespace Oblig2_Blogg.Controllers
         //private UserManager<IdentityUser> manager;
         IAuthorizationService _authorizationService;
 
+
         //CONSTRUCTOR
         public BlogController(IRepository repository, IAuthorizationService authorizationService = null)
         {
@@ -127,7 +128,7 @@ namespace Oblig2_Blogg.Controllers
                     }
                     else
                     {
-                        return View("Låst for endringer");
+                        return ViewBag("Låst for endringer");
                     }
 
 
@@ -170,7 +171,7 @@ namespace Oblig2_Blogg.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return View("Feil kan ikke lage kommentar");
+                return ViewBag("Feil kan ikke lage kommentar");
             }
             return View();
         }
@@ -215,9 +216,10 @@ namespace Oblig2_Blogg.Controllers
                         post.Modified = DateTime.Now;
                         //var owner = post.Owner.UserName;
 
-                        //if (owner == User.Identity.Name.ToString())
+                        //Finner ingenting på nett hvordan jeg kan sjekke bruker mot innlogget bruker
+                        ///if (owner == ControllerContext..Where(x => x.UserName == userName).Select(x => x.Id).FirstOrDefault();)
                         //{
-                            repository.UpdatePost(post, User).Wait();
+                        repository.UpdatePost(post, User).Wait();
                         //}
                         //else
                         // {
@@ -233,12 +235,61 @@ namespace Oblig2_Blogg.Controllers
                 }
                 catch
                 {
-                    return View("Kan ikke redigere post");
+                    return ViewBag("Kan ikke redigere post");
                 }
             }
             else
             {
-                return View("Låst for endringer");
+                return ViewBag("Låst for endringer");
+            }
+        }
+
+        // GET:
+        // Post/Coomment/Edit/5
+        [Authorize]
+        [HttpGet]
+        public ActionResult EditComment(int id)
+        {
+            var commentToEdit = repository.GetComment(id);
+
+            //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
+            //if (!isAutorized.Succeeded)
+            //{
+            //return View("Ingen tilgang");
+            //}
+
+            return View(commentToEdit);
+        }
+
+        // POST:
+        // Post/Coomment/Edit/5
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Modified, PostId, Post, Owner")] Comment comment)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var postId = comment.PostId;
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    comment.Modified = DateTime.Now;
+
+                    repository.UpdateComment(comment, User).Wait();
+
+                    TempData["message"] = $"{comment.CommentText} has been updated";
+
+                    return RedirectToAction("ReadPost", new { id = postId });
+                }
+                else return new ChallengeResult();
+            }
+            catch
+            {
+                return ViewBag("Fikk ikke endret commentar");
             }
         }
 
@@ -274,14 +325,14 @@ namespace Oblig2_Blogg.Controllers
                     }
                     else
                     {
-                        return View("Kan ikke slette");
+                        return ViewBag("Kan ikke slette");
                     }
                 }
                 else return new ChallengeResult();
             }
             catch
             {
-                return View("Exception thrown");
+                return ViewBag("Exception thrown");
             }
         }
 
@@ -312,53 +363,11 @@ namespace Oblig2_Blogg.Controllers
                 }
                 else return new ChallengeResult();
             } catch {
-                return View("Fikk ikk slettett kommentar");
+                return ViewBag("Fikk ikk slettett kommentar");
             }
         }
 
-        // GET:
-        // Post/Coomment/Edit/5
-        [Authorize]
-        [HttpGet]
-        public ActionResult EditComment(int id)
-        {
-            var commentToEdit = repository.GetComment(id);
-
-            //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
-            //if (!isAutorized.Succeeded)
-            //{
-            //return View("Ingen tilgang");
-            //}
-
-            return View(commentToEdit);
-        }
-
-        // POST:
-        // Post/Coomment/Edit/5
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post, Owner")] Comment comment)
-        {
-            if (id == null) {
-                return NotFound();
-            }
-            var postId = comment.PostId;
-            try {
-                if (ModelState.IsValid) {
-                    comment.Modified = DateTime.Now;
-                    var owner = User;
-
-                    repository.UpdateComment(comment, User).Wait();
-
-                    TempData["message"] = $"{comment.CommentText} has been updated";
-
-                    return RedirectToAction("ReadPost", new { id = postId });
-                } else return new ChallengeResult();
-            } catch {
-                return View("Fikk ikke endret commentar");
-            }
-        }
+   
 
 
     }

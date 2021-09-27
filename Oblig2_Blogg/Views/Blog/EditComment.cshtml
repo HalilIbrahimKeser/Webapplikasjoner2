@@ -33,7 +33,9 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to List</a>|
+    @Html.ActionLink("Gå tilbake til innlegg", "ReadPost", new { id = Model.PostId })
+    
 </div>
 
 @section Scripts {
