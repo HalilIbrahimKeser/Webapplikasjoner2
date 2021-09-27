@@ -21,7 +21,7 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public DateTime? Modified { get; internal set; }
 
-        public bool? Closed { get; set; }
+        public bool Closed { get; set; }
 
         //INNLEGG
         public virtual List<Post> Posts { get; set; }

@@ -114,7 +114,7 @@ namespace Oblig2_Blogg.Controllers
                 if (ModelState.IsValid)
                 {
                     var blog = repository.GetBlog(blogId);
-                    if (blog.Closed == false)
+                    if (!blog.Closed)
                     {
                         var post = new Post()
                         {
@@ -205,7 +205,7 @@ namespace Oblig2_Blogg.Controllers
             var blogId = post.BlogId;
 
             var blog = repository.GetBlog(blogId);
-            if (blog.Closed == false)
+            if (!blog.Closed)
             {
                 try {
                     if (ModelState.IsValid) {
@@ -265,8 +265,7 @@ namespace Oblig2_Blogg.Controllers
             try {
                 if (ModelState.IsValid) {
                     comment.Modified = DateTime.Now;
-                    comment.Created = comment.Created;
-
+                   
                     repository.UpdateComment(comment).Wait();
                     TempData["message"] = $"{comment.CommentText} has been updated";
                     return RedirectToAction("ReadPost", new { id = postId });
@@ -287,6 +286,7 @@ namespace Oblig2_Blogg.Controllers
         // POST:
         // Post/Delete/5
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult DeletePost(int id, IFormCollection collection)
         {
@@ -297,7 +297,7 @@ namespace Oblig2_Blogg.Controllers
                     var blogId = postToDelete.BlogId;
 
                     var blog = repository.GetBlog(blogId);
-                    if (blog.Closed == false)
+                    if (!blog.Closed)
                     {
                         repository.DeletePost(postToDelete).Wait();
                         TempData["message"] = $"{postToDelete.PostText} has been updated";
@@ -325,6 +325,7 @@ namespace Oblig2_Blogg.Controllers
         // POST:
         // Post/Comment/Delete/5
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteComment(int id, IFormCollection collection)
         {

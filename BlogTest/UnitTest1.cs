@@ -12,26 +12,32 @@ using Oblig2_Blogg.Models.Entities;
 using Oblig2_Blogg.Models.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Oblig2_Blogg.Models.ViewModels;
+
+using Oblig2_Blogg;
 
 namespace BlogTest
 {
     [TestClass]
     public class UnitTest1
     {
-        /*
+        
         //TODO skal det være Repository eller IRepository?
-        private Mock<Repository> repository;
+        private Mock<IRepository> repository;
         private Mock<IPrincipal> user;
 
         private List<Blog> blogs;
         private List<Post> posts;
         private List<Comment> comments;
+        private Post post;
+        private Comment comment;
 
         [TestInitialize]
         public void SetupContext()
         {
-            repository = new Mock<Repository>();
+            repository = new Mock<IRepository>();
             blogs = new List<Blog>
             {
                 new Blog {Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
@@ -41,8 +47,12 @@ namespace BlogTest
             };
 
 
+
             posts = new List<Post>
                 {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
+            };
+            post = new Post
+            {PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1
             };
 
             comments = new List<Comment>
@@ -51,6 +61,24 @@ namespace BlogTest
 
 
           
+        }
+
+        [TestMethod]
+        public void CreateShouldShowLoginViewFor_Non_AuthorizedUser()
+        {
+            // Arrange
+            var mockUserManager = MockHelpers.MockUserManager<IdentityUser>();
+            var mockRepo = new Mock<IRepository>();
+            //var controller = new BlogController(mockRepo.Object, mockUserManager.Object);
+            //controller.ControllerContext = MockHelpers.FakeControllerContext(false);
+
+            // Act
+            //var result = controller.Create() as ViewResult;
+
+            // Assert
+            //Assert.IsNotNull(result);
+            //Assert.IsNull(result.ViewName);
+
         }
 
         [TestMethod]
@@ -85,10 +113,49 @@ namespace BlogTest
         }
 
         [TestMethod]
+        public void IndexReturnsAllPosts()
+        {
+            // Arrange
+            repository.Setup(x => x.GetAllPosts(1)).Returns(posts);
+            var controller = new BlogController(repository.Object);
+
+            // Act
+            var result = controller.Index() as ViewResult;
+
+            // Assert                
+            CollectionAssert.AllItemsAreInstancesOfType((ICollection)result.ViewData.Model, typeof(Post));
+            Assert.IsNotNull(result, "View Result is null");
+
+            var postOriginal = result.ViewData.Model as List<Post>;
+           // Assert.AreEqual(blogs.Count, postOriginal.Count, "Got wrong number of blogs");
+        }
+
+        [TestMethod]
         public void CreateReturnsNotNullResult()
         {
             // Arrange
+            Mock<IRepository> repository = new Mock<IRepository>();
             var controller = new BlogController(repository.Object);
+            var post1 = new PostViewModel()
+            {
+                PostId = 1,
+                PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide",
+                BlogId = 1
+            };
+
+            // Act
+            var result = controller.CreatePost(1, post1);
+
+            // Assert
+            //repository.Verify(r => r.SavePost(post1, ClaimsPrincipal.Current));
+        }
+
+        [TestMethod]
+        public void CreateReturnsNotNullResult1()
+        {
+            // Arrange
+            var controller = new BlogController(repository.Object);
+
 
             // Act
             var result = (ViewResult)controller.Create();
@@ -96,6 +163,7 @@ namespace BlogTest
             // Assert
             Assert.IsNotNull(result, "View Result is null");
         }
+
 
         [TestMethod]
         public void SaveIsCalledWhenProductIsCreated()
@@ -107,7 +175,7 @@ namespace BlogTest
             var controller = new BlogController(repository.Object);            
         
             // Act
-            var result = controller.Create(new Blog());            
+            var result = controller.Create(new CreateBlogViewModel());            
             
             // Assert
             //TODO
@@ -132,7 +200,7 @@ namespace BlogTest
                 controller.ModelState.AddModelError(validationResult.MemberNames.First(),
                     validationResult.ErrorMessage);
 
-            var result = controller.Create(viewModel) as ViewResult;
+            var result = controller.Create(new CreateBlogViewModel()) as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -154,11 +222,11 @@ namespace BlogTest
             var viewModel = new Blog { BlogId = 1, Name = "Tur til Australia", Closed = false, Description = "Fortelling av turopplevelser" };
 
             // Act
-            var result = controller.Create(viewModel) as RedirectToActionResult;
+            var result = controller.Create(new CreateBlogViewModel()) as RedirectToActionResult;
 
             // Assert
             Assert.IsNotNull(result, "RedirectToIndex needs to redirect to the Index action");
             Assert.AreEqual("Index", result.ActionName);
-        }*/
+        }
     }
 }
