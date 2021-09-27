@@ -121,7 +121,6 @@ namespace Oblig2_Blogg.Controllers
                             PostText = newPostViewModel.PostText,
                             Created = DateTime.Now,
                             BlogId = blogId,
-                            //Owner = User.Identity.Name.
                         };
                         repository.SavePost(post, User).Wait();
                         TempData["message"] = $"{post.PostId} har blitt opprettet";
@@ -184,13 +183,11 @@ namespace Oblig2_Blogg.Controllers
         public async Task<ActionResult> EditPost(int id)
         {
             var postToEdit = repository.GetPost(id);
-
             //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
             //if (!isAutorized.Succeeded)
             //{
                 //return View("Ingen tilgang");
             //}
-
             return View(postToEdit);
         }
 
@@ -199,7 +196,7 @@ namespace Oblig2_Blogg.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditPost(int? id, [Bind("PostId, PostText, Modified, BlogId, Owner")]Post post)
+        public async Task<ActionResult> EditPost(int? id, [Bind("PostId, PostText, Modified, BlogId")]Post post)
         {
             if (id == null)
             {
@@ -210,33 +207,26 @@ namespace Oblig2_Blogg.Controllers
             var blog = repository.GetBlog(blogId);
             if (blog.Closed == false)
             {
-                try
-                {
-                    if (ModelState.IsValid)
-                    {
+                try {
+                    if (ModelState.IsValid) {
                         post.Modified = DateTime.Now;
                         //var owner = post.Owner.UserName;
 
                         //Finner ingenting på nett hvordan jeg kan sjekke bruker mot innlogget bruker
                         ///if (owner == ControllerContext..Where(x => x.UserName == userName).Select(x => x.Id).FirstOrDefault();)
                         //{
-                        repository.UpdatePost(post, User).Wait();
+                        repository.UpdatePost(post).Wait();
                         //}
                         //else
                         // {
                             //return View("Kan ikke endre andre sine post");
                         //}
                         
-
                         TempData["message"] = $"{post.PostText} has been updated";
-
                         return RedirectToAction("ReadBlog", new { id = blogId });
-                    }
-                    else return new ChallengeResult();
-                }
-                catch
-                {
-                    return ViewBag("Kan ikke redigere post");
+                    } else return new ChallengeResult();
+                } catch
+                { return ViewBag("Kan ikke redigere post");
                 }
             }
             else
@@ -252,13 +242,11 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult EditComment(int id)
         {
             var commentToEdit = repository.GetComment(id);
-
             //var isAutorized = await _authorizationService.AuthorizeAsync(User, postToEdit, BlogOperations.Update);
             //if (!isAutorized.Succeeded)
             //{
             //return View("Ingen tilgang");
             //}
-
             return View(commentToEdit);
         }
 
@@ -267,29 +255,23 @@ namespace Oblig2_Blogg.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Modified, PostId, Post, Owner")] Comment comment)
+        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Modified, PostId, Post")] Comment comment)
         {
             if (id == null)
             {
                 return NotFound();
             }
             var postId = comment.PostId;
-            try
-            {
-                if (ModelState.IsValid)
-                {
+            try {
+                if (ModelState.IsValid) {
                     comment.Modified = DateTime.Now;
+                    comment.Created = comment.Created;
 
-                    repository.UpdateComment(comment, User).Wait();
-
+                    repository.UpdateComment(comment).Wait();
                     TempData["message"] = $"{comment.CommentText} has been updated";
-
                     return RedirectToAction("ReadPost", new { id = postId });
-                }
-                else return new ChallengeResult();
-            }
-            catch
-            {
+                } else return new ChallengeResult();
+            } catch {
                 return ViewBag("Fikk ikke endret commentar");
             }
         }
@@ -308,10 +290,8 @@ namespace Oblig2_Blogg.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeletePost(int id, IFormCollection collection)
         {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+            try {
+                if (ModelState.IsValid) {
                     var owner = User;
                     var postToDelete = repository.GetPost(id);
                     var blogId = postToDelete.BlogId;
@@ -319,14 +299,12 @@ namespace Oblig2_Blogg.Controllers
                     var blog = repository.GetBlog(blogId);
                     if (blog.Closed == false)
                     {
-                        repository.DeletePost(postToDelete, User).Wait();
+                        repository.DeletePost(postToDelete).Wait();
                         TempData["message"] = $"{postToDelete.PostText} has been updated";
 
                         return RedirectToAction("ReadBlog", new { id = blogId });
-                    }
-                    else
-                    {
-                        return ViewBag("Kan ikke slette");
+                    } else
+                    { return ViewBag("Kan ikke slette");
                     }
                 }
                 else return new ChallengeResult();
@@ -357,7 +335,7 @@ namespace Oblig2_Blogg.Controllers
                     var commentToDelete = repository.GetComment(id);
                     var postId = commentToDelete.PostId;
 
-                    repository.DeleteComment(commentToDelete, User).Wait();
+                    repository.DeleteComment(commentToDelete).Wait();
                     TempData["message"] = $"{commentToDelete.CommentText} has been updated";
 
                     return RedirectToAction("ReadPost", new { id = postId });
