@@ -62,6 +62,8 @@ namespace Oblig2_Blogg.Models.Repository
                             select post;
             return singlePostQuery.FirstOrDefault();
         }
+
+        //GET POSTVIEWMODEL
         public PostViewModel GetPostViewModel(int? id)
         {
             PostViewModel p;
@@ -107,9 +109,12 @@ namespace Oblig2_Blogg.Models.Repository
             return singleCommentQuery.FirstOrDefault();
         }
 
+
+
+
         //SAVE BLOG
         [Authorize]
-        public async Task SaveBlog(Blog blog)
+        public async Task SaveBlog(Blog blog, ClaimsPrincipal user)
         {
             var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
 
@@ -142,62 +147,46 @@ namespace Oblig2_Blogg.Models.Repository
             await db.SaveChangesAsync();
         }
 
+
+
+
         //UPDATE BLOG
         [Authorize]
-        public async Task UpdateBlog(Blog blog, ClaimsPrincipal principal)
+        public async Task UpdateBlog(Blog blog)
         {
-            var currentUser = manager.FindByNameAsync(principal.Identity.Name);
-            blog.Modified = DateTime.Now;   //<----NB modified
-            blog.Owner = currentUser.Result;
-
             db.Entry(blog).State = EntityState.Modified;
             db.SaveChangesAsync();
-        } 
-        
+        }
         //UPDATE POST
-        public async Task UpdatePost(Post post, ClaimsPrincipal principal)
+        [Authorize]
+        public async Task UpdatePost(Post post)
         {
-            var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
-            post.Modified = DateTime.Now;   //<----NB modified
-            post.Owner = currentUser;
-
             db.Entry(post).State = EntityState.Modified;
             await db.SaveChangesAsync();
         }
         //UPDATE COMMENT
-        public async Task UpdateComment(Comment comment, ClaimsPrincipal principal)
+        [Authorize]
+        public async Task UpdateComment(Comment comment)
         {
-            var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
-            comment.Modified = DateTime.Now;   //<----NB modified
-            comment.Owner = currentUser;
-
             db.Entry(comment).State = EntityState.Modified;
             await db.SaveChangesAsync();
         }
 
 
-        //DELETE BLOG
-        public async Task DeleteBlog(Blog blog, ClaimsPrincipal principal)
-        {
-            throw new NotImplementedException();
-        }
 
-        
         //DELETE POST
-        public async Task DeletePost(Post post, ClaimsPrincipal principal)
+        [Authorize]
+        public async Task DeletePost(Post post)
         {
             db.Posts.Remove(post);
             await db.SaveChangesAsync();
         }
-
-    
         //DELETE COMMENT
-        public async Task DeleteComment(Comment comment, ClaimsPrincipal principal)
+        [Authorize]
+        public async Task DeleteComment(Comment comment)
         {
             db.Comments.Remove(comment);
             await db.SaveChangesAsync();
-
         }
-
     }
 }

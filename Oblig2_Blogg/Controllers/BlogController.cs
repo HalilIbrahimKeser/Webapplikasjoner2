@@ -17,7 +17,7 @@ namespace Oblig2_Blogg.Controllers
     public class BlogController : Controller
     {
         private readonly IRepository repository;
-        //private UserManager<IdentityUser> manager;
+        private UserManager<IdentityUser> manager;
         IAuthorizationService _authorizationService;
 
 
@@ -25,7 +25,7 @@ namespace Oblig2_Blogg.Controllers
         public BlogController(IRepository repository, IAuthorizationService authorizationService = null)
         {
             this.repository = repository;
-            //this.manager = manager;
+            //this.manager = User;
             _authorizationService = authorizationService;
         }
 
@@ -121,6 +121,7 @@ namespace Oblig2_Blogg.Controllers
                             PostText = newPostViewModel.PostText,
                             Created = DateTime.Now,
                             BlogId = blogId,
+                            //Owner = User.Identity.Name.
                         };
                         repository.SavePost(post, User).Wait();
                         TempData["message"] = $"{post.PostId} har blitt opprettet";
