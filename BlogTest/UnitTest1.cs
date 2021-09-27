@@ -12,11 +12,14 @@ using Oblig2_Blogg.Models.Entities;
 using Oblig2_Blogg.Models.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Models.ViewModels;
 
 using Oblig2_Blogg;
+using Oblig2_Blogg.Data;
 
 namespace BlogTest
 {
@@ -79,6 +82,52 @@ namespace BlogTest
             //Assert.IsNotNull(result);
             //Assert.IsNull(result.ViewName);
 
+        }
+
+        [TestMethod]
+        public void EditReturnsAPostEditViewModel()
+        {
+            // Arrange
+            PostViewModel postViewModel = new PostViewModel();
+            postViewModel.BlogId = 1;
+            postViewModel.PostText = "Hei";
+            //repository.Setup(x => x.GetPostViewModel(1)).Returns(postViewModel);
+            var controller = new BlogController(repository.Object);
+        
+            // Act
+            //TODO
+            //ViewResult Result = (ViewResult) controller.EditPost(1);
+
+            // Assert
+            //Assert.IsInstanceOfType(Result.Model, typeof(PostViewModel));
+        }
+
+        [TestMethod]
+        public void CanSavePost()
+        {
+            // Arrange
+            //var context = new ApplicationDbContext(options);
+            //user = MockHelpers.MockUserManager<IPrincipal>();
+            //var repo = new Repository(user.Object, context);
+
+            // Act
+            //repo.SavePost(post, user).Wait();
+
+            // Assert
+            Assert.AreNotEqual(0, post.PostId);
+        }
+
+        [TestMethod]
+        public async Task IndexReturnsNotNullResultAsync()
+        {
+            // Arrange
+            var controller = new BlogController(repository.Object);
+
+            // Act
+            var result = controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result, "View Result is null");
         }
 
         [TestMethod]

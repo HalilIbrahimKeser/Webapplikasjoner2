@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using Oblig2_Blogg.Models;
 using Oblig2_Blogg.Data;
 using Microsoft.EntityFrameworkCore;
+using Oblig2_Blogg.Authorization;
 using Oblig2_Blogg.Models.Repository;
 
 namespace Oblig2_Blogg
@@ -37,13 +38,15 @@ namespace Oblig2_Blogg
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
 
-            services.AddControllersWithViews(options =>
+            services.AddMvc(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
+
+
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
@@ -54,6 +57,8 @@ namespace Oblig2_Blogg
 
 
             services.AddTransient<IRepository, Repository>();
+
+            //services.AddScoped() < IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
