@@ -23,6 +23,10 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public bool Closed { get; set; }
 
+        //Blog
+        public Blog blog { get; set; }
+
+
         //INNLEGG
         public virtual List<Post> Posts { get; set; }
 

@@ -46,22 +46,24 @@ namespace Oblig2_Blogg
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
 
-
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
 
+            services.AddControllersWithViews();
 
             //MS SqlServer
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("DefaultConnection")));
-
+            
+            services.AddDatabaseDeveloperPageExceptionFilter();
+            
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IRepository, Repository>();
 
-            //services.AddScoped() < IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
-
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
+            services.AddScoped<IAuthorizationHandler, CommentOwnerAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

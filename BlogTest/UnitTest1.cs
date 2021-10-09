@@ -148,7 +148,7 @@ namespace BlogTest
         public void IndexReturnsAllBlogs()
         {
             // Arrange
-            repository.Setup(x => x.GetAllBlogs()).Returns(blogs);
+            /*repository.Setup(x => x.GetAllBlogs()).Returns(blogs);*/
             var controller = new BlogController(repository.Object);
             
             // Act

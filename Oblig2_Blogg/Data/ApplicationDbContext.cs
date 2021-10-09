@@ -75,6 +75,6 @@ namespace Oblig2_Blogg.Data
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
         }
 
-        public DbSet<Oblig2_Blogg.Models.ViewModels.BlogViewModel> BlogViewModel { get; set; }
+        public DbSet<BlogViewModel> BlogViewModel { get; set; }
     }
 }

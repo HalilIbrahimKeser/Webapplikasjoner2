@@ -20,6 +20,9 @@ namespace Oblig2_Blogg.Authorization
             new OperationAuthorizationRequirement { Name = Constants.ApproveOperationName };
         public static OperationAuthorizationRequirement Reject =
             new OperationAuthorizationRequirement { Name = Constants.RejectOperationName };
+        public static OperationAuthorizationRequirement Admin =
+            new OperationAuthorizationRequirement { Name = Constants.BlogAdministratorsRole };
+
     }
 
     public class Constants
@@ -31,8 +34,10 @@ namespace Oblig2_Blogg.Authorization
         public static readonly string ApproveOperationName = "Approve";
         public static readonly string RejectOperationName = "Reject";
 
-        public static readonly string ContactAdministratorsRole =
-            "ContactAdministrators";
-        public static readonly string ContactManagersRole = "ContactManagers";
+        public static readonly string BlogManagersRole = "ContactManagers";
+
+        public static readonly string BlogAdministratorsRole =
+            "Admin";
+
     }
 }

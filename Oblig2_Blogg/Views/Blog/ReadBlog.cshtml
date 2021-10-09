@@ -1,8 +1,17 @@
-﻿@model Oblig2_Blogg.Models.ViewModels.BlogViewModel
+﻿@using Microsoft.AspNetCore.Identity
+@using Oblig2_Blogg.Authorization
+@using Microsoft.AspNetCore.Authorization
+@model Oblig2_Blogg.Models.ViewModels.BlogViewModel
+
+@inject SignInManager<IdentityUser> signInManager
+@inject UserManager<IdentityUser> userManager
+@inject IAuthorizationService AuthorizationService
 
 @{
     ViewData["Title"] = "ReadBlog";
 }
+
+
 
 <h1>@Model.Name</h1>
 <hr />
@@ -18,7 +27,7 @@
 
 <h4> @Model.Description</h4>
 
-@if (@Model.Closed == false)
+@if (@Model.Closed == false && signInManager.IsSignedIn(User))
 {
     <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
 }
@@ -53,11 +62,25 @@
                     @Html.DisplayFor(modelItem => item.Modified)
                 </td>
                 <td>
-                    @Html.ActionLink("Read post", "ReadPost", new { id = item.PostId }) |
+                    @Html.ActionLink("Read post", "ReadPost", new {id = item.PostId})
+                   
+                    
+                   
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            @Html.ActionLink("| Edit ", "EditPost", new {id = item.PostId})
 
-                    @Html.ActionLink("Edit", "EditPost", new { id = item.PostId }) |
+                        }
+                    
+                    
+                  
+                   
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            @Html.ActionLink(" | Delete", "DeletePost", new {id = item.PostId})
+                        }
+                    
 
-                    @Html.ActionLink("Delete", "DeletePost", new { id = item.PostId })
                 </td>
             </tr>
         }

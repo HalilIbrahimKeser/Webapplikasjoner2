@@ -258,7 +258,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 1,
                             Closed = false,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 807, DateTimeKind.Local).AddTicks(2536),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 19, DateTimeKind.Local).AddTicks(3858),
                             Description = "Fortelling av turopplevelser",
                             Name = "Tur til Australia"
                         },
@@ -266,7 +266,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 2,
                             Closed = false,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(2152),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(6251),
                             Description = "Møtet med Taliban",
                             Name = "Tur til Afganistan"
                         },
@@ -274,7 +274,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 3,
                             Closed = false,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(2401),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(6442),
                             Description = "Barna likte båttur",
                             Name = "Tur til Thailand"
                         });
@@ -317,28 +317,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             CommentId = 1,
                             CommentText = "Så heldige dere er :)",
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(6864),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 24, DateTimeKind.Local).AddTicks(332),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 2,
                             CommentText = "Dere må innom den store parken i byen",
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(8119),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 24, DateTimeKind.Local).AddTicks(1338),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 3,
                             CommentText = "Hvem er Taliban??",
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(8167),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 24, DateTimeKind.Local).AddTicks(1382),
                             PostId = 3
                         },
                         new
                         {
                             CommentId = 4,
                             CommentText = "Husk å ikke gi mat til apene..)",
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(8197),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 24, DateTimeKind.Local).AddTicks(1405),
                             PostId = 4
                         });
                 });
@@ -380,28 +380,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             PostId = 1,
                             BlogId = 1,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(4275),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(7867),
                             PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide"
                         },
                         new
                         {
                             PostId = 2,
                             BlogId = 1,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(5486),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(8946),
                             PostText = "Melbourne på vei til Adelaide var et kjempefint sted"
                         },
                         new
                         {
                             PostId = 3,
                             BlogId = 2,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(5534),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(8991),
                             PostText = "Skulle startet fjellturen via Kunduz. Men møtet med Taliban var ikke så hyggelig"
                         },
                         new
                         {
                             PostId = 4,
                             BlogId = 3,
-                            Created = new DateTime(2021, 9, 27, 13, 19, 45, 811, DateTimeKind.Local).AddTicks(5632),
+                            Created = new DateTime(2021, 10, 9, 15, 17, 2, 23, DateTimeKind.Local).AddTicks(9014),
                             PostText = "Barna ble litt lei hotellet i Phuket. Da tok vi oss en båttur til Ko Khao Khat"
                         });
                 });

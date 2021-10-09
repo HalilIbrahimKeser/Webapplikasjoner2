@@ -20,10 +20,11 @@ namespace Oblig2_Blogg.Authorization
             _userManager = userManager;
         }
 
-        protected override Task
-            HandleRequirementAsync(AuthorizationHandlerContext context,
-                OperationAuthorizationRequirement requirement,
-                Blog resource)
+        protected override async Task<Task>
+             HandleRequirementAsync(
+                 AuthorizationHandlerContext context, 
+                 OperationAuthorizationRequirement requirement, 
+                 Blog resource)
         {
             if (context.User == null || resource == null)
             {
@@ -42,10 +43,11 @@ namespace Oblig2_Blogg.Authorization
                 return Task.CompletedTask;
             }
 
-            if (resource.Owner.Id == _userManager.GetUserId(context.User))
+            if (resource.Owner == await _userManager.FindByEmailAsync(context.User.Identity.Name))
             {
                 context.Succeed(requirement);
             }
+
 
             return Task.CompletedTask;
         }

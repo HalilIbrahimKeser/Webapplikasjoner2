@@ -1,5 +1,4 @@
 ﻿using Oblig2_Blogg.Models.Entities;
-using Oblig2_Blogg.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +8,6 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Data;
 using Oblig2_Blogg.Models.ViewModels;
@@ -20,47 +18,60 @@ namespace Oblig2_Blogg.Models.Repository
     {
         private ApplicationDbContext db;
         private UserManager<IdentityUser> manager;
+        private readonly IAuthorizationService authorizationService;
 
         //COSNTRUCTOR
-        public Repository(UserManager<IdentityUser> userManager, ApplicationDbContext db)
+        public Repository(ApplicationDbContext db, UserManager<IdentityUser> userManager1 = null, 
+            IAuthorizationService authorizationService1 = null)
         {
             this.db = db;
-            this.manager = userManager;
+            this.manager = userManager1;
+            this.authorizationService = authorizationService1;
         }
 
+
+
         //GET BLOGS
-        public IEnumerable<Blog> GetAllBlogs()
+        public IEnumerable<Blog> GetAllBlogs() 
         {
-            IEnumerable<Blog> blogs = db.Blogs; 
-            return blogs;
+           IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
+
+           return blogs;
         }
+
+
         //GET BLOG
         public Blog GetBlog(int blogIdToGet)
         {
-            IEnumerable<Blog> blogs = db.Blogs;
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
             var singleBlogQuery = from blog in blogs
                                   where blog.BlogId == blogIdToGet
                                   select blog;
             return singleBlogQuery.FirstOrDefault();
         }
+
         //GET POSTS
         public IEnumerable<Post> GetAllPosts(int blogIdToGet)
         {
-            IEnumerable<Post> posts = db.Posts;
+            IEnumerable<Post> posts = db.Posts.Include(o => o.Owner);
             var postQuery = from post in posts
                                         where post.BlogId == blogIdToGet
                                         orderby post.Created descending
                                         select post; 
             return postQuery;
         }
+
+        public IEnumerable<Post> GetAllPostsWhitBlog()
+        {
+            return db.Posts.Include(p => p.Blog).Include(p => p.BlogId);
+        }
+
         //GET POST
         public Post GetPost(int postIdToGet)
         {
-            IEnumerable<Post> posts = db.Posts;
-            var singlePostQuery = from post in posts
-                            where post.PostId == postIdToGet
-                            select post;
-            return singlePostQuery.FirstOrDefault();
+            return ((from post in db.Posts
+                where post.PostId == postIdToGet
+                     select post)).Include(o => o.Owner).FirstOrDefault();
         }
 
         //GET POSTVIEWMODEL
@@ -73,7 +84,8 @@ namespace Oblig2_Blogg.Models.Repository
             }
             else
             {
-                p = (db.Posts.Include(o => o.Comments)
+                //NB lagt inn include owner
+                p = (db.Posts.Include(o => o.Comments).Include(o => o.Owner)
                     .Where(o => o.PostId == id)
                     .Select(o => new PostViewModel()
                         {
@@ -92,7 +104,7 @@ namespace Oblig2_Blogg.Models.Repository
         //GET COMMENTS
         public IEnumerable<Comment> GetAllComments(int? postIdToGet)
         {
-            IEnumerable<Comment> comments = db.Comments;
+            IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
             var commentsQuery = from comment in comments
                                             where comment.PostId == postIdToGet
                                             orderby comment.Created descending 
@@ -102,7 +114,7 @@ namespace Oblig2_Blogg.Models.Repository
         //GET COMMENT
         public Comment GetComment(int commentIdToGet)
         {
-            IEnumerable<Comment> comments = db.Comments;
+            IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
             var singleCommentQuery = from comment in comments
                                   where comment.CommentId == commentIdToGet
                                   select comment;
@@ -111,13 +123,11 @@ namespace Oblig2_Blogg.Models.Repository
 
 
 
-
+        //SAVE-----------------------------------------------------------------------
         //SAVE BLOG
-        [Authorize]
-        public async Task SaveBlog(Blog blog, ClaimsPrincipal user)
+        public async Task SaveBlog(Blog blog, IPrincipal principal)
         {
-            var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
-
+            var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             blog.Owner = currentUser;
 
             db.Blogs.Add(blog);
@@ -125,22 +135,26 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
         //SAVE POST
-        [Authorize]
-        public async Task SavePost(Post post, ClaimsPrincipal user)
+        public async Task SavePost(Post post, IPrincipal principal)
         {
-            var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
-
+            var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             post.Owner = currentUser;
 
-            db.Posts.Add(post);
-            await db.SaveChangesAsync();
+            Blog blog = (from b in db.Blogs
+                where b.BlogId == post.BlogId
+                select b).FirstOrDefault();
+
+            if (currentUser.Id == blog.Owner.Id)
+            {
+                db.Posts.Add(post);
+                await db.SaveChangesAsync();
+            }
         }
 
         //SAVE COMMENT
-        [Authorize]
-        public async Task SaveComment(Comment comment, ClaimsPrincipal user)
+        public async Task SaveComment(Comment comment, IPrincipal principal)
         {
-            var currentUser = await manager.FindByNameAsync(user.Identity?.Name);
+            var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
             comment.Owner = currentUser;
 
             db.Comments.Add(comment);
@@ -149,44 +163,86 @@ namespace Oblig2_Blogg.Models.Repository
 
 
 
-
+        //UPDATE / EDIT-----------------------------------------------------------------------
         //UPDATE BLOG
-        [Authorize]
-        public async Task UpdateBlog(Blog blog)
+        public async Task UpdateBlog(Blog blog, IPrincipal principal)
         {
             db.Entry(blog).State = EntityState.Modified;
             db.SaveChangesAsync();
         }
+
         //UPDATE POST
-        [Authorize]
-        public async Task UpdatePost(Post post)
+        public async Task<Post> UpdatePost(Post post1, IPrincipal principal)
         {
-            db.Entry(post).State = EntityState.Modified;
-            await db.SaveChangesAsync();
+            var user = await manager.FindByEmailAsync(principal.Identity.Name);
+
+            Post post = post1;
+
+            Blog blog = (from b in db.Blogs
+                where b.BlogId == post.BlogId
+                select b).FirstOrDefault();
+            
+            if (user.Id == blog.Owner.Id)
+            {
+                //db.Entry(post).State = EntityState.Modified;
+                //await db.SaveChangesAsync();
+                db.Posts.Update(post);
+                var updated = await db.SaveChangesAsync();
+                if (updated > 0)
+                {
+                    return post;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
+
         //UPDATE COMMENT
-        [Authorize]
-        public async Task UpdateComment(Comment comment)
+        public async Task UpdateComment(Comment comment, IPrincipal principal)
         {
-            db.Entry(comment).State = EntityState.Modified;
-            await db.SaveChangesAsync();
+            var user = await manager.FindByEmailAsync(principal.Identity.Name);
+
+            if (user.Id == comment.Owner.Id)
+            {
+                db.Entry(comment).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+            }
         }
 
 
-
+        //DELETE-----------------------------------------------------------------------
         //DELETE POST
-        [Authorize]
-        public async Task DeletePost(Post post)
+        public async Task DeletePost(Post post, IPrincipal principal)
         {
-            db.Posts.Remove(post);
-            await db.SaveChangesAsync();
+            var user = await manager.FindByEmailAsync(principal.Identity.Name);
+            Post post1 = (from p in db.Posts
+                where p.PostId == post.PostId
+                          select p).FirstOrDefault();
+            Blog blog = (from b in db.Blogs
+                where b.BlogId == post1.BlogId
+                select b).FirstOrDefault();
+
+            if (user.Id == blog.Owner.Id)
+            {
+                db.Posts.Remove(post);
+                await db.SaveChangesAsync();
+            }
         }
         //DELETE COMMENT
-        [Authorize]
-        public async Task DeleteComment(Comment comment)
+        public async Task DeleteComment(Comment comment, IPrincipal principal)
         {
-            db.Comments.Remove(comment);
-            await db.SaveChangesAsync();
+            var user = await manager.FindByEmailAsync(principal.Identity.Name);
+            if (comment.Owner == user)
+            {
+                db.Comments.Remove(comment);
+                await db.SaveChangesAsync();
+            }
         }
     }
 }

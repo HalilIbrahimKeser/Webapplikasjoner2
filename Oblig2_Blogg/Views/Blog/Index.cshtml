@@ -10,7 +10,8 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Velkommen! Oversikt over blogger.</h1>
+<h6>Velkommen @userManager.GetUserName(User)</h6>
+<h2>Oversikt over blogger.</h2>
 
 <p>
     @if (signInManager.IsSignedIn(User))
@@ -26,15 +27,21 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Owner)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Closed)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Created)
             </th>
-            
+
             <th></th>
         </tr>
     </thead>
@@ -43,16 +50,22 @@
         {
             <tr>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Closed)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Created)
                 </td>
                 <td>
-                    @Html.ActionLink("Enter the blog", "ReadBlog", new {  id=item.BlogId }) |
+                    @Html.ActionLink("Enter the blog", "ReadBlog", new { id = item.BlogId })
 
                 </td>
             </tr>
