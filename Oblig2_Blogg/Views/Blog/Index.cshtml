@@ -1,18 +1,25 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using System.Security.Principal
+@using Oblig2_Blogg.Models.Entities
 
 @model IEnumerable<Oblig2_Blogg.Models.Entities.Blog>
 
-@inject SignInManager<IdentityUser> signInManager
-@inject UserManager<IdentityUser> userManager
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
 
 @{
     ViewData["Title"] = "Index";
 }
 
 <h6>Velkommen @userManager.GetUserName(User)</h6>
-<h2>Oversikt over blogger.</h2>
+<h2>Oversikt over blogger:</h2>
 
+@if (TempData["Feedback"] != null)
+{
+    <div class="success-centered">
+        @TempData["Feedback"]
+    </div>
+}
 <p>
     @if (signInManager.IsSignedIn(User))
     {
@@ -50,7 +57,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
@@ -66,7 +73,6 @@
                 </td>
                 <td>
                     @Html.ActionLink("Enter the blog", "ReadBlog", new { id = item.BlogId })
-
                 </td>
             </tr>
         }

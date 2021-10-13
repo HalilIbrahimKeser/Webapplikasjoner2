@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.ViewModels
 {
@@ -20,6 +21,6 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public DateTime Created { get; internal set; }
 
-        public IdentityUser Owner { get; set; }
+        public ApplicationUser Owner { get; set; }
     }
 }

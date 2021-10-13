@@ -26,8 +26,6 @@ namespace BlogTest
     [TestClass]
     public class UnitTest1
     {
-        
-        //TODO skal det være Repository eller IRepository?
         private Mock<IRepository> repository;
         private Mock<IPrincipal> user;
 
@@ -49,8 +47,6 @@ namespace BlogTest
                 new Blog {Name = "Tur til USA", Closed = false,  Description = "Fortelling av turopplevelser"}
             };
 
-
-
             posts = new List<Post>
                 {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
             };
@@ -62,9 +58,6 @@ namespace BlogTest
             comments = new List<Comment>
                 { new Comment { CommentId = 1, CommentText = "Så heldige dere er :)", PostId = 1}
             };
-
-
-          
         }
 
         [TestMethod]

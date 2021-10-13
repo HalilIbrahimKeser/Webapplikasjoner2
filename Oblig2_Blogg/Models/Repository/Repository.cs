@@ -17,11 +17,11 @@ namespace Oblig2_Blogg.Models.Repository
     public class Repository : IRepository
     {
         private ApplicationDbContext db;
-        private UserManager<IdentityUser> manager;
+        private UserManager<ApplicationUser> manager;
         private readonly IAuthorizationService authorizationService;
 
         //COSNTRUCTOR
-        public Repository(ApplicationDbContext db, UserManager<IdentityUser> userManager1 = null, 
+        public Repository(ApplicationDbContext db, UserManager<ApplicationUser> userManager1 = null, 
             IAuthorizationService authorizationService1 = null)
         {
             this.db = db;
@@ -128,7 +128,8 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SaveBlog(Blog blog, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-            blog.Owner = currentUser;
+            //TODO sjekk om application user virker
+            blog.Owner = (ApplicationUser) currentUser;
 
             db.Blogs.Add(blog);
             await db.SaveChangesAsync();
@@ -138,7 +139,7 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SavePost(Post post, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-            post.Owner = currentUser;
+            post.Owner = (ApplicationUser) currentUser;
 
             Blog blog = (from b in db.Blogs
                 where b.BlogId == post.BlogId
@@ -155,7 +156,7 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SaveComment(Comment comment, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
-            comment.Owner = currentUser;
+            comment.Owner = (ApplicationUser) currentUser;
 
             db.Comments.Add(comment);
             await db.SaveChangesAsync();
@@ -168,9 +169,9 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task UpdateBlog(Blog blog, IPrincipal principal)
         {
             db.Entry(blog).State = EntityState.Modified;
-            db.SaveChangesAsync();
+            await db.SaveChangesAsync();
         }
-
+         
         //UPDATE POST
         public async Task<Post> UpdatePost(Post post1, IPrincipal principal)
         {

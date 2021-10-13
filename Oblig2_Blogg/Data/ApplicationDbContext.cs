@@ -6,13 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Oblig2_Blogg.Authorization;
 using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IOptions<BlogOperations> operationalStoreOptions) : base(options)
         { }
 
         public DbSet<Blog> Blogs { get; set; }
@@ -22,6 +24,8 @@ namespace Oblig2_Blogg.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //modelBuilder.Entity<ApplicationUser>().ToTable("ApplicationUser");
 
             modelBuilder.Entity<Blog>().ToTable("Blog");
 

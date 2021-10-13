@@ -21,6 +21,6 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public virtual Post Post { get; set; }
 
-        public virtual IdentityUser Owner { get; set; }
+        public virtual ApplicationUser Owner { get; set; }
     }
 }

@@ -12,9 +12,9 @@ namespace Oblig2_Blogg.Authorization
     public class CommentOwnerAuthorizationHandler : AuthorizationHandler<OperationAuthorizationRequirement, Comment>
     {
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CommentOwnerAuthorizationHandler(UserManager<IdentityUser>
+        public CommentOwnerAuthorizationHandler (UserManager<ApplicationUser>
             userManager)
         {
             _userManager = userManager;
@@ -26,7 +26,7 @@ namespace Oblig2_Blogg.Authorization
             Comment resource)
         {
             if (context.User == null || resource == null)
-            {
+            { 
                 return Task.CompletedTask;
             }
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oblig2_Blogg.Data;
 
 namespace Oblig2_Blogg.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211010112100_ApplicationUser")]
+    partial class ApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,87 +72,7 @@ namespace Oblig2_Blogg.Migrations
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("Oblig2_Blogg.Models.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -162,27 +84,16 @@ namespace Oblig2_Blogg.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsAdmin")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastLoggedIn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -228,6 +139,92 @@ namespace Oblig2_Blogg.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens");
                 });
 
             modelBuilder.Entity("Oblig2_Blogg.Models.Entities.Blog", b =>
@@ -269,7 +266,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 1,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 290, DateTimeKind.Local).AddTicks(6606),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 572, DateTimeKind.Local).AddTicks(3120),
                             Description = "Fortelling av turopplevelser",
                             Name = "Tur til Australia"
                         },
@@ -277,7 +274,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 2,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 293, DateTimeKind.Local).AddTicks(9653),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(4559),
                             Description = "Møtet med Taliban",
                             Name = "Tur til Afganistan"
                         },
@@ -285,7 +282,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 3,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 293, DateTimeKind.Local).AddTicks(9803),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(4789),
                             Description = "Barna likte båttur",
                             Name = "Tur til Thailand"
                         });
@@ -328,28 +325,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             CommentId = 1,
                             CommentText = "Så heldige dere er :)",
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(2902),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(9280),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 2,
                             CommentText = "Dere må innom den store parken i byen",
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(3726),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 578, DateTimeKind.Local).AddTicks(510),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 3,
                             CommentText = "Hvem er Taliban??",
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(3826),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 578, DateTimeKind.Local).AddTicks(596),
                             PostId = 3
                         },
                         new
                         {
                             CommentId = 4,
                             CommentText = "Husk å ikke gi mat til apene..)",
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(3849),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 578, DateTimeKind.Local).AddTicks(771),
                             PostId = 4
                         });
                 });
@@ -391,28 +388,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             PostId = 1,
                             BlogId = 1,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(968),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(6499),
                             PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide"
                         },
                         new
                         {
                             PostId = 2,
                             BlogId = 1,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(1844),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(7772),
                             PostText = "Melbourne på vei til Adelaide var et kjempefint sted"
                         },
                         new
                         {
                             PostId = 3,
                             BlogId = 2,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(1881),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(7828),
                             PostText = "Skulle startet fjellturen via Kunduz. Men møtet med Taliban var ikke så hyggelig"
                         },
                         new
                         {
                             PostId = 4,
                             BlogId = 3,
-                            Created = new DateTime(2021, 10, 13, 10, 24, 21, 294, DateTimeKind.Local).AddTicks(1901),
+                            Created = new DateTime(2021, 10, 10, 13, 20, 59, 577, DateTimeKind.Local).AddTicks(7861),
                             PostText = "Barna ble litt lei hotellet i Phuket. Da tok vi oss en båttur til Ko Khao Khat"
                         });
                 });
@@ -447,6 +444,28 @@ namespace Oblig2_Blogg.Migrations
                     b.ToTable("BlogViewModel");
                 });
 
+            modelBuilder.Entity("Oblig2_Blogg.Models.Entities.ApplicationUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLoggedIn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -458,7 +477,7 @@ namespace Oblig2_Blogg.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Oblig2_Blogg.Models.Entities.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -467,7 +486,7 @@ namespace Oblig2_Blogg.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Oblig2_Blogg.Models.Entities.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -482,7 +501,7 @@ namespace Oblig2_Blogg.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Oblig2_Blogg.Models.Entities.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -491,7 +510,7 @@ namespace Oblig2_Blogg.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Oblig2_Blogg.Models.Entities.ApplicationUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -549,7 +568,7 @@ namespace Oblig2_Blogg.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Oblig2_Blogg.Models.Entities.ApplicationUser", "Owner")
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId");
 

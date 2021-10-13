@@ -1,10 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Oblig2_Blogg.Authorization
 @using Microsoft.AspNetCore.Authorization
+@using Oblig2_Blogg.Models.Entities
 @model Oblig2_Blogg.Models.ViewModels.BlogViewModel
 
-@inject SignInManager<IdentityUser> signInManager
-@inject UserManager<IdentityUser> userManager
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
 @inject IAuthorizationService AuthorizationService
 
 @{
@@ -12,25 +13,29 @@
 }
 
 
-
 <h1>@Model.Name</h1>
 <hr />
 <p>
     Created: @Model.Created,
     @if (@Model.Owner == null)
-    {<a>No user</a> }
+        {<a> User not registered</a> }
     else
-    {@Model.Owner.UserName}
+        {<a> Created by: @Model.Owner.FirstName</a> }
 </p>
-
+    @if (TempData["Feedback"] != null)
+    {
+        <div class="success-centered text-info">
+            <h1>@TempData["Feedback"]</h1>
+        </div>
+    }
 <hr />
 
 <h4> @Model.Description</h4>
 
-@if (@Model.Closed == false && signInManager.IsSignedIn(User))
-{
-    <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
-}
+    @if (@Model.Closed == false && @userManager.GetUserName(User) == @Model.Owner.ToString())
+    {
+        <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
+    }
 
 <hr />
 <p>Posts:....</p>
@@ -50,7 +55,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.PostText)
@@ -62,38 +67,42 @@
                     @Html.DisplayFor(modelItem => item.Modified)
                 </td>
                 <td>
-                    @Html.ActionLink("Read post", "ReadPost", new {id = item.PostId})
-                   
+                    @Html.ActionLink("Read post", "ReadPost", new { id = item.PostId })
+
                     
-                   
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                        User, item,
+                        BlogOperations.Update)).Succeeded)
+                    {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink("| Edit ", "EditPost", new {id = item.PostId})
+                            @Html.ActionLink("| Edit ", "EditPost", new { id = item.PostId })
 
                         }
-                    
-                    
-                  
-                   
+                    }
+
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                        User, item,
+                        BlogOperations.Delete)).Succeeded)
+                    {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink(" | Delete", "DeletePost", new {id = item.PostId})
+                            @Html.ActionLink(" | Delete", "DeletePost", new { id = item.PostId })
                         }
-                    
-
+                    }
                 </td>
             </tr>
         }
     }
     catch (NullReferenceException e)
     {
-        //do nothing
+        Console.Write(e);
     }
 </table>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

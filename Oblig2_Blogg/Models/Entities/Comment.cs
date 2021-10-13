@@ -28,6 +28,6 @@ namespace Oblig2_Blogg.Models.Entities
         public virtual Post Post { get; set; }
 
         //EIER
-        public virtual IdentityUser Owner { get; set; }
+        public virtual ApplicationUser Owner { get; set; }
     }
 }

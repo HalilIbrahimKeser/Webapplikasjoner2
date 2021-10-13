@@ -31,6 +31,6 @@ namespace Oblig2_Blogg.Models.ViewModels
         public virtual List<Post> Posts { get; set; }
 
         //EIER
-        public virtual IdentityUser Owner { get; set; }
+        public virtual ApplicationUser Owner { get; set; }
     }
 }

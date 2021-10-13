@@ -16,10 +16,10 @@ namespace Oblig2_Blogg.Controllers
     public class PostController : Controller
     {
         private readonly IRepository repository;
-        private UserManager<IdentityUser> userManager;
+        private UserManager<ApplicationUser> userManager;
         IAuthorizationService authorizationService;
 
-        public PostController(IRepository repository, UserManager<IdentityUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
+        public PostController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
             authorizationService = authorizationService1;

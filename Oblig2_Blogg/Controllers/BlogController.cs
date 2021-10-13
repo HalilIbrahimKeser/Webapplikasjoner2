@@ -13,16 +13,15 @@ using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Controllers
 {
-    [AllowAnonymous]
     public class BlogController : Controller
     {
         private readonly IRepository repository;
-        private UserManager<IdentityUser> userManager;
+        private UserManager<ApplicationUser> userManager;
         IAuthorizationService authorizationService;
 
 
         //CONSTRUCTOR-----------------------------------------------
-        public BlogController(IRepository repository, UserManager<IdentityUser> userManager = null, IAuthorizationService authorizationService = null)
+        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager = null, IAuthorizationService authorizationService = null)
         {
             this.repository = repository;
             this.userManager = userManager;
@@ -95,7 +94,7 @@ namespace Oblig2_Blogg.Controllers
                         Closed = blogViewModel.Closed,
                     };
                     repository.SaveBlog(blog, User).Wait();
-                    TempData["message"] = string.Format("{0} har blitt opprettet", blog.Name);
+                    TempData["Feedback"] = string.Format("{0} har blitt opprettet", blog.Name);
                     return RedirectToAction(nameof(Index));
                 }
             } catch (Exception e)
@@ -109,7 +108,12 @@ namespace Oblig2_Blogg.Controllers
         
         // Comment/Create
         [HttpGet]
-        public ActionResult CreateComment(int PostId) { return View(); }
+        public ActionResult CreateComment(int PostId)
+        {
+            //Her kan vi ikke legge autorized sjekk, da vi ikke kan sjekke en kan lage en kommentar
+            //da vi fortsatt ikke 
+            return View();
+        }
 
         // Comment/Create
         [HttpPost]
@@ -127,14 +131,17 @@ namespace Oblig2_Blogg.Controllers
                         PostId = PostId,
                     };
                     repository.SaveComment(comment, User).Wait();
-                    TempData["message"] = $"{comment.PostId} har blitt opprettet";
+                   
+                    TempData["Feedback"] = $"{comment.PostId} har blitt opprettet";
                     return RedirectToAction("ReadPost", new { id = PostId });
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return ViewBag("Feil kan ikke lage kommentar");
+                TempData["Feedback"] = e;
+                TempData["Feedback"] = "Feil kan ikke legge inn kommentar";
+                return View();
             }
             return View();
         }
@@ -142,50 +149,64 @@ namespace Oblig2_Blogg.Controllers
 
         // Comment/Edit/#
         [HttpGet]
-        public ActionResult EditComment(int id)
+        public async Task<ActionResult> EditComment(int id)
         {
             var commentToEdit = repository.GetComment(id);
+
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                User, commentToEdit, BlogOperations.Update);
+
+            if (!isAuthorized.Succeeded)
+            {
+                TempData["Feedback"] = "Ingen tilgang";
+                return Forbid();
+            }
+
             return View(commentToEdit);
         }
 
         // Comment/Edit/#
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post")] Comment comment)
+        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post")] Comment comment)
         {
             if (id == null)
             {
                 return NotFound();
             }
-            /*
-            var isAuthorized = await authorizationService.AuthorizeAsync(
-                User, comment, BlogOperations.Update);
-
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }*/
-
+            
             var postId = comment.PostId;
             var created = comment.Created;
             try {
                 if (ModelState.IsValid) {
                     comment.Modified = DateTime.Now;
                     comment.Created = created;
-
+                    
                     repository.UpdateComment(comment, User).Wait();
-                    TempData["message"] = $"{comment.CommentText} has been updated";
+             
+                    TempData["Feedback"] = $"{comment.CommentText} has been updated";
                     return RedirectToAction("ReadPost", new { id = postId });
                 } else return new ChallengeResult();
             } catch {
-                return ViewBag("Fikk ikke endret commentar");
+                TempData["Feedback"] = "Fikk ikke endret commentar";
+                return View();
             }
         }
 
         // Comment/Delete/#
-        public ActionResult DeleteComment(int id)
+        public async Task<ActionResult> DeleteComment(int id)
         {
             var commentToDelete = repository.GetComment(id);
+
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                User, commentToDelete, BlogOperations.Delete);
+
+            if (!isAuthorized.Succeeded)
+            {
+                TempData["Feedback"] = "Ingen tilgang";
+                return Forbid();
+            }
+
             return View(commentToDelete);
         }
 
@@ -202,7 +223,8 @@ namespace Oblig2_Blogg.Controllers
                     var postId = commentToDelete.PostId;
 
                     repository.DeleteComment(commentToDelete, User).Wait();
-                    TempData["message"] = $"{commentToDelete.CommentText} has been updated";
+                    
+                    TempData["Feedback"] = $"{commentToDelete.CommentText} has been updated";
 
                     return RedirectToAction("ReadPost", new { id = postId });
                 }
@@ -217,21 +239,32 @@ namespace Oblig2_Blogg.Controllers
 
         // Post/Create
         [HttpGet]
-        public ActionResult CreatePost(int blogId)
+        public async Task<ActionResult> CreatePost(int blogId)
         {
             var blog = repository.GetBlog(blogId);
-            /*
+            
+            //Kun eier av blog kan legge inn poster. Resten kan kun kommentere
             if (User.Identity != null && blog.Owner.Id != userManager.GetUserId(User))
             {
-                return View("Ingentilgang");
-            }
-            */
-            if (!blog.Closed)
-            {
+                TempData["Feedback"] = "Ingen tilgang";
                 return View();
             }
             
-            TempData["message"] = "Bloggen er stengt for kommentar og innlegg";
+            if (!blog.Closed)
+            {
+                TempData["Feedback"] = "Blog steng for kommentarer";
+                return View();
+            }
+
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                User, blog, BlogOperations.Create);
+
+            if (!isAuthorized.Succeeded)
+            {
+                TempData["Feedback"] = "Ingen tilgang";
+                return Forbid();
+            }
+
 
             return RedirectToAction("ReadBlog", new { id = blogId });
         }
@@ -255,21 +288,24 @@ namespace Oblig2_Blogg.Controllers
                             BlogId = blogId,
                         };
                         repository.SavePost(post, User).Wait();
-                        TempData["message"] = $"{post.PostId} har blitt opprettet";
+                        
+                        TempData["Feedback"] = $"{post.PostId} har blitt opprettet";
                         return RedirectToAction("ReadBlog", new { id = blogId });
                     }
                     else
                     {
-                        return ViewBag("Låst for endringer");
+                        TempData["Feedback"] = "Låst for endringer";
+                        return View();
                     }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                TempData["Feedback"] = e;
                 return View();
             }
-            TempData["message"] = "Fikk ikke opprettet ny post";
+            TempData["Feedback"] = "Fikk ikke opprettet ny post";
             return RedirectToAction("ReadBlog", new { id = blogId });
         }
 
@@ -277,11 +313,20 @@ namespace Oblig2_Blogg.Controllers
         [HttpGet]
         public async Task<ActionResult> EditPost(int id)
         {
-            if (id == null)
+            if (id == 0)
             {
                 return NotFound("Bad parameter");
             }
             var postToEdit = repository.GetPost(id);
+            
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                User, postToEdit, BlogOperations.Update);
+
+            if (!isAuthorized.Succeeded)
+            {
+                TempData["Feedback"] = "Ingen tilgang";
+                return Forbid();
+            }
 
             return View(postToEdit);
         }
@@ -306,29 +351,40 @@ namespace Oblig2_Blogg.Controllers
                         var result = await repository.UpdatePost(post, User);
                         if (result != null)
                         {
-                            TempData["message"] = string.Format("{0} is updated", post.PostText);
+                            TempData["Feedback"] = string.Format("{0} is updated", post.PostText);
                             return RedirectToAction("ReadBlog", new { id = blogId });
                         }
 
                         repository.UpdatePost(post, User).Wait();
 
-                        TempData["message"] = $"{post.PostText} has been updated";
+                        TempData["Feedback"] = $"{post.PostText} has been updated";
                         return RedirectToAction("ReadBlog", new { id = blogId });
                     } 
                     else return new ChallengeResult();
                 //} catch {
                     //return ViewBag("Kan ikke redigere post");
                 //}
-            } else
-            { return ViewBag("Låst for endringer");
+            } else {
+                TempData["Feedback"] = "Kan ikke redigere post, den er låst";
+                return View();
             }
         }
 
 
         // Post/Delete/#
-        public ActionResult DeletePost(int id)
+        public async Task<ActionResult> DeletePost(int id)
         {
             var postToDelete = repository.GetPost(id);
+
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                User, postToDelete, BlogOperations.Delete);
+
+            if (!isAuthorized.Succeeded)
+            {
+                TempData["Feedback"] = "Ingen tilgang";
+                return Forbid();
+            }
+
             return View(postToDelete);
         }
 
@@ -348,20 +404,23 @@ namespace Oblig2_Blogg.Controllers
                     if (!blog.Closed)
                     {
                         repository.DeletePost(postToDelete, User).Wait();
-                        TempData["message"] = $"{postToDelete.PostText} has been updated";
+
+                        TempData["Feedback"] = $"{postToDelete.PostText} has been updated";
 
                         return RedirectToAction("ReadBlog", new { id = blogId });
                     }
                     else
                     {
-                        return ViewBag("Kan ikke slette");
+                        TempData["Feedback"] = "Kan ikke slette";
+                        return View();
                     }
                 }
                 else return new ChallengeResult();
             }
-            catch
+            catch (Exception e)
             {
-                return ViewBag("Exception thrown");
+                TempData["Feedback"] = e;
+                return View();
             }
         }
     }

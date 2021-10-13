@@ -1,5 +1,13 @@
 ﻿@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Oblig2_Blogg.Authorization
+@using Oblig2_Blogg.Models.Entities
 @model Oblig2_Blogg.Models.ViewModels.PostViewModel
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+@inject IAuthorizationService AuthorizationService
 
 @{
     ViewData["Title"] = "ReadPost"; }
@@ -8,6 +16,29 @@
 <hr />
 <div>
     <h4>Post</h4>
+
+    <hr />
+    @if (TempData["Feedback"] != null)
+    {
+        <div class="success-centered text-info">
+            <h1>@TempData["Feedback"]</h1>
+        </div>
+    }
+    <p>
+        Created: @Model.Created,
+        @if (@Model.Owner == null)
+        {<a> User not registered</a> }
+        else
+        {<a> Created by: @Model.Owner.FirstName</a> }
+    </p>
+
+    <hr />
+    @if (TempData["Feedback"] != null)
+    {
+        <div class="success-centered text-info">
+            <h1>@TempData["Feedback"]</h1>
+        </div>
+    }
     <hr />
 
     <p>@Html.ActionLink("Create new comment", "CreateComment", new { PostId = @Model.PostId, id = @Model.PostId })</p>
@@ -30,7 +61,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Owner.UserName)
+                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Created)
@@ -42,20 +73,38 @@
                     @Html.DisplayFor(modelItem => item.CommentText)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "EditComment", new { id = item.CommentId }) |
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                     User, item,
+                     BlogOperations.Update)).Succeeded)
+                    {
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            @Html.ActionLink("Edit", "EditComment", new { id = item.CommentId })
 
-                    @Html.ActionLink("Delete", "DeleteComment", new { id = item.CommentId })
+                        }
+                    }
+
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                       User, item,
+                       BlogOperations.Update)).Succeeded)
+                    {
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            @Html.ActionLink(" | Delete", "DeleteComment", new { id = item.CommentId })
+
+                        }
+                    }
                 </td>
             </tr>
         }
     }
     catch (NullReferenceException e)
     {
-        //Ingen kommentarer
+        Console.Write(e);
     }
 </table>
 
 <div>
     <a asp-action="Index">Back to List</a> |
     @Html.ActionLink("Gå tilbake til innlegg", "ReadBlog", new { id = Model.BlogId })
-    </div>
+</div>

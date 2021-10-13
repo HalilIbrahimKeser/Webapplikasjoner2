@@ -9,31 +9,26 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Authorization
 {
-    public class BlogOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Blog>
+    public class PostOwnerAuthorizationHandler : AuthorizationHandler<OperationAuthorizationRequirement, Post>
     {
+
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public BlogOwnerAuthorizationHandler(UserManager<ApplicationUser>
+        public PostOwnerAuthorizationHandler(UserManager<ApplicationUser>
             userManager)
         {
             _userManager = userManager;
         }
 
-        protected override async Task<Task>
-             HandleRequirementAsync(
-                 AuthorizationHandlerContext context, 
-                 OperationAuthorizationRequirement requirement, 
-                 Blog resource)
+        protected override async Task<Task> HandleRequirementAsync(
+            AuthorizationHandlerContext context,
+            OperationAuthorizationRequirement requirement,
+            Post resource)
         {
             if (context.User == null || resource == null)
             {
-                // Return Task.FromResult(0) if targeting a version of
-                // .NET Framework older than 4.6:
                 return Task.CompletedTask;
             }
-
-            // If we're not asking for CRUD permission, return.
 
             if (requirement.Name != Constants.CreateOperationName &&
                 requirement.Name != Constants.ReadOperationName &&
@@ -43,15 +38,13 @@ namespace Oblig2_Blogg.Authorization
                 return Task.CompletedTask;
             }
 
-            //TODO flytt sjekk for blog closed til hit
-
             if (resource.Owner == await _userManager.FindByEmailAsync(context.User.Identity.Name))
             {
                 context.Succeed(requirement);
             }
 
-
             return Task.CompletedTask;
         }
     }
 }
+
