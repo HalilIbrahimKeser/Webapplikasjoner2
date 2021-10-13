@@ -28,37 +28,72 @@ namespace BlogTest
     {
         private Mock<IRepository> repository;
         private Mock<IPrincipal> user;
-
-        private List<Blog> blogs;
-        private List<Post> posts;
-        private List<Comment> comments;
-        private Post post;
-        private Comment comment;
+        private List<Blog> fakeBlogs;
+        private List<Post> fakePosts;
+        private List<Comment> fakeComments;
+        private Post fakePost;
+        private Comment fakeComment;
 
         [TestInitialize]
         public void SetupContext()
         {
             repository = new Mock<IRepository>();
-            blogs = new List<Blog>
+
+            fakeBlogs = new List<Blog>
             {
-                new Blog {Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
-                new Blog {Name = "Tur til Somalia", Closed = false,  Description = "Fortelling av turopplevelser"},
-                new Blog {Name = "Tur til Afganistan", Closed = false,  Description = "Møtet med Taliban"},
-                new Blog {Name = "Tur til USA", Closed = false,  Description = "Fortelling av turopplevelser"}
+                new Blog {BlogId = 1, Name = "Tur til Australia", Closed = false,  Description = "Fortelling av turopplevelser"},
+                new Blog {BlogId = 2, Name = "Tur til Somalia", Closed = false,  Description = "Fortelling av turopplevelser"},
+                new Blog {BlogId = 3, Name = "Tur til Afganistan", Closed = false,  Description = "Møtet med Taliban"},
+                new Blog {BlogId = 4, Name = "Tur til USA", Closed = false,  Description = "Fortelling av turopplevelser"}
             };
 
-            posts = new List<Post>
-                {new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
+            fakePosts = new List<Post> {
+                new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1},
+                new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1}
+
             };
 
-            post = new Post
+            fakePost = new Post
             {PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", BlogId = 1
             };
 
-            comments = new List<Comment>
+            fakeComments = new List<Comment>
                 { new Comment { CommentId = 1, CommentText = "Så heldige dere er :)", PostId = 1}
             };
         }
+
+        //Posts---------------------------------------------------------------------------
+
+        [TestMethod]
+        public void IndexReturnsAllPosts()
+        {
+            // Arrange
+            repository.Setup(x => x.GetAllPosts(1)).Returns(fakePosts);
+            var controller = new BlogController(repository.Object);
+
+            // Act
+            var result = (ViewResult)controller.Index();
+
+            // Assert                
+            CollectionAssert.AllItemsAreInstancesOfType((ICollection)result.ViewData.Model, typeof(Post));
+            Assert.IsNotNull(result, "View Result is null");
+            var postOriginal = result.ViewData.Model as List<Post>;
+            Assert.AreEqual(2, postOriginal.Count, "Got wrong number of blogs");
+        }
+
+        [TestMethod]
+        public void PostIndexReturnsNotNull()
+        {
+            //Arrange
+            var controller = new PostController(repository.Object);
+
+            //Act
+            var result = (ViewResult)controller.Index();
+
+            //Assert
+            Assert.IsNotNull(result, "View Result is null");
+        }
+
 
         [TestMethod]
         public void CreateShouldShowLoginViewFor_Non_AuthorizedUser()
@@ -108,7 +143,7 @@ namespace BlogTest
             //repo.SavePost(post, user).Wait();
 
             // Assert
-            Assert.AreNotEqual(0, post.PostId);
+            Assert.AreNotEqual(0, fakePost.PostId);
         }
 
         [TestMethod]
@@ -152,25 +187,7 @@ namespace BlogTest
             Assert.IsNotNull(result, "View Result is null");
 
             var blogsOriginal = result.ViewData.Model as List<Blog>;
-            Assert.AreEqual(blogs.Count, blogsOriginal.Count, "Got wrong number of blogs");
-        }
-
-        [TestMethod]
-        public void IndexReturnsAllPosts()
-        {
-            // Arrange
-            repository.Setup(x => x.GetAllPosts(1)).Returns(posts);
-            var controller = new BlogController(repository.Object);
-
-            // Act
-            var result = controller.Index() as ViewResult;
-
-            // Assert                
-            CollectionAssert.AllItemsAreInstancesOfType((ICollection)result.ViewData.Model, typeof(Post));
-            Assert.IsNotNull(result, "View Result is null");
-
-            var postOriginal = result.ViewData.Model as List<Post>;
-           // Assert.AreEqual(blogs.Count, postOriginal.Count, "Got wrong number of blogs");
+            Assert.AreEqual(fakeBlogs.Count, blogsOriginal.Count, "Got wrong number of blogs");
         }
 
         [TestMethod]

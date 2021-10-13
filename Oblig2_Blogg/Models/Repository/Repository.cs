@@ -128,8 +128,7 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SaveBlog(Blog blog, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-            //TODO sjekk om application user virker
-            blog.Owner = (ApplicationUser) currentUser;
+            blog.Owner = currentUser;
 
             db.Blogs.Add(blog);
             await db.SaveChangesAsync();
@@ -139,7 +138,7 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SavePost(Post post, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
-            post.Owner = (ApplicationUser) currentUser;
+            post.Owner = currentUser;
 
             Blog blog = (from b in db.Blogs
                 where b.BlogId == post.BlogId
@@ -156,7 +155,7 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task SaveComment(Comment comment, IPrincipal principal)
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
-            comment.Owner = (ApplicationUser) currentUser;
+            comment.Owner = currentUser;
 
             db.Comments.Add(comment);
             await db.SaveChangesAsync();
