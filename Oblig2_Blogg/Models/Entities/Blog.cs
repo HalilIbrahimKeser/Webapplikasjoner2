@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public class Blog
+    //lagt inn Interface
+    public class Blog : IAuthorizationEntity
     {
         //BlogId, Name, Description, Created, Modified, Closed, Posts, Owner
 

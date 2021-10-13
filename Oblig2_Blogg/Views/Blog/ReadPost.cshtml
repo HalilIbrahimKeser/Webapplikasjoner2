@@ -33,13 +33,6 @@
     </p>
 
     <hr />
-    @if (TempData["Feedback"] != null)
-    {
-        <div class="success-centered text-info">
-            <h1>@TempData["Feedback"]</h1>
-        </div>
-    }
-    <hr />
 
     <p>@Html.ActionLink("Create new comment", "CreateComment", "Post", new { PostId = @Model.PostId, id = @Model.PostId })</p>
     <hr />

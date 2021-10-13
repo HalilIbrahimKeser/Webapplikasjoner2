@@ -7,7 +7,8 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public class Post
+    //lagt inn Interface
+    public class Post : IAuthorizationEntity
     {
 
         //PostId, PostText, Created, Modified, BlogId, Blog, Comments, Owner
@@ -32,6 +33,9 @@ namespace Oblig2_Blogg.Models.Entities
 
         //KOMMENTARER
         public virtual List<Comment> Comments { get; set; }
+
+        //TAG
+        public virtual List<Tag> Tags { get; set; }
 
         //EIER
         public virtual ApplicationUser Owner { get; set; }

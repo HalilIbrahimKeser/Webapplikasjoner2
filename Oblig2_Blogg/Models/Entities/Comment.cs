@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public class Comment
+    //lagt inn Interface
+    public class Comment : IAuthorizationEntity
     {
         //CommentId, CommentText, Created, Modified, PostId, Post, Owner
 

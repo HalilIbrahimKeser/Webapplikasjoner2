@@ -34,7 +34,7 @@
 
     @if (@Model.Closed == false && @userManager.GetUserName(User) == @Model.Owner.ToString())
     {
-        <p>@Html.ActionLink("Create new post", "CreatePost", "Post", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
+        <p>@Html.ActionLink("Create new post", "CreatePost", "Post", new { blogId = @Model.BlogId })</p>
     }
 
 <hr />

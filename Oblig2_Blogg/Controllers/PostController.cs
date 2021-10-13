@@ -22,12 +22,12 @@ namespace Oblig2_Blogg.Controllers
         public PostController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
-            authorizationService = authorizationService1;
-            userManager = userManager1;
+            this.authorizationService = authorizationService1;
+            this.userManager = userManager1;
         }
-        public IActionResult Index()
+        public IActionResult Index(int id)
         {
-            return View(repository.GetAllPostsWhitBlog());
+            return View(repository.GetPost(id));
         }
 
 
@@ -38,30 +38,22 @@ namespace Oblig2_Blogg.Controllers
         public async Task<ActionResult> CreatePost(int blogId)
         {
             var blog = repository.GetBlog(blogId);
-
-            //Kun eier av blog kan legge inn poster. Resten kan kun kommentere
-            if (User.Identity != null && blog.Owner.Id != userManager.GetUserId(User))
-            {
-                TempData["Feedback"] = "Ingen tilgang";
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
-            }
-
-            if (!blog.Closed)
-            {
-                TempData["Feedback"] = "Blog steng for kommentarer";
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+            
+            if (blog.Closed) {
+                TempData["Feedback"] = "Blog steng for innlegg" + blog.BlogId;
+                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
             }
 
             var isAuthorized = await authorizationService.AuthorizeAsync(
                 User, blog, BlogOperations.Create);
 
-            if (!isAuthorized.Succeeded)
-            {
+            //Kun eier av blog kan legge inn poster. Resten kan kun kommentere
+            if (!isAuthorized.Succeeded && User.Identity == null && blog.Owner.Id != userManager.GetUserId(User)) {
                 TempData["Feedback"] = "Ingen tilgang";
-                return Forbid();
+                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                //return Forbid();
             }
-
-            return RedirectToAction("ReadBlog","Blog", new { id = blogId });
+            return View();
         }
 
         // Post/Create
@@ -69,13 +61,10 @@ namespace Oblig2_Blogg.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CreatePost(int blogId, [Bind("PostText, Created, BlogId, Owner")] PostViewModel newPostViewModel)
         {
-            try
-            {
-                if (ModelState.IsValid)
-                {
+            try {
+                if (ModelState.IsValid) {
                     var blog = repository.GetBlog(blogId);
-                    if (!blog.Closed)
-                    {
+                    if (!blog.Closed) {
                         var post = new Post()
                         {
                             PostText = newPostViewModel.PostText,
@@ -86,16 +75,13 @@ namespace Oblig2_Blogg.Controllers
 
                         TempData["Feedback"] = $"{post.PostId} har blitt opprettet";
                         return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
-                    }
-                    else
-                    {
+                    } else {
                         TempData["Feedback"] = "Låst for endringer";
                         return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
                     }
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Console.WriteLine(e);
                 TempData["Feedback"] = e;
                 return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
@@ -119,7 +105,7 @@ namespace Oblig2_Blogg.Controllers
 
             if (!isAuthorized.Succeeded)
             {
-                TempData["Feedback"] = "Ingen tilgang";
+                TempData["Feedback"] = "Ingen tilgang til post " + postToEdit.PostId;
                 return Forbid();
             }
 
@@ -228,7 +214,14 @@ namespace Oblig2_Blogg.Controllers
         [HttpGet]
         public ActionResult CreateComment(int PostId)
         {
-            return RedirectToAction("CreateComment", "Post", new { id = PostId });
+            var post = repository.GetPost(PostId);
+            var blog = repository.GetBlog(post.BlogId);
+            if (blog.Closed)
+            {
+                TempData["Feedback"] = "Blog steng for kommentarer: " + blog.BlogId;
+                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
+            }
+            return View();
         }
 
         // Comment/Create
@@ -256,7 +249,7 @@ namespace Oblig2_Blogg.Controllers
                 TempData["Feedback"] = "Feil kan ikke legge inn kommentar" + e;
                 return RedirectToAction("ReadPost", "Blog", new { id = PostId });
             }
-            return RedirectToAction("ReadPost", "Blog", new { id = PostId });
+            return View();
         }
 
 

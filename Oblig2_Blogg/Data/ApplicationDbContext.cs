@@ -20,6 +20,7 @@ namespace Oblig2_Blogg.Data
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Tag> Tag { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,10 +31,16 @@ namespace Oblig2_Blogg.Data
             modelBuilder.Entity<Blog>().ToTable("Blog");
 
             modelBuilder.Entity<Post>().ToTable("Post")
+                .HasMany(p => p.Tags);
+
+            modelBuilder.Entity<Post>().ToTable("Post")
                 .HasOne(p => p.Blog);
 
             modelBuilder.Entity<Comment>().ToTable("Comment")
                 .HasOne(p => p.Post);
+
+            modelBuilder.Entity<Tag>().ToTable("Tags")
+                .HasMany(p => p.Posts);
 
             modelBuilder.Entity<BlogViewModel>().HasNoKey();
 

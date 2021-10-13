@@ -21,11 +21,11 @@ namespace Oblig2_Blogg.Controllers
 
 
         //CONSTRUCTOR-----------------------------------------------
-        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager = null, IAuthorizationService authorizationService = null)
+        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
-            this.userManager = userManager;
-            this.authorizationService = authorizationService;
+            this.userManager = userManager1;
+            this.authorizationService = authorizationService1;
         }
 
         //VIEWS---------------------------------------------------

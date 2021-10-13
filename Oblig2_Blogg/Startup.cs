@@ -65,7 +65,8 @@ namespace Oblig2_Blogg
             services.AddScoped<IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
             services.AddScoped<IAuthorizationHandler, PostOwnerAuthorizationHandler>();
             services.AddScoped<IAuthorizationHandler, CommentOwnerAuthorizationHandler>();
-            
+            //services.AddScoped<IAuthorizationHandler, EntityAuthorizationHandler>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

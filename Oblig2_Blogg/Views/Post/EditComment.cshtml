@@ -39,7 +39,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to Blogs</a>|
+    <a asp-controller="Blog" , asp-action="Index">Back to List</a>
     @Html.ActionLink("Gå tilbake til innlegg", "ReadPost", "Blog", new { id = Model.PostId })
     
 </div>

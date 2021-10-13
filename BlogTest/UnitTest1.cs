@@ -88,7 +88,7 @@ namespace BlogTest
             var controller = new PostController(repository.Object);
 
             //Act
-            var result = (ViewResult)controller.Index();
+            var result = (ViewResult)controller.Index(2);
 
             //Assert
             Assert.IsNotNull(result, "View Result is null");
@@ -195,7 +195,7 @@ namespace BlogTest
         {
             // Arrange
             Mock<IRepository> repository = new Mock<IRepository>();
-            var controller = new BlogController(repository.Object);
+            var controller = new PostController(repository.Object);
             var post1 = new PostViewModel()
             {
                 PostId = 1,

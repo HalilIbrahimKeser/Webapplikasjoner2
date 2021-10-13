@@ -22,7 +22,7 @@
             </div>
             
             <div class="form-group">
-                <input asp-for="Created" type="hidden" class="form-control" />
+                <input asp-for="Created" class="form-control" />
                 <span asp-validation-for="Created" class="text-danger"></span>
             </div>
 
@@ -43,7 +43,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a> |
+    <a asp-controller="Blog" , asp-action="Index">Back to List</a>
     @Html.ActionLink("Gå tilbake til innlegg", "ReadBlog", "Blog", new { id = Model.BlogId })
 </div>
 
