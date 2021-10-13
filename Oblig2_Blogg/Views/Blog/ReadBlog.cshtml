@@ -34,7 +34,7 @@
 
     @if (@Model.Closed == false && @userManager.GetUserName(User) == @Model.Owner.ToString())
     {
-        <p>@Html.ActionLink("Create new post", "CreatePost", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
+        <p>@Html.ActionLink("Create new post", "CreatePost", "Post", new { blogId = @Model.BlogId, id = @Model.BlogId })</p>
     }
 
 <hr />
@@ -76,7 +76,7 @@
                     {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink("| Edit ", "EditPost", new { id = item.PostId })
+                            @Html.ActionLink("| Edit ", "EditPost", "Post", new { id = item.PostId })
 
                         }
                     }
@@ -87,7 +87,7 @@
                     {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink(" | Delete", "DeletePost", new { id = item.PostId })
+                            @Html.ActionLink(" | Delete", "DeletePost", "Post", new { id = item.PostId })
                         }
                     }
                 </td>

@@ -41,6 +41,6 @@
         <input type="hidden" asp-for="CommentId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a> |
-        @Html.ActionLink("Gå tilbake til innlegg", "ReadPost", new { id = Model.PostId })
+        @Html.ActionLink("Gå tilbake til innlegg", "ReadPost", "Blog", new { id = Model.PostId })
     </form>
 </div>

@@ -41,7 +41,7 @@
     }
     <hr />
 
-    <p>@Html.ActionLink("Create new comment", "CreateComment", new { PostId = @Model.PostId, id = @Model.PostId })</p>
+    <p>@Html.ActionLink("Create new comment", "CreateComment", "Post", new { PostId = @Model.PostId, id = @Model.PostId })</p>
     <hr />
     <p>Comments:....</p>
     <hr />
@@ -79,7 +79,7 @@
                     {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink("Edit", "EditComment", new { id = item.CommentId })
+                            @Html.ActionLink("Edit", "EditComment","Post", new { id = item.CommentId })
 
                         }
                     }
@@ -90,7 +90,7 @@
                     {
                         @if (signInManager.IsSignedIn(User))
                         {
-                            @Html.ActionLink(" | Delete", "DeleteComment", new { id = item.CommentId })
+                            @Html.ActionLink(" | Delete", "DeleteComment", "Post", new { id = item.CommentId })
 
                         }
                     }
