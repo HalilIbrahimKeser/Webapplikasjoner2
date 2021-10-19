@@ -35,5 +35,6 @@ namespace Oblig2_Blogg.Models.Repository
         
         //TAGS
         Task GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
+        IEnumerable<Tag> GetAllTags();
     }
 }

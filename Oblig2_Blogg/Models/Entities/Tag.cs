@@ -9,10 +9,6 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class Tag
     {
-        public Tag()
-        {
-            this.Posts = new HashSet<Post>();
-        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TagId { get; set; }
@@ -24,13 +20,6 @@ namespace Oblig2_Blogg.Models.Entities
         public DateTime Created { get; set; }
 
         public DateTime? Modified { get; set; }
-
-        //FREMMED NØKKEL
-        //[ForeignKey("PostId")]
-        [Required]
-        public int PostId { get; set; }
-
-        public virtual Post Post { get; set; }
 
         //POSTER
         public virtual ICollection<Post> Posts { get; set; }

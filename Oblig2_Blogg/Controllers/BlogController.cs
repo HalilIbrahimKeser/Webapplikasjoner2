@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -41,19 +42,13 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult ReadBlog(int id)
         {
-            var blog = repository.GetBlog(id);
-            var posts = repository.GetAllPosts(id);
-            //var tags = repository.GetAllPostsInThisBlogWithThisTag();
-            //foreach (var post in posts)
-            //{
-               // var List<Tag> tags = post.Tags.ToList();
-
-
-            //}
+            Blog blog = repository.GetBlog(id);
+            List<Post> posts = repository.GetAllPosts(id).ToList();
+            List<Tag> tags = repository.GetAllTags().ToList();
 
             if (ModelState.IsValid)
             {
-                var blogViewModel = new BlogViewModel()
+                BlogViewModel blogViewModel = new BlogViewModel()
                 {
                     BlogId = id,
                     Name = blog.Name,
@@ -63,7 +58,6 @@ namespace Oblig2_Blogg.Controllers
                     Closed = blog.Closed,
                     Owner = blog.Owner,
                     Posts = posts.ToList()
-                    //Tags = tags
                 };
                 return View(blogViewModel);
             }

@@ -123,6 +123,18 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
 
+        //GET TAGS
+        public IEnumerable<Tag> GetAllTags()
+        {
+            var tags = db.Tags.ToList();
+            return tags;
+        }
+
+        public GetAllTags()
+        {
+            var tags = db..ToList();
+            return tags;
+        }
 
         //SAVE-----------------------------------------------------------------------
         //SAVE BLOG
