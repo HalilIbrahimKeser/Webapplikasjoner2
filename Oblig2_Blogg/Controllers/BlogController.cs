@@ -43,6 +43,13 @@ namespace Oblig2_Blogg.Controllers
         {
             var blog = repository.GetBlog(id);
             var posts = repository.GetAllPosts(id);
+            //var tags = repository.GetAllPostsInThisBlogWithThisTag();
+            //foreach (var post in posts)
+            //{
+               // var List<Tag> tags = post.Tags.ToList();
+
+
+            //}
 
             if (ModelState.IsValid)
             {
@@ -56,6 +63,7 @@ namespace Oblig2_Blogg.Controllers
                     Closed = blog.Closed,
                     Owner = blog.Owner,
                     Posts = posts.ToList()
+                    //Tags = tags
                 };
                 return View(blogViewModel);
             }

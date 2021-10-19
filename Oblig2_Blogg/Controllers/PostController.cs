@@ -64,12 +64,14 @@ namespace Oblig2_Blogg.Controllers
             try {
                 if (ModelState.IsValid) {
                     var blog = repository.GetBlog(blogId);
+                    
                     if (!blog.Closed) {
                         var post = new Post()
                         {
                             PostText = newPostViewModel.PostText,
                             Created = DateTime.Now,
                             BlogId = blogId,
+                            
                         };
                         repository.SavePost(post, User).Wait();
 
@@ -207,7 +209,22 @@ namespace Oblig2_Blogg.Controllers
             }
         }
 
+        //TAGS CRUD OPERATIONS and VIEW------------------------------------------------------------------------
+        [AllowAnonymous]
+        public ActionResult FindPostsWithTag(int tagId, int blogId)
+        {
+            var blog = new Blog();
+            blog = repository.GetBlog(blogId);
+            
+            var blogViewModel = new BlogViewModel();
+            var tags = repository.GetAllPostsInThisBlogWithThisTag(tagId, blogId);
+            
+            //blogViewModel.Tags = 
 
+            return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+        }
+
+        
         //COMMENT CRUD OPERATIONS------------------------------------------------------------------------
 
         // Comment/Create

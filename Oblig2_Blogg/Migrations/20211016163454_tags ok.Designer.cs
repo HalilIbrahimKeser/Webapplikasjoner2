@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oblig2_Blogg.Data;
 
 namespace Oblig2_Blogg.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211016163454_tags ok")]
+    partial class tagsok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,7 +270,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 1,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 479, DateTimeKind.Local).AddTicks(2060),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 650, DateTimeKind.Local).AddTicks(3725),
                             Description = "Fortelling av turopplevelser",
                             Name = "Tur til Australia"
                         },
@@ -276,7 +278,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 2,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(488),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 653, DateTimeKind.Local).AddTicks(6936),
                             Description = "Møtet med Taliban",
                             Name = "Tur til Afganistan"
                         },
@@ -284,7 +286,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 3,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(678),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 653, DateTimeKind.Local).AddTicks(7082),
                             Description = "Barna likte båttur",
                             Name = "Tur til Thailand"
                         });
@@ -327,28 +329,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             CommentId = 1,
                             CommentText = "Så heldige dere er :)",
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(5613),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(1222),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 2,
                             CommentText = "Dere må innom den store parken i byen",
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(6629),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(2035),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 3,
                             CommentText = "Hvem er Taliban??",
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(6670),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(2067),
                             PostId = 3
                         },
                         new
                         {
                             CommentId = 4,
                             CommentText = "Husk å ikke gi mat til apene..)",
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(6694),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(2086),
                             PostId = 4
                         });
                 });
@@ -395,91 +397,29 @@ namespace Oblig2_Blogg.Migrations
                         {
                             PostId = 1,
                             BlogId = 1,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(3178),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 653, DateTimeKind.Local).AddTicks(9201),
                             PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide"
                         },
                         new
                         {
                             PostId = 2,
                             BlogId = 1,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(4236),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(47),
                             PostText = "Melbourne på vei til Adelaide var et kjempefint sted"
                         },
                         new
                         {
                             PostId = 3,
                             BlogId = 2,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(4285),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(85),
                             PostText = "Skulle startet fjellturen via Kunduz. Men møtet med Taliban var ikke så hyggelig"
                         },
                         new
                         {
                             PostId = 4,
                             BlogId = 3,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(4312),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(106),
                             PostText = "Barna ble litt lei hotellet i Phuket. Da tok vi oss en båttur til Ko Khao Khat"
-                        });
-                });
-
-            modelBuilder.Entity("Oblig2_Blogg.Models.Entities.PostsAndTags", b =>
-                {
-                    b.Property<int>("PostsAndTagsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PostsAndTagsId");
-
-                    b.ToTable("PostsAndTags");
-
-                    b.HasData(
-                        new
-                        {
-                            PostsAndTagsId = 1,
-                            PostId = 1,
-                            TagId = 1
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 2,
-                            PostId = 1,
-                            TagId = 2
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 3,
-                            PostId = 2,
-                            TagId = 3
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 4,
-                            PostId = 2,
-                            TagId = 4
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 5,
-                            PostId = 3,
-                            TagId = 5
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 6,
-                            PostId = 3,
-                            TagId = 6
-                        },
-                        new
-                        {
-                            PostsAndTagsId = 7,
-                            PostId = 1,
-                            TagId = 7
                         });
                 });
 
@@ -514,51 +454,44 @@ namespace Oblig2_Blogg.Migrations
                         new
                         {
                             TagId = 1,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 484, DateTimeKind.Local).AddTicks(9070),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(3874),
                             PostId = 1,
                             TagLabel = "Natur"
                         },
                         new
                         {
                             TagId = 2,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(75),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(4682),
                             PostId = 1,
                             TagLabel = "Fjell"
                         },
                         new
                         {
                             TagId = 3,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(119),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(4716),
                             PostId = 2,
                             TagLabel = "Ørken"
                         },
                         new
                         {
                             TagId = 4,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(143),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(4736),
                             PostId = 2,
                             TagLabel = "Farlig"
                         },
                         new
                         {
                             TagId = 5,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(165),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(4754),
                             PostId = 3,
                             TagLabel = "Løping"
                         },
                         new
                         {
                             TagId = 6,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(193),
+                            Created = new DateTime(2021, 10, 16, 18, 34, 53, 654, DateTimeKind.Local).AddTicks(4777),
                             PostId = 3,
                             TagLabel = "Sykling"
-                        },
-                        new
-                        {
-                            TagId = 7,
-                            Created = new DateTime(2021, 10, 19, 13, 15, 42, 485, DateTimeKind.Local).AddTicks(214),
-                            PostId = 1,
-                            TagLabel = "Gåtur"
                         });
                 });
 

@@ -61,18 +61,12 @@ namespace Oblig2_Blogg.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
-
-            //la inn disse
+           
+            [Required]
             public String FirstName { get; set; }
-
+           
+            [Required]
             public String LastName { get; set; }
-
-            public DateTime? LastLoggedIn { get; set; }
-
-            public bool? IsEnabled { get; set; }
-
-            public bool? IsAdmin { get; set; }
-            //---------------------------------
         }
 
         public async Task OnGetAsync(string returnUrl = null)

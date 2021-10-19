@@ -25,6 +25,8 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public virtual List<Comment> Comments { get; set; }
 
+        public virtual ICollection<Tag> Tags { get; set; }
+
         public virtual ApplicationUser Owner { get; set; }
     }
 }

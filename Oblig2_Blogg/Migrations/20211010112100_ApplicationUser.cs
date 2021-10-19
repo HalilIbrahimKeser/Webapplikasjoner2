@@ -5,6 +5,8 @@ namespace Oblig2_Blogg.Migrations
 {
     public partial class ApplicationUser : Migration
     {
+        internal readonly Exception Id;
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(

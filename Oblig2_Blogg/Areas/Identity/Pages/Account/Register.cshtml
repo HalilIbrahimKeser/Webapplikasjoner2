@@ -18,7 +18,6 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
 
-            @*la inn disse her*@
             <div class="form-group">
                 <label asp-for="Input.FirstName"></label>
                 <input asp-for="Input.FirstName" class="form-control" />
@@ -30,27 +29,6 @@
                 <input asp-for="Input.LastName" class="form-control" />
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
-
-            <div class="form-group">
-
-                <label asp-for="Input.LastLoggedIn"></label>
-                <input asp-for="Input.LastLoggedIn" class="form-control"/>
-                <span asp-validation-for="Input.LastLoggedIn" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.IsEnabled"></label>
-                <input asp-for="Input.IsEnabled" class="form-control" />
-                <span asp-validation-for="Input.IsEnabled" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.IsAdmin"></label>
-                <input asp-for="Input.IsAdmin" class="form-control" />
-                <span asp-validation-for="Input.IsAdmin" class="text-danger"></span>
-            </div>
-            @*til hit*@
-            
 
             <div class="form-group">
                 <label asp-for="Input.Password"></label>

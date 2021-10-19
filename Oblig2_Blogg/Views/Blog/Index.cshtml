@@ -11,9 +11,9 @@
     ViewData["Title"] = "Index";
 }
 
-<h6>Velkommen @userManager.GetUserName(User)</h6>
-<h2>Oversikt over blogger:</h2>
 
+<h2>Oversikt over blogger:</h2>
+<hr />
 @if (TempData["Feedback"] != null)
 {
     <div class="success-centered">
@@ -56,9 +56,16 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
-                </td>
+                @if (item.Owner != null) {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Owner.FirstName)
+                    </td>
+
+                } else {
+                    <td>
+                        No user
+                    </td>
+                }
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -72,7 +79,7 @@
                     @Html.DisplayFor(modelItem => item.Created)
                 </td>
                 <td>
-                    @Html.ActionLink("Enter the blog", "ReadBlog", new { id = item.BlogId })
+                    @Html.ActionLink("Enter the blog", "ReadBlog", new {id = item.BlogId})
                 </td>
             </tr>
         }

@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Data;
 using Oblig2_Blogg.Models.ViewModels;
@@ -242,6 +243,21 @@ namespace Oblig2_Blogg.Models.Repository
             {
                 db.Comments.Remove(comment);
                 await db.SaveChangesAsync();
+            }
+        }
+
+        //TAGS
+        public async Task GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
+        {
+            List<Post> posts = (from p in db.Posts
+                where p.BlogId == blogId
+                          select p).ToList();
+            foreach (var post in posts)
+            {
+                //if (post.Tags.Contains())
+                //{
+                   // List<Tag> postWithTags = post.Tags.ToList();
+                //}
             }
         }
     }

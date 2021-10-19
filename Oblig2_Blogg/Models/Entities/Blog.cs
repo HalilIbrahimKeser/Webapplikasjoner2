@@ -6,25 +6,21 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    //lagt inn Interface
-    public class Blog : IAuthorizationEntity
+    public class Blog
     {
-        //BlogId, Name, Description, Created, Modified, Closed, Posts, Owner
-
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }
 
         [Required]
         [StringLength(50)]
-        [Column("Name")]
         [Display(Name = "Blog")]
         public string Name { get; set; }
 
         public string Description { get; set; }
 
-        public DateTime Created { get; internal set; }
+        public DateTime Created { get; set; }
 
-        public DateTime? Modified { get; internal set; }
+        public DateTime? Modified { get; set; }
 
         public bool Closed { get; set; }
 

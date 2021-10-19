@@ -17,9 +17,9 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         public string Description { get; set; }
 
-        public DateTime Created { get; internal set; }
+        public DateTime Created { get; set; }
 
-        public DateTime? Modified { get; internal set; }
+        public DateTime? Modified { get; set; }
 
         public bool Closed { get; set; }
 
@@ -29,6 +29,8 @@ namespace Oblig2_Blogg.Models.ViewModels
 
         //INNLEGG
         public virtual List<Post> Posts { get; set; }
+
+        public virtual List<Tag> Tags { get; set; }
 
         //EIER
         public virtual ApplicationUser Owner { get; set; }

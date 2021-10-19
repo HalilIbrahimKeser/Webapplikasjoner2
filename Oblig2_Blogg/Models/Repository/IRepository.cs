@@ -10,13 +10,14 @@ using Oblig2_Blogg.Models.ViewModels;
 namespace Oblig2_Blogg.Models.Repository
 {
     public interface IRepository
-    { 
+    {
+        //BLOGS
         IEnumerable<Blog> GetAllBlogs();
         /*Task<IEnumerable<Blog>> GetAllBlogs();*/
         Blog GetBlog(int blogIdToGet);
         Task SaveBlog(Blog blog, IPrincipal principal);
 
-
+        //POSTS
         IEnumerable<Post> GetAllPostsWhitBlog();
         IEnumerable<Post> GetAllPosts(int blogIdToGet);
         PostViewModel GetPostViewModel(int? id);
@@ -25,11 +26,14 @@ namespace Oblig2_Blogg.Models.Repository
         Task<Post> UpdatePost(Post post, IPrincipal principal);
         Task DeletePost(Post post, IPrincipal principal);
 
-
+        //COMMENTS
         IEnumerable<Comment> GetAllComments(int? postIdToGet);
         Comment GetComment(int commentIdToGet);
         Task SaveComment(Comment comment, IPrincipal principal);
         Task UpdateComment(Comment comment, IPrincipal principal);
         Task DeleteComment(Comment comment, IPrincipal principal);
+        
+        //TAGS
+        Task GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
     }
 }

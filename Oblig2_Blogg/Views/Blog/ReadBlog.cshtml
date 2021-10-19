@@ -11,35 +11,67 @@
 @{
     ViewData["Title"] = "ReadBlog";
 }
-
-
+<hr />
+<p>Blog navn:</p>
 <h1>@Model.Name</h1>
 <hr />
 <p>
     Created: @Model.Created,
     @if (@Model.Owner == null)
-        {<a> User not registered</a> }
-    else
-        {<a> Created by: @Model.Owner.FirstName</a> }
-</p>
-    @if (TempData["Feedback"] != null)
     {
-        <div class="success-centered text-info">
-            <h1>@TempData["Feedback"]</h1>
-        </div>
+        <a> User not registered</a>
     }
+    else
+    {
+        <a> Created by: @Model.Owner.FirstName</a>
+    }
+</p>
+@if (TempData["Feedback"] != null)
+{
+    <div class="success-centered text-info">
+        <h1>@TempData["Feedback"]</h1>
+    </div>
+}
 <hr />
-
+<p>Blog innhold: </p>
 <h4> @Model.Description</h4>
 
+<hr />
+@if (@Model.Owner != null)
+{
     @if (@Model.Closed == false && @userManager.GetUserName(User) == @Model.Owner.ToString())
     {
         <p>@Html.ActionLink("Create new post", "CreatePost", "Post", new { blogId = @Model.BlogId })</p>
     }
+}
+<hr />
 
-<hr />
-<p>Posts:....</p>
-<hr />
+@if (Model.Tags != null)
+{
+    <p>Tags:</p>
+    <table class="table table-hover">
+        <tr>
+            <th>Tags</th>
+        </tr>
+        @try
+        {
+
+            @foreach (var item in Model.Tags)
+            {
+                <tr>
+                    <td>
+                        @Html.ActionLink(item.TagLabel, "FindPostsWithTag", "Post", new { tagId = item.TagId, blogId = @Model.BlogId })
+                    </td>
+                </tr>
+            }
+        }
+        catch (NullReferenceException e)
+        {
+            Console.Write(e);
+        }
+    </table>
+    <hr />
+}
 
 <table class="table table-hover">
     <tr>
@@ -67,29 +99,26 @@
                     @Html.DisplayFor(modelItem => item.Modified)
                 </td>
                 <td>
+
                     @Html.ActionLink("Read post", "ReadPost", new { id = item.PostId })
 
-                    
-                    @if ((await AuthorizationService.AuthorizeAsync(
-                        User, item,
-                        BlogOperations.Update)).Succeeded)
+                    @if (signInManager.IsSignedIn(User))
                     {
-                        @if (signInManager.IsSignedIn(User))
+                        @if ((await AuthorizationService.AuthorizeAsync(
+                   User, item,
+                   BlogOperations.Update)).Succeeded)
                         {
                             @Html.ActionLink("| Edit ", "EditPost", "Post", new { id = item.PostId })
-
                         }
-                    }
 
-                    @if ((await AuthorizationService.AuthorizeAsync(
-                        User, item,
-                        BlogOperations.Delete)).Succeeded)
-                    {
-                        @if (signInManager.IsSignedIn(User))
+                        @if ((await AuthorizationService.AuthorizeAsync(
+                   User, item,
+                   BlogOperations.Delete)).Succeeded)
                         {
                             @Html.ActionLink(" | Delete", "DeletePost", "Post", new { id = item.PostId })
                         }
                     }
+
                 </td>
             </tr>
         }
@@ -103,6 +132,6 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-    @section Scripts {
-        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    }
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

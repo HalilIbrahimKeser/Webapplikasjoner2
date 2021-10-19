@@ -66,25 +66,21 @@
                     @Html.DisplayFor(modelItem => item.CommentText)
                 </td>
                 <td>
-                    @if ((await AuthorizationService.AuthorizeAsync(
-                     User, item,
-                     BlogOperations.Update)).Succeeded)
+                    @if (signInManager.IsSignedIn(User))
                     {
-                        @if (signInManager.IsSignedIn(User))
+                        @if ((await AuthorizationService.AuthorizeAsync(
+                            User, item,
+                            BlogOperations.Update)).Succeeded)
                         {
-                            @Html.ActionLink("Edit", "EditComment","Post", new { id = item.CommentId })
 
+                            @Html.ActionLink("Edit", "EditComment", "Post", new {id = item.CommentId})
                         }
-                    }
 
-                    @if ((await AuthorizationService.AuthorizeAsync(
-                       User, item,
-                       BlogOperations.Update)).Succeeded)
-                    {
-                        @if (signInManager.IsSignedIn(User))
+                        @if ((await AuthorizationService.AuthorizeAsync(
+                            User, item,
+                            BlogOperations.Update)).Succeeded)
                         {
-                            @Html.ActionLink(" | Delete", "DeleteComment", "Post", new { id = item.CommentId })
-
+                            @Html.ActionLink(" | Delete", "DeleteComment", "Post", new {id = item.CommentId})
                         }
                     }
                 </td>

@@ -17,10 +17,13 @@
                 <input asp-for="PostText" class="form-control" />
                 <span asp-validation-for="PostText" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="listOfTags">
                 <input asp-for="BlogId" type="hidden" class="form-control" />
                 <span asp-validation-for="BlogId" class="text-danger"></span>
             </div>
+
+   
+
 
 
             <div class="form-group">
@@ -31,8 +34,9 @@
 </div>
 
 <div>
-    <a asp-controller="Blog", asp-action="Index">Back to List</a>
+    <a asp-controller="Blog" , asp-action="Index">Back to List</a>
 </div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

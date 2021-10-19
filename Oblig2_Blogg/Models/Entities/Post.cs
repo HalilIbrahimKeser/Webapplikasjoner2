@@ -7,12 +7,12 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    //lagt inn Interface
-    public class Post : IAuthorizationEntity
+    public class Post
     {
-
-        //PostId, PostText, Created, Modified, BlogId, Blog, Comments, Owner
-
+        public Post()
+        {
+            this.Tags = new HashSet<Tag>();
+        }
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PostId { get; set; }
@@ -22,11 +22,13 @@ namespace Oblig2_Blogg.Models.Entities
         [Display(Name = "Post")]
         public string PostText { get; set; }
 
-        public DateTime Created { get; internal set; }
+        public DateTime Created { get; set; }
 
-        public DateTime? Modified { get; internal set; }
+        public DateTime? Modified { get; set; }
 
         //FREMMED NØKKEL
+        //[ForeignKey("BlogId")]
+        [Required]
         public int BlogId { get; set; }
 
         public virtual Blog Blog { get; set; }
@@ -35,7 +37,7 @@ namespace Oblig2_Blogg.Models.Entities
         public virtual List<Comment> Comments { get; set; }
 
         //TAG
-        public virtual List<Tag> Tags { get; set; }
+        public virtual ICollection<Tag> Tags { get; set; }
 
         //EIER
         public virtual ApplicationUser Owner { get; set; }
