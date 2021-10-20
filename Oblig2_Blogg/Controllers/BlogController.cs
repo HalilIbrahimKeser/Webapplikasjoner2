@@ -43,7 +43,8 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult ReadBlog(int id)
         {
             Blog blog = repository.GetBlog(id);
-            List<Post> posts = repository.GetAllPosts(id).ToList();
+            List<Post> posts = new List<Post>();
+            posts = repository.GetAllPosts(id).ToList();
             List<Tag> tagsForThisBlog = repository.GetAllTagsForBlog(blog.BlogId).ToList();
 
             if (ModelState.IsValid)

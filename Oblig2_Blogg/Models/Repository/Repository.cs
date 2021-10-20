@@ -190,12 +190,16 @@ namespace Oblig2_Blogg.Models.Repository
                 where p.BlogId == blogId
                 select p).ToList();
 
-            List<Post> postsToShow = new List<Post>();
+            List<Post> postsToShow = new();
 
             foreach (var post in posts)
             {
                 foreach (var postTags in post.Tags)
                 {
+                    if (postTags.TagId == tagId)
+                    {
+                        postsToShow.Add(post);
+                    }
                 }
             }
             return postsToShow;

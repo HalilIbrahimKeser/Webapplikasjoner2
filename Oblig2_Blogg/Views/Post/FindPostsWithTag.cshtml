@@ -51,17 +51,17 @@
     <table class="table table-hover">
         <tr>
             <th>Tags</th>
-            <th> @Html.ActionLink("Fjern søk", "ReadBlog", new {id = Model.BlogId })</th>
+            <th> @Html.ActionLink("Fjern søk", "ReadBlog", "Blog", new { id = Model.BlogId })</th>
         </tr>
         @try
         {
             <tr>
-            @foreach (var item in Model.Tags)
-            {
-                <td>
-                    @Html.ActionLink(item.TagLabel, "FindPostsWithTag", "Post", new {tagId = item.TagId, blogId = Model.BlogId})
-                </td>
-            }
+                @foreach (var item in Model.Tags)
+                {
+                    <td>
+                        @Html.ActionLink(item.TagLabel, "FindPostsWithTag", "Post", new { tagId = item.TagId, blogId = Model.BlogId })
+                    </td>
+                }
             </tr>
         }
         catch (NullReferenceException e)
@@ -99,20 +99,20 @@
                 </td>
                 <td>
 
-                    @Html.ActionLink("Read post", "ReadPost", new { id = item.PostId })
+                    @Html.ActionLink("Read post", "ReadPost", "Blog", new { id = item.PostId })
 
                     @if (signInManager.IsSignedIn(User))
                     {
                         @if ((await AuthorizationService.AuthorizeAsync(
-                   User, item,
-                   BlogOperations.Update)).Succeeded)
+                  User, item,
+                  BlogOperations.Update)).Succeeded)
                         {
                             @Html.ActionLink("| Edit ", "EditPost", "Post", new { id = item.PostId })
                         }
 
                         @if ((await AuthorizationService.AuthorizeAsync(
-                   User, item,
-                   BlogOperations.Delete)).Succeeded)
+                  User, item,
+                  BlogOperations.Delete)).Succeeded)
                         {
                             @Html.ActionLink(" | Delete", "DeletePost", "Post", new { id = item.PostId })
                         }

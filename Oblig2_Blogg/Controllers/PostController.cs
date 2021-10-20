@@ -213,15 +213,31 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult FindPostsWithTag(int tagId, int blogId)
         {
-            var blog = new Blog();
-            blog = repository.GetBlog(blogId);
-            
-            var blogViewModel = new BlogViewModel();
+            Blog blog = repository.GetBlog(blogId);
             List<Post> posts = repository.GetAllPostsInThisBlogWithThisTag(tagId, blogId).ToList();
+            List<Tag> tagsForThisBlog = repository.GetAllTagsForBlog(blog.BlogId).ToList();
 
-            blogViewModel.Posts = posts;
-
-            return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+            if (ModelState.IsValid)
+            {
+                BlogViewModel blogViewModel = new BlogViewModel()
+                {
+                    BlogId = blog.BlogId,
+                    Name = blog.Name,
+                    Description = blog.Description,
+                    Created = blog.Created,
+                    Modified = blog.Modified,
+                    Closed = blog.Closed,
+                    Owner = blog.Owner,
+                    Posts = posts.ToList(),
+                    Tags = tagsForThisBlog
+                };
+                return View(blogViewModel);
+            }
+            else
+            {
+                TempData["Feedback"] = "Feil ved søk, feil i Model: " + blog.BlogId;
+                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
+            }
         }
 
         
