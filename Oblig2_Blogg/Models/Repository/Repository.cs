@@ -28,8 +28,43 @@ namespace Oblig2_Blogg.Models.Repository
             this.db = db;
             this.manager = userManager1;
             this.authorizationService = authorizationService1;
+            //SeedManyToMany_OnlyOneTime();
         }
 
+        private void SeedManyToMany_OnlyOneTime()
+        {
+            ////TODO
+            //var post1 = db.Posts()
+            //var postQuery = from post in posts
+            //    where post.BlogId == blogIdToGet
+            //    orderby post.Created descending
+            //    select post;
+
+
+            //var post2 = new Post
+            //{
+            //    Title = "Denne posten tilhører kun taggen 'kaffe' ",
+            //    Content = "kobles sammen med 'kaffe' ",
+            //    BlogId = 1
+            //};
+
+            //_db.AddRange(
+            //    new Tag
+            //    {
+            //        TagLabel = "suppe",
+            //        Created = DateTime.Now,
+            //        Posts = new List<Post> { post1 }
+            //    },
+
+            //    new Tag
+            //    {
+            //        TagLabel = "kaffe",
+            //        Created = DateTime.Now,
+            //        Posts = new List<Post> { post1, post2 }
+            //    });
+
+            //_db.SaveChanges();
+        }
 
 
         //GET BLOGS
@@ -85,7 +120,6 @@ namespace Oblig2_Blogg.Models.Repository
             }
             else
             {
-                //NB lagt inn include owner
                 p = (db.Posts.Include(o => o.Comments).Include(o => o.Owner)
                     .Where(o => o.PostId == id)
                     .Select(o => new PostViewModel()
@@ -124,17 +158,51 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET TAGS
-        public IEnumerable<Tag> GetAllTags()
+        public IEnumerable<Tag> GetAllTagsForBlog(int BlogId)
         {
-            var tags = db.Tags.ToList();
-            return tags;
+            IEnumerable<Blog> blogs = db.Blogs;
+            IEnumerable<Post> posts = db.Posts.Include(p => p.Tags);
+
+            List<Tag> tagsToShow = new List<Tag>();
+            foreach (var tag in db.Tags.Include(a => a.Posts)) //Henter alle tags
+            {
+                foreach (var tagPost in tag.Posts)  //Går gjennom alle post inne i hver tag
+                {
+                    if (tagPost.BlogId == BlogId) //Legger i lista de som tilhører denne blogggen
+                    {
+                        tagsToShow.Add(tag); 
+                    }
+                }
+            }
+            return tagsToShow;
         }
 
-        public GetAllTags()
+        //TODO om vi skal ha søk av tag på Blog/Index liste opp alle tag og søke, så vise tilhørende poster
+        //public GetAllTags()
+        //{
+        //    var tags = db..ToList();
+        //    return tags;
+        //}
+
+        public IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
         {
-            var tags = db..ToList();
-            return tags;
+            List<Post> posts = (from p in db.Posts.Include(p=>p.Tags)
+                where p.BlogId == blogId
+                select p).ToList();
+
+            List<Post> postsToShow = new List<Post>();
+
+            foreach (var post in posts)
+            {
+                foreach (var postTags in post.Tags)
+                {
+                }
+            }
+            return postsToShow;
         }
+    
+
+
 
         //SAVE-----------------------------------------------------------------------
         //SAVE BLOG
@@ -258,19 +326,6 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
-        //TAGS
-        public async Task GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
-        {
-            List<Post> posts = (from p in db.Posts
-                where p.BlogId == blogId
-                          select p).ToList();
-            foreach (var post in posts)
-            {
-                //if (post.Tags.Contains())
-                //{
-                   // List<Tag> postWithTags = post.Tags.ToList();
-                //}
-            }
-        }
+   
     }
 }

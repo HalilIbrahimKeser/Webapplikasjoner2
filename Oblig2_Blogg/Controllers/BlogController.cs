@@ -44,7 +44,7 @@ namespace Oblig2_Blogg.Controllers
         {
             Blog blog = repository.GetBlog(id);
             List<Post> posts = repository.GetAllPosts(id).ToList();
-            List<Tag> tags = repository.GetAllTags().ToList();
+            List<Tag> tagsForThisBlog = repository.GetAllTagsForBlog(blog.BlogId).ToList();
 
             if (ModelState.IsValid)
             {
@@ -57,7 +57,8 @@ namespace Oblig2_Blogg.Controllers
                     Modified = blog.Modified,
                     Closed = blog.Closed,
                     Owner = blog.Owner,
-                    Posts = posts.ToList()
+                    Posts = posts.ToList(),
+                    Tags = tagsForThisBlog
                 };
                 return View(blogViewModel);
             }

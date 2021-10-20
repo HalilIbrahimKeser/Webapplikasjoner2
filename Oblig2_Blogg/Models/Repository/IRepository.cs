@@ -32,9 +32,10 @@ namespace Oblig2_Blogg.Models.Repository
         Task SaveComment(Comment comment, IPrincipal principal);
         Task UpdateComment(Comment comment, IPrincipal principal);
         Task DeleteComment(Comment comment, IPrincipal principal);
-        
+
         //TAGS
-        Task GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
-        IEnumerable<Tag> GetAllTags();
+        IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
+        IEnumerable<Tag> GetAllTagsForBlog(int BlogId);
+        //IEnumerable<Tag> GetAllTags();
     }
 }

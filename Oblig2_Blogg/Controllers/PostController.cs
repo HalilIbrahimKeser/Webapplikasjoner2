@@ -217,9 +217,9 @@ namespace Oblig2_Blogg.Controllers
             blog = repository.GetBlog(blogId);
             
             var blogViewModel = new BlogViewModel();
-            var tags = repository.GetAllPostsInThisBlogWithThisTag(tagId, blogId);
-            
-            //blogViewModel.Tags = 
+            List<Post> posts = repository.GetAllPostsInThisBlogWithThisTag(tagId, blogId).ToList();
+
+            blogViewModel.Posts = posts;
 
             return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
         }
