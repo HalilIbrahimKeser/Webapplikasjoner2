@@ -40,7 +40,7 @@ namespace Oblig2_Blogg.Controllers
 
         //VIEW
         [AllowAnonymous]
-        public ActionResult ReadBlog(int id)
+        public ActionResult ReadBlogPosts(int id)
         {
             Blog blog = repository.GetBlog(id);
             List<Post> posts = new List<Post>();
@@ -71,7 +71,7 @@ namespace Oblig2_Blogg.Controllers
 
         //VIEW
         [AllowAnonymous]
-        public ActionResult ReadPost(int id)
+        public ActionResult ReadPostComments(int id)
         {
             var postViewModel = repository.GetPostViewModel(id);
 

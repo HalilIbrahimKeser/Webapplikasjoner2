@@ -44,7 +44,7 @@
 
 <div>
     <a asp-controller="Blog" , asp-action="Index">Back to List</a>
-    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlog", "Blog", new { id = Model.BlogId })
+    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
 </div>
 
 @section Scripts {

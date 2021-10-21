@@ -41,7 +41,7 @@ namespace Oblig2_Blogg.Controllers
             
             if (blog.Closed) {
                 TempData["Feedback"] = "Blog steng for innlegg" + blog.BlogId;
-                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
             }
 
             var isAuthorized = await authorizationService.AuthorizeAsync(
@@ -50,7 +50,7 @@ namespace Oblig2_Blogg.Controllers
             //Kun eier av blog kan legge inn poster. Resten kan kun kommentere
             if (!isAuthorized.Succeeded && User.Identity == null && blog.Owner.Id != userManager.GetUserId(User)) {
                 TempData["Feedback"] = "Ingen tilgang";
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                 //return Forbid();
             }
             return View();
@@ -76,20 +76,20 @@ namespace Oblig2_Blogg.Controllers
                         repository.SavePost(post, User).Wait();
 
                         TempData["Feedback"] = $"{post.PostId} har blitt opprettet";
-                        return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     } else {
                         TempData["Feedback"] = "Låst for endringer";
-                        return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     }
                 }
             }
             catch (Exception e) {
                 Console.WriteLine(e);
                 TempData["Feedback"] = e;
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
             }
             TempData["Feedback"] = "Fikk ikke opprettet ny post";
-            return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
         }
 
         // Post/Edit/#
@@ -137,13 +137,13 @@ namespace Oblig2_Blogg.Controllers
                         if (result != null)
                         {
                             TempData["Feedback"] = string.Format("{0} is updated", post.PostText);
-                            return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                         }
 
                         repository.UpdatePost(post, User).Wait();
 
                         TempData["Feedback"] = $"{post.PostText} has been updated";
-                        return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     }
                     else return new ChallengeResult();
                 } catch {
@@ -153,7 +153,7 @@ namespace Oblig2_Blogg.Controllers
             else
             {
                 TempData["Feedback"] = "Kan ikke redigere post, den er låst";
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
             }
         }
 
@@ -192,12 +192,12 @@ namespace Oblig2_Blogg.Controllers
 
                         TempData["Feedback"] = $"{postToDelete.PostText} has been updated";
 
-                        return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     }
                     else
                     {
                         TempData["Feedback"] = "Kan ikke slette";
-                        return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     }
                 }
                 else return new ChallengeResult();
@@ -205,7 +205,7 @@ namespace Oblig2_Blogg.Controllers
             catch (Exception e)
             {
                 TempData["Feedback"] = e;
-                return RedirectToAction("ReadBlog", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
             }
         }
 
@@ -236,7 +236,7 @@ namespace Oblig2_Blogg.Controllers
             else
             {
                 TempData["Feedback"] = "Feil ved søk, feil i Model: " + blog.BlogId;
-                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
             }
         }
 
@@ -252,7 +252,7 @@ namespace Oblig2_Blogg.Controllers
             if (blog.Closed)
             {
                 TempData["Feedback"] = "Blog steng for kommentarer: " + blog.BlogId;
-                return RedirectToAction("ReadBlog", "Blog", new { id = blog.BlogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
             }
             return View();
         }
@@ -274,13 +274,13 @@ namespace Oblig2_Blogg.Controllers
                     repository.SaveComment(comment, User).Wait();
 
                     TempData["Feedback"] = $"{comment.PostId} har blitt opprettet";
-                    return RedirectToAction("ReadPost", "Blog", new { id = PostId });
+                    return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
                 }
             }
             catch (Exception e) {
                 Console.WriteLine(e);
                 TempData["Feedback"] = "Feil kan ikke legge inn kommentar" + e;
-                return RedirectToAction("ReadPost", "Blog", new { id = PostId });
+                return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
             }
             return View();
         }
@@ -320,12 +320,12 @@ namespace Oblig2_Blogg.Controllers
                     repository.UpdateComment(comment, User).Wait();
 
                     TempData["Feedback"] = $"{comment.CommentText} has been updated";
-                    return RedirectToAction("ReadPost", "Blog", new { id = postId });
+                    return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
                 }
                 else return new ChallengeResult();
             } catch {
                 TempData["Feedback"] = "Fikk ikke endret kommentar";
-                return RedirectToAction("ReadPost", "Blog", new { id = postId });
+                return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
             }
         }
 
@@ -359,12 +359,12 @@ namespace Oblig2_Blogg.Controllers
                     repository.DeleteComment(commentToDelete, User).Wait();
 
                     TempData["Feedback"] = $"{commentToDelete.CommentText} has been updated";
-                    return RedirectToAction("ReadPost", "Blog", new { id = postId });
+                    return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
                 }
                 else return new ChallengeResult();
             } catch (Exception e) {
                 TempData["Feedback"] = $"Comment has been updated" + e;
-                return RedirectToAction("ReadPost", "Blog", new { id = postId });
+                return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
             }
         }
     }

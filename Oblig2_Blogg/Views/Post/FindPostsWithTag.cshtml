@@ -9,7 +9,7 @@
 @inject IAuthorizationService AuthorizationService
 
 @{
-    ViewData["Title"] = "ReadBlog";
+    ViewData["Title"] = "ReadBlogPosts";
 }
 <hr />
 <p>Blog navn:</p>
@@ -51,7 +51,7 @@
     <table class="table table-hover">
         <tr>
             <th>Tags</th>
-            <th> @Html.ActionLink("Fjern søk", "ReadBlog", "Blog", new { id = Model.BlogId })</th>
+            <th> @Html.ActionLink("Fjern søk", "ReadBlogPosts", "Blog", new { id = Model.BlogId })</th>
         </tr>
         @try
         {
@@ -99,7 +99,7 @@
                 </td>
                 <td>
 
-                    @Html.ActionLink("Read post", "ReadPost", "Blog", new { id = item.PostId })
+                    @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { id = item.PostId })
 
                     @if (signInManager.IsSignedIn(User))
                     {
