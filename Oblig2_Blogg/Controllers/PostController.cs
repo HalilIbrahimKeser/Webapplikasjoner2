@@ -94,17 +94,11 @@ namespace Oblig2_Blogg.Controllers
                 if (ModelState.IsValid) {
                     if (!blog.Closed)
                     {
-                        //https://stackoverflow.com/questions/37778489/how-to-make-check-box-list-in-asp-net-mvc/37779070
-                        var tagsStrings = string.Join(",", newPostViewModel.SelectedTags);   //"12,13,14"
-                       
-                        char[] delimiterChars = { ',' };
-                        var tagsIdNumbers = tagsStrings.Split(delimiterChars).ToList();
-                        
-                        List<Tag> tagsList = new List<Tag>();
-
-                        foreach (var idNumber in tagsIdNumbers)
+                        var tagsList = new List<Tag>();
+                        if (newPostViewModel.SelectedTags.Count != 0) //hvis ikke tomt
                         {
-                            tagsList.Add(repository.GetTag(Int32.Parse(idNumber)));
+                            var tagsString = string.Join(",", newPostViewModel.SelectedTags);   //"12,13,14"
+                            tagsList = getTagsFromString(tagsString);
                         }
                         
                         var post = new Post()
@@ -133,6 +127,20 @@ namespace Oblig2_Blogg.Controllers
             return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
         }
 
+        public List<Tag> getTagsFromString(string tagsStrings)
+        {
+            char[] delimiterChars = { ',' };
+            var tagsIdNumbers = tagsStrings.Split(delimiterChars).ToList();
+
+            List<Tag> tagsListTemp = new List<Tag>();
+
+            foreach (var idNumber in tagsIdNumbers)
+            {
+                tagsListTemp.Add(repository.GetTag(Int32.Parse(idNumber)));
+            }
+            return tagsListTemp;
+        }
+
         // Post/Edit/#
         [HttpGet]
         public async Task<ActionResult> EditPost(int PostId)
@@ -143,6 +151,14 @@ namespace Oblig2_Blogg.Controllers
             }
             var postToEdit = repository.GetPost(PostId);
 
+            PostViewModel postViewModel = new()
+            {
+                PostId = postToEdit.PostId,
+                PostText = postToEdit.PostText,
+                Tags = postToEdit.Tags,
+                BlogId = postToEdit.BlogId
+            };
+
             var isAuthorized = await authorizationService.AuthorizeAsync(
                 User, postToEdit, BlogOperations.Update);
 
@@ -152,19 +168,27 @@ namespace Oblig2_Blogg.Controllers
                 return Unauthorized();
             }
 
-            return View(postToEdit);
+            return View(postViewModel);
         }
 
         // Post/Edit/#
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditPost(int? PostId, [Bind("PostId, PostText, Created, Modified, BlogId, Owner")] Post postToEdit)
+        public async Task<ActionResult> EditPost(int? PostId, [Bind("PostId, PostText, Created, Modified, BlogId, Tags, AvailableTags, SelectedTags, Owner")] PostViewModel postToEdit)
         {
             if (PostId == null) { return NotFound(); }
 
             Post post = repository.GetPost(postToEdit.PostId);
+
             Blog blog = repository.GetBlog(post.BlogId);
             post.Blog = blog;
+
+            var tagsList = new List<Tag>();
+            if (postToEdit.SelectedTags.Count != 0) //hvis ikke tomt
+            {
+                var tagsString = string.Join(",", postToEdit.SelectedTags);   //"12,13,14"
+                tagsList = getTagsFromString(tagsString);
+            }
 
             var isAuthorized = await authorizationService.AuthorizeAsync(User, post, BlogOperations.Update);
 
@@ -174,8 +198,8 @@ namespace Oblig2_Blogg.Controllers
                     if (ModelState.IsValid)
                     {
                         post.Modified = DateTime.Now;
-                        post.Created = postToEdit.Created; 
                         post.PostText = postToEdit.PostText;
+                        post.Tags = tagsList;
 
                         var result = await repository.UpdatePost(post, User);
                         if (result != null)
