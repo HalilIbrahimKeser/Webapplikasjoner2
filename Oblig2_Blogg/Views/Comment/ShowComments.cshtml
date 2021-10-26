@@ -1,0 +1,78 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewBag.Title = "Just testing JQuery";
+}
+
+<h2>@ViewBag.Title</h2>
+
+
+@section scripts{
+    <script>
+        setInterval("Update()", 10000);
+        listProducts(function (products) {
+            var strProducts = "";
+            $.each(products, function (index, comment) {
+                strProducts += "<tr><td>" + comment.CommentText + "</td></tr>";
+            });
+            $("#products").html(strProducts);
+        });
+        function listProducts(callback) {
+            $.ajax({
+                url: "Api/CommentsWebApi",
+                data: {},
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+            }).then(function (products) {
+                callback(products);
+            });
+        }
+        function get(id) {
+            $.ajax(
+                {
+                    type: "GET",
+                    url: `Api/CommentsWebApi/Comment/${id}`,
+                    data: {},
+                    contentType: "application/json;charset=utf-8",
+                    dataType: 'json',
+                    success: function (result) {
+                        $("#update").html(`<p>Kommentarer:${result.CommentText}</p>`);
+                    },
+                    error: function (req, status, error) {
+                        $("#update").html("AJAX error");
+                    }
+                });
+        }
+        $(document).ready(function () {
+            $("#products").html("<p>Venter på data fra server" + "</p>");
+            $("#update").html("<p>Venter på POST..." + "</p>");
+            get(57);
+        });
+    </script>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Navn
+            </th>
+            <th>
+                Beskrivelse
+            </th>
+            <th>
+                Pris
+            </th>
+            <th>
+                Kategori
+            </th>
+            <th>
+                Produsent
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="products">
+    </tbody>
+</table>
+<div id="update"></div>

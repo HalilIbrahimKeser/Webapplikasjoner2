@@ -28,42 +28,94 @@ namespace Oblig2_Blogg.Models.Repository
             this.db = db;
             this.manager = userManager1;
             this.authorizationService = authorizationService1;
-            //SeedManyToMany_OnlyOneTime();
+            //SeedManyToMany_OnlyOneTime(); //kjøres kun en gang
         }
 
         private void SeedManyToMany_OnlyOneTime()
         {
-            ////TODO
-            //var post1 = db.Posts()
-            //var postQuery = from post in posts
-            //    where post.BlogId == blogIdToGet
-            //    orderby post.Created descending
-            //    select post;
+            //var post1 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p=>p.PostId == 1);
+            //var post2 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 2);
+            //var post3 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 3);
+            //var post4 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 4);
 
 
-            //var post2 = new Post
-            //{
-            //    Title = "Denne posten tilhører kun taggen 'kaffe' ",
-            //    Content = "kobles sammen med 'kaffe' ",
-            //    BlogId = 1
-            //};
+            var post1 = new Post
+            {
+                PostText = "Sydney hadde kjempefin natur rundt byen og fine fjell. Vi tok oss en gåtur.",
+                Created = DateTime.Now,
+                BlogId = 1,
+            };
+            var post2 = new Post
+            {
+                PostText = "Melbourne på vei til Adelaide var et kjempefint sted. Vi kjørte gjennom ørkenen. Litt farglig vei",
+                Created = DateTime.Now,
+                BlogId = 1,
+            };
+            var post3 = new Post
+            {
+                PostText = "Skulle startet fjellturen via Kunduz. Men møtet med Taliban var ikke så hyggelig. Vi måtte løpe.",
+                Created = DateTime.Now,
+                BlogId = 2,
+            };
+            var post4 = new Post
+            {
+                PostText = "Barna ble litt lei hotellet i Phuket. Da tok vi oss en båttur til Ko Khao Khat",
+                Created = DateTime.Now,
+                BlogId = 3,
+            };
 
-            //_db.AddRange(
-            //    new Tag
-            //    {
-            //        TagLabel = "suppe",
-            //        Created = DateTime.Now,
-            //        Posts = new List<Post> { post1 }
-            //    },
+            List<Post> post = new List<Post>();
+            db.AddRange(
+                
+                new Tag
+                {
+                    TagLabel = "Natur",
+                    Created = DateTime.Now,
+                    Posts = new List<Post> { post1 }
+                },
 
-            //    new Tag
-            //    {
-            //        TagLabel = "kaffe",
-            //        Created = DateTime.Now,
-            //        Posts = new List<Post> { post1, post2 }
-            //    });
+                new Tag
+                {
+                    TagLabel = "Fjell",
+                    Created = DateTime.Now,
+                    Posts = new List<Post> { post1 }
+                },
+                new Tag
+                {
+                    TagLabel = "Ørken",
+                    Created = DateTime.Now,
+                    Posts = new List<Post> { post2 }
+                },
 
-            //_db.SaveChanges();
+                new Tag
+                {
+                    TagLabel = "Farlig",
+                    Created = DateTime.Now,
+                    Posts = new List<Post> { post2 }
+                },
+                
+                new Tag
+                 {
+                     TagLabel = "Løping",
+                     Created = DateTime.Now,
+                     Posts = new List<Post> { post3 }
+                 },
+
+                new Tag
+                 {
+                     TagLabel = "Sykling",
+                     Created = DateTime.Now,
+                     Posts = new List<Post> { post3 }
+                 },
+
+                new Tag
+                 {
+                     TagLabel = "Gåtur",
+                     Created = DateTime.Now,
+                     Posts = new List<Post> { post1 }
+                 });
+
+            db.SaveChanges();
         }
 
 
@@ -79,7 +131,7 @@ namespace Oblig2_Blogg.Models.Repository
         //GET BLOG
         public Blog GetBlog(int blogIdToGet)
         {
-            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(b=>b.Posts);
             var singleBlogQuery = from blog in blogs
                                   where blog.BlogId == blogIdToGet
                                   select blog;
@@ -105,10 +157,13 @@ namespace Oblig2_Blogg.Models.Repository
         //GET POST
         public Post GetPost(int postIdToGet)
         {
-            return ((from post in db.Posts
+            var postQuery = (from post in db.Posts
                 where post.PostId == postIdToGet
-                     select post)).Include(o => o.Owner).FirstOrDefault();
+                select post).Include(o => o.Owner).Include(o => o.Tags).Include(o => o.Comments);
+            return postQuery.FirstOrDefault();
         }
+
+            
 
         //GET POSTVIEWMODEL
         public PostViewModel GetPostViewModel(int? id)
@@ -164,25 +219,36 @@ namespace Oblig2_Blogg.Models.Repository
             IEnumerable<Post> posts = db.Posts.Include(p => p.Tags);
 
             List<Tag> tagsToShow = new List<Tag>();
-            foreach (var tag in db.Tags.Include(a => a.Posts)) //Henter alle tags
+            foreach (var tag in db.Tags.Distinct().Include(a => a.Posts)) //Henter alle tags
             {
-                foreach (var tagPost in tag.Posts)  //Går gjennom alle post inne i hver tag
+                foreach (var tagPost in tag.Posts.Distinct())  //Går gjennom alle post inne i hver tag
                 {
                     if (tagPost.BlogId == BlogId) //Legger i lista de som tilhører denne blogggen
                     {
-                        tagsToShow.Add(tag); 
+                        if (!tagsToShow.Contains(tag)) //Legg inn hver tag kun en gang
+                        {
+                            tagsToShow.Add(tag);
+                        }
                     }
                 }
             }
             return tagsToShow;
         }
 
-        //TODO om vi skal ha søk av tag på Blog/Index liste opp alle tag og søke, så vise tilhørende poster
-        //public GetAllTags()
-        //{
-        //    var tags = db..ToList();
-        //    return tags;
-        //}
+
+        public IEnumerable<Tag> GetAllTags()
+        {
+            List<Tag> tags = db.Tags.Include(t => t.Posts).ToList();
+            return tags;
+        }
+
+        public Tag GetTag(int tagIdToGet)
+        {
+            var tagQuery = (from tag in db.Tags
+                                        where tag.TagId == tagIdToGet
+                                        select tag).Include(o => o.Posts);
+            return tagQuery.FirstOrDefault();
+        }
 
         public IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
         {
@@ -225,11 +291,11 @@ namespace Oblig2_Blogg.Models.Repository
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             post.Owner = currentUser;
 
-            Blog blog = (from b in db.Blogs
-                where b.BlogId == post.BlogId
-                select b).FirstOrDefault();
+            //Blog blog = (from b in db.Blogs
+            //    where b.BlogId == post.BlogId
+            //    select b).FirstOrDefault();
 
-            if (currentUser.Id == blog.Owner.Id)
+            if (currentUser.Id == post.Owner.Id)
             {
                 db.Posts.Add(post);
                 await db.SaveChangesAsync();
@@ -257,20 +323,12 @@ namespace Oblig2_Blogg.Models.Repository
         }
          
         //UPDATE POST
-        public async Task<Post> UpdatePost(Post post1, IPrincipal principal)
+        public async Task<Post> UpdatePost(Post post, IPrincipal principal)
         {
             var user = await manager.FindByEmailAsync(principal.Identity.Name);
 
-            Post post = post1;
-
-            Blog blog = (from b in db.Blogs
-                where b.BlogId == post.BlogId
-                select b).FirstOrDefault();
-            
-            if (user.Id == blog.Owner.Id)
+            if (user.Id == post.Owner.Id)
             {
-                //db.Entry(post).State = EntityState.Modified;
-                //await db.SaveChangesAsync();
                 db.Posts.Update(post);
                 var updated = await db.SaveChangesAsync();
                 if (updated > 0)
@@ -286,6 +344,7 @@ namespace Oblig2_Blogg.Models.Repository
             {
                 return null;
             }
+            return post;
         }
 
         //UPDATE COMMENT
@@ -330,6 +389,31 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
-   
+        //WEB API Functions---------------------------------
+        public async Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet)
+        {
+            var post = await db.Posts.Include(c => c.Comments).FirstAsync(x => x.PostId == postIdToGet);
+            return post.Comments;
+        }
+
+        public async Task<IEnumerable<Comment>> GetAllComments()
+        {
+            IEnumerable<Comment> comments = await db.Comments.ToListAsync(); ;
+            return comments;  
+            //https://www.c-sharpcorner.com/UploadFile/ff2f08/entity-framework-and-asnotracking/
+        }
+
+        public async Task UpdateComment(Comment comment)
+        {
+
+            db.Entry(comment).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+        }
+
+        public async Task SaveComment(Comment comment)
+        {
+            db.Comments.Add(comment);
+            await db.SaveChangesAsync();
+        }
     }
 }

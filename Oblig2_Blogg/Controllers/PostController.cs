@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Razor.Language;
 using Oblig2_Blogg.Models.Entities;
 using Oblig2_Blogg.Models.Repository;
 using Oblig2_Blogg.Models.ViewModels;
@@ -18,13 +19,30 @@ namespace Oblig2_Blogg.Controllers
         private readonly IRepository repository;
         private UserManager<ApplicationUser> userManager;
         IAuthorizationService authorizationService;
+        private IRepository @object;
+        private IAuthorizationService authService;
 
-        public PostController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
+        //UserManager<ApplicationUser> userManager1 = null,
+        public PostController(IRepository repository,  IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
             this.authorizationService = authorizationService1;
-            this.userManager = userManager1;
+            //this.userManager = userManager1;
         }
+
+        ////TODO? pga testing
+        //public PostController(IRepository @object, IAuthorizationService authService)
+        //{
+        //    this.@object = @object;
+        //    this.authService = authService;
+        //}
+
+        //public PostController(IRepository @object, IAuthorizationService authService)
+        //{
+        //    this.@object = @object;
+        //    this.authService = authService;
+        //}
+
         public IActionResult Index(int id)
         {
             return View(repository.GetPost(id));
@@ -37,7 +55,7 @@ namespace Oblig2_Blogg.Controllers
         [HttpGet]
         public async Task<ActionResult> CreatePost(int blogId)
         {
-            var blog = repository.GetBlog(blogId);
+            Blog blog = repository.GetBlog(blogId);
             
             if (blog.Closed) {
                 TempData["Feedback"] = "Blog steng for innlegg" + blog.BlogId;
@@ -52,55 +70,78 @@ namespace Oblig2_Blogg.Controllers
                 TempData["Feedback"] = "Ingen tilgang";
                 return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                 //return Forbid();
+                //return Unauthorized();
             }
-            return View();
+
+            List<Tag> tags = repository.GetAllTags().ToList();
+            List<Tag> emptyList = new List<Tag>();
+            PostViewModel postViewModel = new PostViewModel()
+            {
+                Tags = tags,
+                AvailableTags = tags
+            };
+            return View(postViewModel);
         }
 
         // Post/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreatePost(int blogId, [Bind("PostText, Created, BlogId, Owner")] PostViewModel newPostViewModel)
+        public ActionResult CreatePost(int blogId, [Bind("PostText, Created, BlogId, Tags, AvailableTags, SelectedTags, Owner")] PostViewModel newPostViewModel)
         {
+            Blog blog = repository.GetBlog(blogId);
+            
             try {
                 if (ModelState.IsValid) {
-                    var blog = repository.GetBlog(blogId);
-                    
-                    if (!blog.Closed) {
+                    if (!blog.Closed)
+                    {
+                        //https://stackoverflow.com/questions/37778489/how-to-make-check-box-list-in-asp-net-mvc/37779070
+                        var tagsStrings = string.Join(",", newPostViewModel.SelectedTags);   //"12,13,14"
+                       
+                        char[] delimiterChars = { ',' };
+                        var tagsIdNumbers = tagsStrings.Split(delimiterChars).ToList();
+                        
+                        List<Tag> tagsList = new List<Tag>();
+
+                        foreach (var idNumber in tagsIdNumbers)
+                        {
+                            tagsList.Add(repository.GetTag(Int32.Parse(idNumber)));
+                        }
+                        
                         var post = new Post()
                         {
                             PostText = newPostViewModel.PostText,
                             Created = DateTime.Now,
                             BlogId = blogId,
-                            
+                            Tags = tagsList
                         };
                         repository.SavePost(post, User).Wait();
 
                         TempData["Feedback"] = $"{post.PostId} har blitt opprettet";
-                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
                     } else {
                         TempData["Feedback"] = "Låst for endringer";
-                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
                     }
                 }
             }
             catch (Exception e) {
                 Console.WriteLine(e);
                 TempData["Feedback"] = e;
-                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
             }
             TempData["Feedback"] = "Fikk ikke opprettet ny post";
-            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
         }
 
         // Post/Edit/#
         [HttpGet]
-        public async Task<ActionResult> EditPost(int id)
+        public async Task<ActionResult> EditPost(int PostId)
         {
-            if (id == 0)
+            if (PostId == 0)
             {
                 return NotFound("Bad parameter");
             }
-            var postToEdit = repository.GetPost(id);
+            var postToEdit = repository.GetPost(PostId);
 
             var isAuthorized = await authorizationService.AuthorizeAsync(
                 User, postToEdit, BlogOperations.Update);
@@ -108,7 +149,7 @@ namespace Oblig2_Blogg.Controllers
             if (!isAuthorized.Succeeded)
             {
                 TempData["Feedback"] = "Ingen tilgang til post " + postToEdit.PostId;
-                return Forbid();
+                return Unauthorized();
             }
 
             return View(postToEdit);
@@ -117,50 +158,50 @@ namespace Oblig2_Blogg.Controllers
         // Post/Edit/#
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditPost(int? id, [Bind("PostId, PostText, Created, Modified, BlogId")] Post post)
+        public async Task<ActionResult> EditPost(int? PostId, [Bind("PostId, PostText, Created, Modified, BlogId, Owner")] Post postToEdit)
         {
-            if (id == null) { return NotFound(); }
+            if (PostId == null) { return NotFound(); }
 
-            var blogId = post.BlogId;
-            var created = post.Created;
+            Post post = repository.GetPost(postToEdit.PostId);
+            Blog blog = repository.GetBlog(post.BlogId);
+            post.Blog = blog;
 
-            var blog = repository.GetBlog(blogId);
-            if (!blog.Closed)
+            var isAuthorized = await authorizationService.AuthorizeAsync(User, post, BlogOperations.Update);
+
+            if (!post.Blog.Closed && isAuthorized.Succeeded)
             {
                 try {
                     if (ModelState.IsValid)
                     {
                         post.Modified = DateTime.Now;
-                        post.Created = created;
+                        post.Created = postToEdit.Created; 
+                        post.PostText = postToEdit.PostText;
 
                         var result = await repository.UpdatePost(post, User);
                         if (result != null)
                         {
                             TempData["Feedback"] = string.Format("{0} is updated", post.PostText);
-                            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+                            return RedirectToAction("ReadBlogPosts", "Blog", new { id = post.BlogId });
                         }
-
-                        repository.UpdatePost(post, User).Wait();
-
-                        TempData["Feedback"] = $"{post.PostText} has been updated";
-                        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                     }
                     else return new ChallengeResult();
-                } catch {
-                    return ViewBag("Kan ikke redigere post");
+                } catch (Exception e) {
+                    Console.Write(e);
+                    TempData["Feedback"] = $"Not updated\n" + e;
                 }
             }
             else
             {
                 TempData["Feedback"] = "Kan ikke redigere post, den er låst";
-                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = post.BlogId });
             }
+            return RedirectToAction("ReadBlogPosts", "Blog", new { id = post.BlogId });
         }
 
         // Post/Delete/#
-        public async Task<ActionResult> DeletePost(int id)
+        public async Task<ActionResult> DeletePost(int PostId)
         {
-            var postToDelete = repository.GetPost(id);
+            var postToDelete = repository.GetPost(PostId);
 
             var isAuthorized = await authorizationService.AuthorizeAsync(
                 User, postToDelete, BlogOperations.Delete);
@@ -168,7 +209,7 @@ namespace Oblig2_Blogg.Controllers
             if (!isAuthorized.Succeeded)
             {
                 TempData["Feedback"] = "Ingen tilgang";
-                return Forbid();
+                return Unauthorized();
             }
             return View(postToDelete);
         }
@@ -176,9 +217,9 @@ namespace Oblig2_Blogg.Controllers
         // Post/Delete/#
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeletePost(int id, IFormCollection collection)
+        public async Task<ActionResult> DeletePost(int PostId, IFormCollection collection)
         {
-            var postToDelete = repository.GetPost(id);
+            var postToDelete = repository.GetPost(PostId);
             var blogId = postToDelete.BlogId;
 
             try
@@ -186,7 +227,10 @@ namespace Oblig2_Blogg.Controllers
                 if (ModelState.IsValid)
                 {
                     var blog = repository.GetBlog(blogId);
-                    if (!blog.Closed)
+
+                    var isAuthorized = await authorizationService.AuthorizeAsync(User, blog, BlogOperations.Update);
+
+                    if (!blog.Closed && isAuthorized.Succeeded)
                     {
                         repository.DeletePost(postToDelete, User).Wait();
 
@@ -210,6 +254,7 @@ namespace Oblig2_Blogg.Controllers
         }
 
         //TAGS CRUD OPERATIONS and VIEW------------------------------------------------------------------------
+
         [AllowAnonymous]
         public ActionResult FindPostsWithTag(int tagId, int blogId)
         {
@@ -228,7 +273,7 @@ namespace Oblig2_Blogg.Controllers
                     Modified = blog.Modified,
                     Closed = blog.Closed,
                     Owner = blog.Owner,
-                    Posts = posts.ToList(),
+                    Posts = posts,
                     Tags = tagsForThisBlog
                 };
                 return View(blogViewModel);
@@ -241,131 +286,135 @@ namespace Oblig2_Blogg.Controllers
         }
 
         
-        //COMMENT CRUD OPERATIONS------------------------------------------------------------------------
+        ////TODO
+        ////FJERN aLT nedover
+        ////COMMENT CRUD OPERATIONS------------------------------------------------------------------------
 
-        // Comment/Create
-        [HttpGet]
-        public ActionResult CreateComment(int PostId)
-        {
-            var post = repository.GetPost(PostId);
-            var blog = repository.GetBlog(post.BlogId);
-            if (blog.Closed)
-            {
-                TempData["Feedback"] = "Blog steng for kommentarer: " + blog.BlogId;
-                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
-            }
-            return View();
-        }
+        //// Comment/Create
+        //[HttpGet]
+        //public ActionResult CreateComment(int PostId)
+        //{
+        //    var post = repository.GetPost(PostId);
+        //    var blog = repository.GetBlog(post.BlogId);
+        //    if (blog.Closed)
+        //    {
+        //        TempData["Feedback"] = "Blog steng for kommentarer: " + blog.BlogId;
+        //        return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
+        //    }
+        //    return View();
+        //}
 
-        // Comment/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CreateComment(int PostId, [Bind("CommentId, CommentText, Created, PostId, Owner")] CommentViewModel newCommentViewModel)
-        {
-            try {
-                if (ModelState.IsValid) 
-                {
-                    var comment = new Comment()
-                    {
-                        CommentText = newCommentViewModel.CommentText,
-                        Created = DateTime.Now,
-                        PostId = PostId,
-                    };
-                    repository.SaveComment(comment, User).Wait();
+        //// Comment/Create
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult CreateComment(int PostId, [Bind("CommentId, CommentText, Created, PostId, Owner")] CommentViewModel newCommentViewModel)
+        //{
+        //    try {
+        //        if (ModelState.IsValid) 
+        //        {
+        //            var comment = new Comment()
+        //            {
+        //                CommentText = newCommentViewModel.CommentText,
+        //                Created = DateTime.Now,
+        //                PostId = PostId,
+        //            };
+        //            repository.SaveComment(comment, User).Wait();
 
-                    TempData["Feedback"] = $"{comment.PostId} har blitt opprettet";
-                    return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
-                }
-            }
-            catch (Exception e) {
-                Console.WriteLine(e);
-                TempData["Feedback"] = "Feil kan ikke legge inn kommentar" + e;
-                return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
-            }
-            return View();
-        }
+        //            TempData["Feedback"] = $"{comment.PostId} har blitt opprettet";
+        //            return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
+        //        }
+        //    }
+        //    catch (Exception e) {
+        //        Console.WriteLine(e);
+        //        TempData["Feedback"] = "Feil kan ikke legge inn kommentar" + e;
+        //        return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
+        //    }
+        //    return View();
+        //}
 
 
-        // Comment/Edit/#
-        [HttpGet]
-        public async Task<ActionResult> EditComment(int id)
-        {
-            var commentToEdit = repository.GetComment(id);
+        //// Comment/Edit/#
+        //[HttpGet]
+        //public async Task<ActionResult> EditComment(int id)
+        //{
+        //    var commentToEdit = repository.GetComment(id);
 
-            var isAuthorized = await authorizationService.AuthorizeAsync(
-                User, commentToEdit, BlogOperations.Update);
+        //    var isAuthorized = await authorizationService.AuthorizeAsync(
+        //        User, commentToEdit, BlogOperations.Update);
 
-            if (!isAuthorized.Succeeded)
-            {
-                TempData["Feedback"] = "Ingen tilgang";
-                return Forbid();
-            }
-            return View(commentToEdit);
-        }
+        //    if (!isAuthorized.Succeeded)
+        //    {
+        //        TempData["Feedback"] = "Ingen tilgang";
+        //        return Forbid();
+        //    }
+        //    return View(commentToEdit);
+        //}
 
-        // Comment/Edit/#
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post")] Comment comment)
-        {
-            if (id == null) { return NotFound(); }
+       
+        //// Comment/Edit/#
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult EditComment(int? id, [Bind("CommentId, CommentText, Created, Modified, PostId, Post")] Comment comment)
+        //{
+        //    if (id == null) { return NotFound(); }
 
-            var postId = comment.PostId;
-            var created = comment.Created;
-            try {
-                if (ModelState.IsValid) {
-                    comment.Modified = DateTime.Now;
-                    comment.Created = created;
+        //    var postId = comment.PostId;
+        //    var created = comment.Created;
+        //    try {
+        //        if (ModelState.IsValid) {
+        //            comment.Modified = DateTime.Now;
+        //            comment.Created = created;
 
-                    repository.UpdateComment(comment, User).Wait();
+        //            repository.UpdateComment(comment, User).Wait();
 
-                    TempData["Feedback"] = $"{comment.CommentText} has been updated";
-                    return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
-                }
-                else return new ChallengeResult();
-            } catch {
-                TempData["Feedback"] = "Fikk ikke endret kommentar";
-                return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
-            }
-        }
+        //            TempData["Feedback"] = $"{comment.CommentText} has been updated";
+        //            return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
+        //        }
+        //        else return new ChallengeResult();
+        //    } catch (Exception e) {
+        //        Console.WriteLine(e.ToString());
+        //        TempData["Feedback"] = "Fikk ikke endret kommentar, Feil: \n" + e;
+        //        return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
+        //    }
+        //}
 
-        // Comment/Delete/#
-        public async Task<ActionResult> DeleteComment(int id)
-        {
-            var commentToDelete = repository.GetComment(id);
+        //// Comment/Delete/#
+        //public async Task<ActionResult> DeleteComment(int id)
+        //{
+        //    var commentToDelete = repository.GetComment(id);
 
-            var isAuthorized = await authorizationService.AuthorizeAsync(
-                User, commentToDelete, BlogOperations.Delete);
+        //    var isAuthorized = await authorizationService.AuthorizeAsync(
+        //        User, commentToDelete, BlogOperations.Delete);
 
-            if (!isAuthorized.Succeeded)
-            {
-                TempData["Feedback"] = "Ingen tilgang";
-                return Forbid();
-            }
-            return View(commentToDelete);
-        }
+        //    if (!isAuthorized.Succeeded)
+        //    {
+        //        TempData["Feedback"] = "Ingen tilgang";
+        //        return Forbid();
+        //    }
+        //    return View(commentToDelete);
+        //}
 
-        // Comment/Delete/#
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteComment(int id, IFormCollection collection)
-        {
-            var commentToDelete = repository.GetComment(id);
-            var postId = commentToDelete.PostId;
+        //// Comment/Delete/#
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult DeleteComment(int id, IFormCollection collection)
+        //{
+        //    var commentToDelete = repository.GetComment(id);
+        //    var postId = commentToDelete.PostId;
 
-            try {
-                if (ModelState.IsValid) {
-                    repository.DeleteComment(commentToDelete, User).Wait();
+        //    try {
+        //        if (ModelState.IsValid) {
+        //            repository.DeleteComment(commentToDelete, User).Wait();
 
-                    TempData["Feedback"] = $"{commentToDelete.CommentText} has been updated";
-                    return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
-                }
-                else return new ChallengeResult();
-            } catch (Exception e) {
-                TempData["Feedback"] = $"Comment has been updated" + e;
-                return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
-            }
-        }
+        //            TempData["Feedback"] = $"{commentToDelete.CommentText} has been updated";
+        //            return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
+        //        }
+        //        else return new ChallengeResult();
+        //    } catch (Exception e) {
+        //        TempData["Feedback"] = $"Comment has been updated" + e;
+        //        return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
+        //    }
+        //}
     }
 }

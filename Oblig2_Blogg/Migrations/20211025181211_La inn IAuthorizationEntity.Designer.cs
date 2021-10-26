@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oblig2_Blogg.Data;
 
 namespace Oblig2_Blogg.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211025181211_La inn IAuthorizationEntity")]
+    partial class LainnIAuthorizationEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,7 +270,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 1,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 513, DateTimeKind.Local).AddTicks(540),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 603, DateTimeKind.Local).AddTicks(312),
                             Description = "Fortelling av turopplevelser",
                             Name = "Tur til Australia"
                         },
@@ -276,7 +278,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 2,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(4381),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(3710),
                             Description = "Møtet med Taliban",
                             Name = "Tur til Afganistan"
                         },
@@ -284,7 +286,7 @@ namespace Oblig2_Blogg.Migrations
                         {
                             BlogId = 3,
                             Closed = false,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(4539),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(3863),
                             Description = "Barna likte båttur",
                             Name = "Tur til Thailand"
                         });
@@ -327,28 +329,28 @@ namespace Oblig2_Blogg.Migrations
                         {
                             CommentId = 1,
                             CommentText = "Så heldige dere er :)",
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(7743),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(5101),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 2,
                             CommentText = "Dere må innom den store parken i byen",
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(8541),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(5949),
                             PostId = 1
                         },
                         new
                         {
                             CommentId = 3,
                             CommentText = "Hvem er Taliban??",
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(8577),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(5987),
                             PostId = 3
                         },
                         new
                         {
                             CommentId = 4,
                             CommentText = "Husk å ikke gi mat til apene..)",
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(8599),
+                            Created = new DateTime(2021, 10, 25, 20, 12, 10, 606, DateTimeKind.Local).AddTicks(6009),
                             PostId = 4
                         });
                 });
@@ -384,36 +386,6 @@ namespace Oblig2_Blogg.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Posts");
-
-                    b.HasData(
-                        new
-                        {
-                            PostId = 1,
-                            BlogId = 1,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(5771),
-                            PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide"
-                        },
-                        new
-                        {
-                            PostId = 2,
-                            BlogId = 1,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(6613),
-                            PostText = "Melbourne på vei til Adelaide var et kjempefint sted"
-                        },
-                        new
-                        {
-                            PostId = 3,
-                            BlogId = 2,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(6654),
-                            PostText = "Skulle startet fjellturen via Kunduz. Men møtet med Taliban var ikke så hyggelig"
-                        },
-                        new
-                        {
-                            PostId = 4,
-                            BlogId = 3,
-                            Created = new DateTime(2021, 10, 25, 20, 22, 49, 516, DateTimeKind.Local).AddTicks(6677),
-                            PostText = "Barna ble litt lei hotellet i Phuket. Da tok vi oss en båttur til Ko Khao Khat"
-                        });
                 });
 
             modelBuilder.Entity("Oblig2_Blogg.Models.Entities.Tag", b =>

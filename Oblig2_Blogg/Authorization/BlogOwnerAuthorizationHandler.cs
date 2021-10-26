@@ -10,7 +10,7 @@ using Oblig2_Blogg.Models.Entities;
 namespace Oblig2_Blogg.Authorization
 {
     public class BlogOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Blog>
+        : AuthorizationHandler<OperationAuthorizationRequirement, IAuthorizationEntity>
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -20,16 +20,14 @@ namespace Oblig2_Blogg.Authorization
             _userManager = userManager;
         }
 
-        protected override async Task<Task>
+        protected override Task
              HandleRequirementAsync(
                  AuthorizationHandlerContext context, 
-                 OperationAuthorizationRequirement requirement, 
-                 Blog resource)
+                 OperationAuthorizationRequirement requirement,
+                 IAuthorizationEntity resource)
         {
             if (context.User == null || resource == null)
             {
-                // Return Task.FromResult(0) if targeting a version of
-                // .NET Framework older than 4.6:
                 return Task.CompletedTask;
             }
 
@@ -45,8 +43,8 @@ namespace Oblig2_Blogg.Authorization
 
             //TODO flytt sjekk for blog closed til hit
 
-            if (resource.Owner == await _userManager.FindByEmailAsync(context.User.Identity.Name))
-            {
+            if (resource.Owner.Id == _userManager.GetUserId(context.User))
+            { 
                 context.Succeed(requirement);
             }
 

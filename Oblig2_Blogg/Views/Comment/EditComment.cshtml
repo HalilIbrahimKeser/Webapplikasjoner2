@@ -1,36 +1,47 @@
-﻿@model Oblig2_Blogg.Models.ViewModels.CommentViewModel
+﻿@model Oblig2_Blogg.Models.Entities.Comment
 
 @{
-    ViewData["Title"] = "CreateComment";
+    ViewData["Title"] = "EditComment";
 }
 
-<h1>CreateComment</h1>
+<h1>EditComment</h1>
 
 <h4>Comment</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateComment">
+        <form asp-action="EditComment">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="CommentId" />
+            
             <div class="form-group">
                 <label asp-for="CommentText" class="control-label"></label>
                 <input asp-for="CommentText" class="form-control" />
                 <span asp-validation-for="CommentText" class="text-danger"></span>
             </div>
+            
+            <div class="form-group">
+                <input asp-for="Created" type="hidden" class="form-control" />
+                <span asp-validation-for="Created" class="text-danger"></span>
+            </div>
 
+            
             <div class="form-group">
                 <input asp-for="PostId" type="hidden" class="form-control" />
                 <span asp-validation-for="PostId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-controller="Blog", asp-action="Index">Back to List</a>
+    <a asp-controller="Blog" , asp-action="Index">Back to List </a> | 
+    @Html.ActionLink(" Gå tilbake til innlegg", "ReadPostComments", "Blog", new { id = Model.PostId })
+    
 </div>
 
 @section Scripts {

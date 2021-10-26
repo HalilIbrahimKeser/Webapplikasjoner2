@@ -99,7 +99,7 @@
                 </td>
                 <td>
 
-                    @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { id = item.PostId })
+                    @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = item.PostId })
 
                     @if (signInManager.IsSignedIn(User))
                     {
@@ -107,14 +107,14 @@
                   User, item,
                   BlogOperations.Update)).Succeeded)
                         {
-                            @Html.ActionLink("| Edit ", "EditPost", "Post", new { id = item.PostId })
+                            @Html.ActionLink("| Edit ", "EditPost", "Post", new { PostId = item.PostId })
                         }
 
                         @if ((await AuthorizationService.AuthorizeAsync(
                   User, item,
                   BlogOperations.Delete)).Succeeded)
                         {
-                            @Html.ActionLink(" | Delete", "DeletePost", "Post", new { id = item.PostId })
+                            @Html.ActionLink(" | Delete", "DeletePost", "Post", new { PostId = item.PostId })
                         }
                     }
 

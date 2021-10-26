@@ -11,7 +11,14 @@ namespace Oblig2_Blogg.Models.Entities
 {
     public class ApplicationUser : IdentityUser
     {
+        public ApplicationUser()
+        {
+        }
 
+        public ApplicationUser(string userName) : this()
+        {
+            UserName = userName;
+        }
         public String FirstName { get; set; }
 
         public String LastName { get; set; }

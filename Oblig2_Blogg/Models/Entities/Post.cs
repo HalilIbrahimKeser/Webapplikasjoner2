@@ -7,7 +7,7 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public class Post
+    public class Post : IAuthorizationEntity
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PostId { get; set; }

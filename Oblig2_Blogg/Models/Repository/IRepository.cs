@@ -36,6 +36,13 @@ namespace Oblig2_Blogg.Models.Repository
         //TAGS
         IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
         IEnumerable<Tag> GetAllTagsForBlog(int BlogId);
-        //IEnumerable<Tag> GetAllTags();
+        IEnumerable<Tag> GetAllTags();
+        Tag GetTag(int tagIdToGet);
+
+        //WEB API
+        Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet);
+        Task<IEnumerable<Comment>> GetAllComments();
+        Task UpdateComment(Comment comment);
+        Task SaveComment(Comment comment);
     }
 }

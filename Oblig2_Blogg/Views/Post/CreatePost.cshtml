@@ -1,4 +1,6 @@
-﻿@model Oblig2_Blogg.Models.ViewModels.PostViewModel
+﻿@using Microsoft.EntityFrameworkCore
+@using Oblig2_Blogg.Models.Entities
+@model Oblig2_Blogg.Models.ViewModels.PostViewModel
 
 @{
     ViewData["Title"] = "CreatePost";
@@ -17,14 +19,39 @@
                 <input asp-for="PostText" class="form-control" />
                 <span asp-validation-for="PostText" class="text-danger"></span>
             </div>
-            <div class="form-group" id="listOfTags">
+            <div class="form-group">
                 <input asp-for="BlogId" type="hidden" class="form-control" />
                 <span asp-validation-for="BlogId" class="text-danger"></span>
             </div>
 
-   
+            @if (Model.Tags != null)
+            {
+                <label asp-for="Tags" class="control-label">Choose tags:</label>
+                @foreach (var item in Model.Tags)
+                {
+                    
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   name="SelectedTags"
+                                   value="@item.TagId"
+                                   @if(Model.SelectedTags.Contains(item.TagLabel))
+                                   {
+                                       <text> checked </text> 
+                                   } 
+                            /> @item.TagLabel
+                        </label>
+                    </div>
 
 
+                    @*<div class="form-group" id="listOfTags">
+                    <input asp-for="Tags" class="form-control" value="@item.TagLabel" />
+                    <input asp-for="Tags" class="form-control" value="@item.TagLabel" />
+                    <span asp-validation-for="Tags" class="text-danger"></span>
+                     </div>
+                    *@
+                }
+            }
 
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -35,7 +62,7 @@
 
 <div>
     <a asp-controller="Blog" , asp-action="Index">Back to List</a>
-    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
+  
 </div>
 
 

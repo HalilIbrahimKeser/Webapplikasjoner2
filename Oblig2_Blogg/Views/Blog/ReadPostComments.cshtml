@@ -29,12 +29,12 @@
         @if (@Model.Owner == null)
         {<a> User not registered</a> }
         else
-        {<a> Created by: @Model.Owner.FirstName</a> }
+        {<a> Created by: @Model.Owner.FirstName</a>}
     </p>
 
     <hr />
 
-    <p>@Html.ActionLink("Create new comment", "CreateComment", "Post", new { PostId = @Model.PostId, id = @Model.PostId })</p>
+    <p>@Html.ActionLink("Create new comment", "CreateComment", "Comment", new { PostId = @Model.PostId, id = @Model.PostId })</p>
     <hr />
     <p>Comments:....</p>
     <hr />
@@ -69,18 +69,18 @@
                     @if (signInManager.IsSignedIn(User))
                     {
                         @if ((await AuthorizationService.AuthorizeAsync(
-                            User, item,
-                            BlogOperations.Update)).Succeeded)
+                           User, item,
+                           BlogOperations.Update)).Succeeded)
                         {
 
-                            @Html.ActionLink("Edit", "EditComment", "Post", new {id = item.CommentId})
+                            @Html.ActionLink("Edit", "EditComment", "Comment", new { CommentId = item.CommentId })
                         }
 
                         @if ((await AuthorizationService.AuthorizeAsync(
-                            User, item,
-                            BlogOperations.Update)).Succeeded)
+                           User, item,
+                           BlogOperations.Update)).Succeeded)
                         {
-                            @Html.ActionLink(" | Delete", "DeleteComment", "Post", new {id = item.CommentId})
+                            @Html.ActionLink(" | Delete", "DeleteComment", "Comment", new { CommentId = item.CommentId })
                         }
                     }
                 </td>
@@ -94,6 +94,109 @@
 </table>
 
 <div>
-    <a asp-action="Index">Back to List</a> |
+    <a asp-controller="Blog" asp-action="Index">Back to List</a> |
     @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
 </div>
+<hr />
+@{
+    ViewBag.Title2 = "Testing JQuery and Ajax with WebApi";
+}
+
+<h2>@ViewBag.Title2</h2>
+<hr />
+
+
+@section scripts{
+    <script>
+        setInterval("Update()", 10000);
+        //-------------------------View all comments-----------------------------------------------//
+        function showAll() {
+            listComments(function(comments) {
+                var strComments = "";
+                $.each(comments,
+                    function(index, comment) {
+                        strComments += `<tr><td>${comment.CommentId} ${comment.CommentText}</td></tr>`;
+                    });
+                $("#comments").html(strComments);
+            });
+            function listComments(callback) {
+                $.ajax({
+                    url: "/Api/CommentsWebApi/",
+                    data: {},
+                    type: "GET",
+                    contentType: "application/json;charset=utf-8",
+                }).then(function(comments) {
+                    callback(comments);
+                });
+            }
+        }
+        //---------------------------View all comments on post-------------------------------------//
+        function get(id) {
+            listCommentOnPost(function(products) {
+                var strProducts = "";
+                $.each(products,
+                    function(index, comment) {
+                        strProducts += `<tr><td>${comment.CommentId} ${comment.CommentText}</td></tr>`;
+                    });
+                $("#commentsOnPost").html(strProducts);
+            });
+            function listCommentOnPost(callback) {
+                $.ajax({
+                    url: "/Api/CommentsWebApi/" + id,
+                    data: {},
+                    type: "GET",
+                    contentType: "application/json;charset=utf-8",
+                }).then(function(comments) {
+                    callback(comments);
+                });
+            }
+        }
+        //-----------------------add a comment to the post-------------------------------------//
+        function add() {
+            var innhold = document.getElementById('add').value;
+            var comment = {
+                "text": innhold,
+                "postId": @TempData["chosenId"]
+            };
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/Api/CommentsWebApi/",
+                    data: JSON.stringify(comment),
+                    contentType: "application/json;charset=utf-8",
+                    dataType: 'json',
+                    success: function(result) {
+                        $("#update").html("<p>POST ferdig ok ..." + "</p>");
+                    },
+                    error: function(req, status, error) {
+                        $("#update").html("AJAX error");
+                    }
+                });
+        }
+        $(document).ready(function() {
+            $("#commentsOnPost").html("<p>Venter på data fra innlegg..." + "</p>");
+            //$("#comments").html("<p>Venter på data fra server" + "</p>");
+            //showAll(); //viser absolutt alle kommentarer, uavhengig av hvilken post/innlegg de tilhører
+            get(@TempData["chosenId"]);
+            //add();
+        });
+    </script>
+}
+
+<div>Kommentarer på innlegg via WebApi: </div>
+<div id="commentsOnPost"></div>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <!--input type="text" id="add" placeholder="legg inn Ny kommentar...">-->
+        <textarea type="text" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
+        <input type="submit" value="Legg til" onclick="add()">
+
+    </div>
+</div>
+
+
+
+<div id="update"></div>
+

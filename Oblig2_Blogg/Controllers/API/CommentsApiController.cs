@@ -16,49 +16,40 @@ namespace Oblig2_Blogg.Controllers.API
     [ApiController]
     public class CommentsApiController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IRepository _repo;
+        private readonly ApplicationDbContext context;
+        private readonly IRepository repository;
 
 
-        public CommentsApiController(ApplicationDbContext context, IRepository repo)
+        public CommentsApiController(ApplicationDbContext context, IRepository repository)
         {
-            _context = context;
-            _repo = repo;
+            this.context = context;
+            this.repository = repository;
         }
 
-        // GET: api/CommentsApi------------------------------------------------------------------------
+        //---------------------------GetComments--------------------------------------------------------
+
+        // GET: api/CommentsApi
         [HttpGet]
         [AllowAnonymous]
         public async Task<IEnumerable<Comment>> GetComments()
         {
-            return await _repo.GetAllComments();
+            return await repository.GetAllComments();
         }
 
         [Produces(typeof(IEnumerable<Comment>))]
         [HttpGet("{postId:int}")]
         [AllowAnonymous]
-        public async Task<IEnumerable<Comment>> GetComments([FromRoute] int postId)  //preferrably it should be IHttpActionResult....
+        public async Task<IEnumerable<Comment>> GetComments([FromRoute] int PostId) 
         {
-            var commentsOnPost = await _repo.GetAllCommentsOnPost(postId);
-            return commentsOnPost; //....so it could return Ok(commentsOnPost)...also simplifies unit testing.
+            var commentsOnPost = await repository.GetAllCommentsOnPost(PostId);
+            return commentsOnPost;
         }
 
-        // GET: api/CommentsApi/5------------------------------------------------------------------------
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Comment>> GetComment(int id)
-        //{
-        //    var comment = await _context.Comments.FindAsync(id);
 
-        //    if (comment == null)
-        //    {
-        //        return NotFound();
-        //    }
+        //---------------------------PutComment------------------------------------------------------------
 
-        //    return comment;
-        //}
-
-        // PUT: api/CommentsApi/5------------------------------------------------------------------------
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // PUT: api/CommentsApi/5
+        // https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id:int}")]
         public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment)
         {
@@ -66,14 +57,9 @@ namespace Oblig2_Blogg.Controllers.API
             {
                 return BadRequest();
             }
-
-            //_context.Entry(comment).State = EntityState.Modified;
-
-
             try
             {
-                await _repo.UpdateComment(comment)/*.Wait()*/;
-                //await _context.SaveChangesAsync();
+                await repository.UpdateComment(comment)/*.Wait()*/;
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -90,10 +76,13 @@ namespace Oblig2_Blogg.Controllers.API
             return NoContent(); //StatusCode 204
         }
 
+        //---------------------------PostComment------------------------------------------------------------
+
         // POST: api/CommentsApi------------------------------------------------------------------------
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // https://go.microsoft.com/fwlink/?linkid=2123754
+        //TODO
         [HttpPost]
-        [AllowAnonymous] //must be removed. User must be logged in
+        [AllowAnonymous] //must be removed. User needs to login
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Comment>> PostComment([FromBody] Comment comment)
         {
@@ -105,7 +94,7 @@ namespace Oblig2_Blogg.Controllers.API
                 Created = DateTime.Now,
             };
 
-            await _repo.SaveComment(newComment); //must include User later
+            await repository.SaveComment(newComment); //must include User later
 
             //return StatusCode(201);
             return CreatedAtAction(nameof(GetComments), new { id = newComment.CommentId });
@@ -114,28 +103,28 @@ namespace Oblig2_Blogg.Controllers.API
             //https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio#prevent-over-posting-1
         }
 
+        //---------------------------DeleteComment------------------------------------------------------------
 
 
         // DELETE: api/CommentsApi/5------------------------------------------------------------------------
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteComment([FromRoute] int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await context.Comments.FindAsync(id);
             if (comment == null)
             {
                 return NotFound();
             }
 
-            _context.Comments.Remove(comment);
-            await _context.SaveChangesAsync();
+            context.Comments.Remove(comment);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool CommentExists(int id)
         {
-            return _context.Comments.Any(e => e.CommentId == id);
+            return context.Comments.Any(e => e.CommentId == id);
         }
     }
-}
 }

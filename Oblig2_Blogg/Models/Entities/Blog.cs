@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public class Blog
+    public class Blog : IAuthorizationEntity
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogId { get; set; }

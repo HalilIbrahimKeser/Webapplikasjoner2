@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
 namespace Oblig2_Blogg.Models.Entities
 {
-    public interface IAuthorizationEntity
+    public class CommentDto
     {
-        ApplicationUser Owner { get; set; }
+        public int CommentId { get; set; }
+        public string Text { get; set; }
+        public int PostId { get; set; }
     }
 }

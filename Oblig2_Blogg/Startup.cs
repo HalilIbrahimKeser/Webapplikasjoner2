@@ -63,10 +63,10 @@ namespace Oblig2_Blogg
 
             services.AddTransient<IRepository, Repository>();
 
-            services.AddScoped<IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
-            services.AddScoped<IAuthorizationHandler, PostOwnerAuthorizationHandler>();
-            services.AddScoped<IAuthorizationHandler, CommentOwnerAuthorizationHandler>();
-            //services.AddScoped<IAuthorizationHandler, EntityAuthorizationHandler>();
+            //services.AddScoped<IAuthorizationHandler, BlogOwnerAuthorizationHandler > ();
+            //services.AddScoped<IAuthorizationHandler, PostOwnerAuthorizationHandler>();
+            //services.AddScoped<IAuthorizationHandler, CommentOwnerAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, EntityAuthorizationHandler>();
 
         }
 

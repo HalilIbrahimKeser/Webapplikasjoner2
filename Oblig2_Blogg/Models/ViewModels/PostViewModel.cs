@@ -11,6 +11,14 @@ namespace Oblig2_Blogg.Models.ViewModels
 {
     public class PostViewModel
     {
+        private List<Tag> emptyList;
+
+        public PostViewModel()
+        {
+            SelectedTags = new List<string>();
+            AvailableTags = new List<Tag>();
+        }
+
         public int PostId { get; set; }
 
         public string PostText { get; set; }
@@ -26,6 +34,11 @@ namespace Oblig2_Blogg.Models.ViewModels
         public virtual List<Comment> Comments { get; set; }
 
         public virtual ICollection<Tag> Tags { get; set; }
+
+        //Tags select menu for create post
+        //https://stackoverflow.com/questions/37778489/how-to-make-check-box-list-in-asp-net-mvc/37779070
+        public IList<string> SelectedTags { get; set; }
+        public IList<Tag> AvailableTags { get; set; }
 
         public virtual ApplicationUser Owner { get; set; }
     }

@@ -9,25 +9,29 @@ using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Authorization
 {
-    /*
-    public class EntityAuthorizationHandler : AuthorizationHandler<OperationAuthorizationRequirement, IAuthorizationEntity>
+    public class EntityAuthorizationHandler
+        : AuthorizationHandler<OperationAuthorizationRequirement, IAuthorizationEntity>
     {
-        private UserManager<ApplicationUser> userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public EntityAuthorizationHandler(UserManager<ApplicationUser> userManager)
+        public EntityAuthorizationHandler(UserManager<ApplicationUser>
+            userManager)
         {
-            this.userManager = userManager;
+            _userManager = userManager;
         }
 
-        protected override Task HandleRequirementAsync(
-            AuthorizationHandlerContext context,
-            OperationAuthorizationRequirement requirement,
-            IAuthorizationEntity resource)
+        protected override Task
+            HandleRequirementAsync(
+                AuthorizationHandlerContext context,
+                OperationAuthorizationRequirement requirement,
+                IAuthorizationEntity resource)
         {
             if (context.User == null || resource == null)
             {
                 return Task.CompletedTask;
             }
+
+            // If we're not asking for CRUD permission, return.
 
             if (requirement.Name != Constants.CreateOperationName &&
                 requirement.Name != Constants.ReadOperationName &&
@@ -37,13 +41,15 @@ namespace Oblig2_Blogg.Authorization
                 return Task.CompletedTask;
             }
 
-            if (resource.Owner.Id == userManager.GetUserId(context.User))
+            //TODO flytt sjekk for blog closed til hit
+
+            if (resource.Owner.Id == _userManager.GetUserId(context.User))
             {
                 context.Succeed(requirement);
             }
 
+
             return Task.CompletedTask;
         }
     }
-    */
 }

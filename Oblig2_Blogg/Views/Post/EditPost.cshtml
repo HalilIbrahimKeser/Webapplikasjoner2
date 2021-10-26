@@ -12,17 +12,17 @@
     <div class="col-md-4">
         <form asp-action="EditPost">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-           
+
             <input type="hidden" asp-for="PostId" />
-            
+
             <div class="form-group">
                 <label asp-for="PostText" class="control-label"></label>
                 <input asp-for="PostText" class="form-control" />
                 <span asp-validation-for="PostText" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group">
-                <input asp-for="Created" class="form-control" />
+                <input asp-for="Created" type="hidden" class="form-control" />
                 <span asp-validation-for="Created" class="text-danger"></span>
             </div>
 
@@ -30,6 +30,7 @@
                 <input asp-for="PostId" type="hidden" class="form-control" />
                 <span asp-validation-for="PostId" class="text-danger"></span>
             </div>
+         
 
             <div class="form-group">
                 <input asp-for="BlogId" type="hidden" class="form-control" />
@@ -43,8 +44,8 @@
 </div>
 
 <div>
-    <a asp-controller="Blog" , asp-action="Index">Back to List</a>
-    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
+    <a asp-controller="Blog" , asp-action="Index">Back to List </a> | 
+    @Html.ActionLink(" Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
 </div>
 
 @section Scripts {

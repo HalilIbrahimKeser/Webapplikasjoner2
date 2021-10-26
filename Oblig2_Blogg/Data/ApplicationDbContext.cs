@@ -14,7 +14,8 @@ namespace Oblig2_Blogg.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IOptions<BlogOperations> operationalStoreOptions) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+            : base(options)
         { }
 
         public DbSet<Blog> Blogs { get; set; }
@@ -47,7 +48,7 @@ namespace Oblig2_Blogg.Data
             //POST
             modelBuilder.Entity<Post>()
                 .HasData(
-                    new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", Created = DateTime.Now, BlogId = 1});
+                    new Post { PostId = 1, PostText = "I dag har jeg besøkt Sydney og i morgen skal vi til Adelaide", Created = DateTime.Now, BlogId = 1 });
             modelBuilder.Entity<Post>()
                 .HasData(
                     new Post { PostId = 2, PostText = "Melbourne på vei til Adelaide var et kjempefint sted", Created = DateTime.Now, BlogId = 1 });
@@ -72,28 +73,28 @@ namespace Oblig2_Blogg.Data
                 .HasData(
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
 
-            //TAG
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 1, TagLabel = "Natur", Created = DateTime.Now});
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 2, TagLabel = "Fjell", Created = DateTime.Now });
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 3, TagLabel = "Ørken", Created = DateTime.Now});
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 4, TagLabel = "Farlig", Created = DateTime.Now});
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 5, TagLabel = "Løping", Created = DateTime.Now});
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 6, TagLabel = "Sykling", Created = DateTime.Now});
-            modelBuilder.Entity<Tag>()
-                .HasData(
-                    new Tag { TagId = 7, TagLabel = "Gåtur", Created = DateTime.Now});
+            ////TAG
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 1, TagLabel = "Natur", Created = DateTime.Now});
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 2, TagLabel = "Fjell", Created = DateTime.Now });
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 3, TagLabel = "Ørken", Created = DateTime.Now});
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 4, TagLabel = "Farlig", Created = DateTime.Now});
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 5, TagLabel = "Løping", Created = DateTime.Now});
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 6, TagLabel = "Sykling", Created = DateTime.Now});
+            //modelBuilder.Entity<Tag>()
+            //    .HasData(
+            //        new Tag { TagId = 7, TagLabel = "Gåtur", Created = DateTime.Now});
 
         //    ////TAG
         //    modelBuilder.Entity<PostTag>()

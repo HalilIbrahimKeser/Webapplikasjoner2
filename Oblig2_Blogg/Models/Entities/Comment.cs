@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Oblig2_Blogg.Models.Entities
 {
    
-    public class Comment
+    public class Comment : IAuthorizationEntity
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CommentId { get; set; }
@@ -21,7 +21,7 @@ namespace Oblig2_Blogg.Models.Entities
 
         //FREMMED NØKKEL
         [Required]
-        //[ForeignKey("PostId")]
+        [ForeignKey("FK_PostId")]
         public int PostId { get; set; }
 
         public virtual Post Post { get; set; }

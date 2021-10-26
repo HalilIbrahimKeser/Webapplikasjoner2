@@ -19,15 +19,24 @@ namespace Oblig2_Blogg.Controllers
         private readonly IRepository repository;
         private UserManager<ApplicationUser> userManager;
         IAuthorizationService authorizationService;
+        private IRepository @object;
+        private IAuthorizationService authService;
 
 
         //CONSTRUCTOR-----------------------------------------------
-        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
+        // UserManager<ApplicationUser> userManager1 = null,
+        public BlogController(IRepository repository, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
-            this.userManager = userManager1;
+            //this.userManager = userManager1;
             this.authorizationService = authorizationService1;
         }
+
+        //public BlogController(IRepository @object, IAuthorizationService authService)
+        //{
+        //    this.@object = @object;
+        //    this.authService = authService;
+        //}
 
         //VIEWS---------------------------------------------------
 
@@ -42,6 +51,7 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult ReadBlogPosts(int id)
         {
+           
             Blog blog = repository.GetBlog(id);
             List<Post> posts = new List<Post>();
             posts = repository.GetAllPosts(id).ToList();
@@ -71,9 +81,10 @@ namespace Oblig2_Blogg.Controllers
 
         //VIEW
         [AllowAnonymous]
-        public ActionResult ReadPostComments(int id)
+        public ActionResult ReadPostComments(int PostId)
         {
-            var postViewModel = repository.GetPostViewModel(id);
+            TempData["chosenId"] = PostId;
+            var postViewModel = repository.GetPostViewModel(PostId);
 
             return View(postViewModel);
         }

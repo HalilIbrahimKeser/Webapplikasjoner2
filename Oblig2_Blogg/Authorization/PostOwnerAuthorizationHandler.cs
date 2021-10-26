@@ -38,7 +38,7 @@ namespace Oblig2_Blogg.Authorization
                 return Task.CompletedTask;
             }
 
-            if (resource.Owner == await _userManager.FindByEmailAsync(context.User.Identity.Name))
+            if (resource.Owner.Id == _userManager.GetUserId(context.User))
             {
                 context.Succeed(requirement);
             }
