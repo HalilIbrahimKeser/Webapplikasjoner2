@@ -74,7 +74,6 @@ namespace Oblig2_Blogg.Controllers
             }
 
             List<Tag> tags = repository.GetAllTags().ToList();
-            List<Tag> emptyList = new List<Tag>();
             PostViewModel postViewModel = new PostViewModel()
             {
                 Tags = tags,

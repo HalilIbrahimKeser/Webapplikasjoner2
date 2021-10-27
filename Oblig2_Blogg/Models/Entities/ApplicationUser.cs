@@ -28,5 +28,7 @@ namespace Oblig2_Blogg.Models.Entities
         public bool? IsEnabled { get; set; }
 
         public bool? IsAdmin { get; set; }
+
+        public List<Blog> SubscribedBlogs { get; set; }
     }
 }

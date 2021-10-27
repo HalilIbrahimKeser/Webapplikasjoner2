@@ -55,33 +55,39 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                @if (item.Owner != null) {
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Owner.FirstName)
-                    </td>
+        <tr>
+            @if (item.Owner != null)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
+                </td>
 
-                } else {
-                    <td>
-                        No user
-                    </td>
-                }
+            }
+            else
+            {
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    No user
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Closed)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Created)
-                </td>
-                <td>
-                    @Html.ActionLink("Enter the blog", "ReadBlogPosts", new {id = item.BlogId})
-                </td>
-            </tr>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Closed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.ActionLink("Enter the blog", "ReadBlogPosts", new { id = item.BlogId })
+            </td>
+            <td>
+                @Html.ActionLink("Subscribe ♥", "SubscribeToBlog", new { id = item.BlogId })
+            </td>
+        </tr>
         }
     </tbody>
 </table>

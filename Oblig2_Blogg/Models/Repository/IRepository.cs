@@ -11,6 +11,9 @@ namespace Oblig2_Blogg.Models.Repository
 {
     public interface IRepository
     {
+        //USER
+        Task SubscribeToBlog(Blog blog, ApplicationUser userSubscriber);
+
         //BLOGS
         IEnumerable<Blog> GetAllBlogs();
         /*Task<IEnumerable<Blog>> GetAllBlogs();*/
@@ -37,6 +40,7 @@ namespace Oblig2_Blogg.Models.Repository
         IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId);
         IEnumerable<Tag> GetAllTagsForBlog(int BlogId);
         IEnumerable<Tag> GetAllTags();
+        IEnumerable<Tag> GetTagsForPost(int? PostId);
         Tag GetTag(int tagIdToGet);
 
         //WEB API

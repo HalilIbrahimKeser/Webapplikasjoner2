@@ -31,14 +31,9 @@ namespace Oblig2_Blogg.Models.Repository
             //SeedManyToMany_OnlyOneTime(); //kjøres kun en gang
         }
 
+        // For å seede mange til mange relasjonen mellom Tag og Post. Kjøres kun en gang ved ny database.
         private void SeedManyToMany_OnlyOneTime()
-        {
-            //var post1 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p=>p.PostId == 1);
-            //var post2 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 2);
-            //var post3 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 3);
-            //var post4 = db.Posts.Include(p => p.Owner).Include(p => p.Comments).Where(p => p.PostId == 4);
-
-
+        { 
             var post1 = new Post
             {
                 PostText = "Sydney hadde kjempefin natur rundt byen og fine fjell. Vi tok oss en gåtur.",
@@ -123,7 +118,6 @@ namespace Oblig2_Blogg.Models.Repository
         public IEnumerable<Blog> GetAllBlogs() 
         {
            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
-
            return blogs;
         }
 
@@ -136,6 +130,18 @@ namespace Oblig2_Blogg.Models.Repository
                                   where blog.BlogId == blogIdToGet
                                   select blog;
             return singleBlogQuery.FirstOrDefault();
+        }
+
+        //SUBSCRIBE TO BLOG
+        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        {
+            Blog blog = blogToSubscribe;
+
+            userSubscriber.SubscribedBlogs.Add(blog);
+
+            db.Users.Update(userSubscriber);
+            await db.SaveChangesAsync();
+          
         }
 
         //GET POSTS
@@ -168,6 +174,13 @@ namespace Oblig2_Blogg.Models.Repository
         //GET POSTVIEWMODEL
         public PostViewModel GetPostViewModel(int? id)
         {
+            List<Comment> comments = new();
+            List<Tag> tags = new();
+            if (id != null) {
+                comments = GetAllComments(id).ToList();
+                tags = GetTagsForPost(id).ToList();
+            }
+           
             PostViewModel p;
             if (id == null)
             {
@@ -184,7 +197,8 @@ namespace Oblig2_Blogg.Models.Repository
                             Created = o.Created,
                             Modified = o.Modified,
                             BlogId = o.BlogId,
-                            Comments = GetAllComments(id).ToList(),
+                            Comments = comments,
+                            Tags = tags,
                             Owner = o.Owner
                         }
                     ).FirstOrDefault());
@@ -213,6 +227,27 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET TAGS
+
+        
+        public IEnumerable<Tag> GetTagsForPost(int? PostId) 
+        {
+            if (PostId == null) {
+                return null;
+            }
+            IEnumerable<Post> posts = db.Posts.Include(p => p.Tags).Where(p => p.PostId == PostId);
+
+            List<Tag> tagsForPost = new();
+
+            foreach (var post in posts)
+            {
+                foreach (var tag in post.Tags)
+                {
+                    tagsForPost.Add(tag);
+                } 
+            }
+            return tagsForPost;
+        }
+
         public IEnumerable<Tag> GetAllTagsForBlog(int BlogId)
         {
             IEnumerable<Blog> blogs = db.Blogs;
@@ -290,10 +325,6 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             post.Owner = currentUser;
-
-            //Blog blog = (from b in db.Blogs
-            //    where b.BlogId == post.BlogId
-            //    select b).FirstOrDefault();
 
             if (currentUser.Id == post.Owner.Id)
             {
@@ -415,5 +446,7 @@ namespace Oblig2_Blogg.Models.Repository
             db.Comments.Add(comment);
             await db.SaveChangesAsync();
         }
+
+        
     }
 }

@@ -120,8 +120,6 @@ namespace Oblig2_Blogg.Data
         //            new PostsAndTags { TagId = 7, PostId = 1 });
         }
 
-
-
         public DbSet<BlogViewModel> BlogViewModel { get; set; }
     }
 }
