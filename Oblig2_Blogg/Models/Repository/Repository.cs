@@ -299,7 +299,10 @@ namespace Oblig2_Blogg.Models.Repository
                 {
                     if (postTags.TagId == tagId)
                     {
-                        postsToShow.Add(post);
+                        if (!postsToShow.Contains(post)) //Legg inn hver post kun en gang
+                        {
+                            postsToShow.Add(post);
+                        }
                     }
                 }
             }
