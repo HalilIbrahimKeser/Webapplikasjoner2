@@ -33,8 +33,8 @@ namespace Oblig2_Blogg.Data
 
             modelBuilder.Entity<BlogViewModel>().HasNoKey();
 
-            //modelBuilder.Entity<ApplicationUser>().HasMany<Blog>();
-           // modelBuilder.Entity<Blog>().HasMany<ApplicationUser>();
+            modelBuilder.Entity<ApplicationUser>().HasMany<Blog>();
+            modelBuilder.Entity<Blog>().HasMany<ApplicationUser>();
 
 
             // Seeding

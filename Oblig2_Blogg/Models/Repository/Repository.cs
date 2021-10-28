@@ -250,8 +250,8 @@ namespace Oblig2_Blogg.Models.Repository
 
         public IEnumerable<Tag> GetAllTagsForBlog(int BlogId)
         {
-            IEnumerable<Blog> blogs = db.Blogs;
-            IEnumerable<Post> posts = db.Posts.Include(p => p.Tags);
+            //IEnumerable<Blog> blogs = db.Blogs;
+           // IEnumerable<Post> posts = db.Posts.Include(p => p.Tags);
 
             List<Tag> tagsToShow = new List<Tag>();
             foreach (var tag in db.Tags.Distinct().Include(a => a.Posts)) //Henter alle tags
