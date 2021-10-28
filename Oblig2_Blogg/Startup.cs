@@ -60,6 +60,7 @@ namespace Oblig2_Blogg
                 .AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+                
             
             //services.AddDefaultIdentity<ApplicationUser>()
             //    .AddSignInManager<SignInManager<ApplicationUser>>()
@@ -68,8 +69,8 @@ namespace Oblig2_Blogg
             //    .AddDefaultTokenProviders(); ;
 
 
-            //var confKey = Configuration.GetSection("TokenSettings")["SecretKey"];
-            //var key = Encoding.ASCII.GetBytes(confKey);
+            var confKey = Configuration.GetSection("TokenSettings")["SecretKey"];
+            var key = Encoding.ASCII.GetBytes(confKey);
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 //.AddCookie(cfg => cfg.SlidingExpiration = true)
@@ -78,7 +79,7 @@ namespace Oblig2_Blogg
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        //IssuerSigningKey = new SymmetricSecurityKey(key),
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true
@@ -137,6 +138,7 @@ namespace Oblig2_Blogg
                     name: "default",
                     pattern: "{controller=Blog}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+                endpoints.MapControllers();
             });
         }
     }
