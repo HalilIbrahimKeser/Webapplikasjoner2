@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 using Oblig2_Blogg.Models.Entities;
 
 namespace Oblig2_Blogg.Models.Entities
@@ -34,6 +35,7 @@ namespace Oblig2_Blogg.Models.Entities
         public virtual ICollection<Tag> Tags { get; set; }
 
         //EIER
+        [JsonIgnore]
         public virtual ApplicationUser Owner { get; set; }
     }
 }

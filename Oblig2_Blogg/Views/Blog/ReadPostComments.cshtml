@@ -69,16 +69,16 @@
                     @if (signInManager.IsSignedIn(User))
                     {
                         @if ((await AuthorizationService.AuthorizeAsync(
-                           User, item,
-                           BlogOperations.Update)).Succeeded)
+                          User, item,
+                          BlogOperations.Update)).Succeeded)
                         {
 
                             @Html.ActionLink("Edit", "EditComment", "Comment", new { CommentId = item.CommentId })
                         }
 
                         @if ((await AuthorizationService.AuthorizeAsync(
-                           User, item,
-                           BlogOperations.Update)).Succeeded)
+                          User, item,
+                          BlogOperations.Update)).Succeeded)
                         {
                             @Html.ActionLink(" | Delete", "DeleteComment", "Comment", new { CommentId = item.CommentId })
                         }
@@ -98,30 +98,96 @@
     @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
 </div>
 <hr />
-@{
-    ViewBag.Title2 = "Testing JQuery and Ajax with WebApi";
-}
-
-<h2>@ViewBag.Title2</h2>
-<hr />
 
 
 @section scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
-        setInterval("Update()", 10000);
+        //------------------------------------------JWT-------------------------------------------------------//
+        function handleError(xhr, textStatus, errorThrown){
+            if (xhr.status === 401) //not sure why this is better than ==. It wants to compare types as well
+                $('#responseContainer').html("Unauthorized request");
+            else{
+                var message = "<p>Status code: " + xhr.status + "</p>";
+                message += "<pre>" + xhr.responseText + "</pre>";
+                $('#responseContainer').html(message);
+            }
+        }
+
+        function isUserLoggedIn(){
+            return localStorage.getItem("token") !== null;
+        }
+
+        function getSavedToken() {
+            return localStorage.getItem("token");
+        }
+
+        $('#btLogout').click(function(){
+            $.ajax ({
+                    url: "/identity/account/logout",
+                    type: "GET"
+                })
+                .done(function(){
+                    $('#responseContainer').html("<p>Cookie deleted and token deleted from local storage</p>");
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("username");
+                    $('#btLogoutContainer').hide();
+                    $("#modalButton").show();
+                    $('#btLoginContainer').show();
+                    $('#commentsOnPost').load("");
+
+
+                })
+                .fail(handleError);
+        });
+
+        function getToken(userName, userPassword) {
+            $.ajax({
+                url: "/api/accounts/verifyLogin",
+                type: "POST",
+                data: JSON.stringify({
+                    username: userName,
+                    password: userPassword
+                }),
+                contentType: "application/json; charset=utf-8",
+                //dataType: "json" //Må kommenteres ut dersom jeg ikke ønsker ren tekst og for at funskjonen skal virke
+            })
+                .done(function (token) {
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("username", userName);
+                    $('#btLoginContainer').hide();
+                    $('#btLogoutContainer').show();
+                    var message = "<p>Token received and saved in local storage under the key 'token'</p>";
+                    message += "<p>Token Value: </p><p style='word-wrap:break-word'>" + token + "</p>";
+                    $('#responseContainer').html(message);
+                    get(@TempData["chosenId"])
+                    $("#modalButton").show();
+                })
+                .fail(function () {
+                    console.log("Login error");
+                });
+        }
+
+        //setInterval("Update()", 10000);
+
         //-------------------------View all comments-----------------------------------------------//
         function showAll() {
             listComments(function(comments) {
+
                 var strComments = "";
                 $.each(comments,
                     function(index, comment) {
-                        strComments += `<tr><td>${comment.CommentId} ${comment.CommentText}</td></tr>`;
+                        strComments += `<tr><td>${comment.commentId} ${comment.text}</td></tr>`;
                     });
                 $("#comments").html(strComments);
+
             });
+
+
             function listComments(callback) {
                 $.ajax({
-                    url: "/Api/CommentsWebApi/",
+                    url: "/Api/CommentsApi/",
                     data: {},
                     type: "GET",
                     contentType: "application/json;charset=utf-8",
@@ -130,19 +196,30 @@
                 });
             }
         }
+
         //---------------------------View all comments on post-------------------------------------//
         function get(id) {
-            listCommentOnPost(function(products) {
-                var strProducts = "";
-                $.each(products,
-                    function(index, comment) {
-                        strProducts += `<tr><td>${comment.CommentId} ${comment.CommentText}</td></tr>`;
-                    });
-                $("#commentsOnPost").html(strProducts);
+
+            listCommentOnPost(function (comments) {
+                if (isUserLoggedIn()) {
+                    var strComments = "";
+                    $.each(comments,
+                        function(index, comment) {
+                            strComments += `<tr><td>${comment.commentId} ${comment.text} @*${comment.Owner.UserName}*@ </td></tr>`;
+                        });
+                    $("#commentsOnPost").html(strComments);
+                }
+
             });
+
             function listCommentOnPost(callback) {
                 $.ajax({
-                    url: "/Api/CommentsWebApi/" + id,
+                    beforeSend: function(xhr) {
+                        if (isUserLoggedIn()) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + getSavedToken());
+                        }
+                    },
+                    url: "/Api/CommentsApi/" + id,
                     data: {},
                     type: "GET",
                     contentType: "application/json;charset=utf-8",
@@ -150,53 +227,125 @@
                     callback(comments);
                 });
             }
+
+            if (isUserLoggedIn()){
+                $('#btLoginContainer').hide();
+                $('#btLogoutContainer').show();
+            }else {
+                $('#btLoginContainer').show();
+                $('#btLogoutContainer').hide();
+            }
         }
+
         //-----------------------add a comment to the post-------------------------------------//
+
         function add() {
+
             var innhold = document.getElementById('add').value;
+
             var comment = {
                 "text": innhold,
-                "postId": @TempData["chosenId"]
+                "postId": @TempData["chosenId"],
+                "Owner": localStorage.getItem("username")
             };
-            $.ajax(
-                {
+                $.ajax({
                     type: "POST",
-                    url: "/Api/CommentsWebApi/",
+                    url: "/Api/CommentsApi/",
                     data: JSON.stringify(comment),
                     contentType: "application/json;charset=utf-8",
                     dataType: 'json',
-                    success: function(result) {
-                        $("#update").html("<p>POST ferdig ok ..." + "</p>");
+                    success: function (result) {
+                        //$("#update").html("<p>POST ferdig ok ..." + "</p>");
+                        swal({
+                            title: "Bra jobba!",
+                            text: "Kommentaren er lagreet!",
+                            icon: "success",
+                            button: "Aww yiss!",
+                        });
+                        $("#add").val('');
+                        get(@TempData["chosenId"]);
                     },
-                    error: function(req, status, error) {
+
+                    error: function (req, status, error) {
                         $("#update").html("AJAX error");
                     }
                 });
         }
+
         $(document).ready(function() {
-            $("#commentsOnPost").html("<p>Venter på data fra innlegg..." + "</p>");
-            //$("#comments").html("<p>Venter på data fra server" + "</p>");
-            //showAll(); //viser absolutt alle kommentarer, uavhengig av hvilken post/innlegg de tilhører
+
+            $("#commentsOnPost").html("<p>Må logge inn for se innlegg..." + "</p>");
             get(@TempData["chosenId"]);
-            //add();
+            $("#loginToCreateToken").on("click",
+                function () {
+                    const email = $("#InputEmail").val();
+                    const password = $("#InputPassword").val();
+                    getToken(email, password);
+                });
+            $("#modalButton").hide();
+            //showAll(); //viser absolutt alle kommentarer
         });
+
+
+
     </script>
 }
 
-<div>Kommentarer på innlegg via WebApi: </div>
-<div id="commentsOnPost"></div>
+<div style="margin: 50px auto; width:600px;">
+    <div id="btLoginContainer">
+        <label>Oppgi gyldig brukernavn og passord for å se kommentarer</label>
+        <input type="text" name="username" id="InputEmail" placeholder="Username" />
+        <input type="password" name="password" id="InputPassword" placeholder="Password" />
+        <button id="loginToCreateToken">Login</button><br>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <!--input type="text" id="add" placeholder="legg inn Ny kommentar...">-->
-        <textarea type="text" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
-        <input type="submit" value="Legg til" onclick="add()">
-
+    </div>
+    <div id="btLogoutContainer">
+        <button id="btLogout">Logout</button>
     </div>
 </div>
 
+<h5>Kommentarer på innlegg via WebApi: </h5>
+<hr />
+<div id="commentsOnPost"></div>
 
+<div style="margin: 50px; background: lightgray" id="responseContainer">
+
+</div>
 
 <div id="update"></div>
+<div id="noAccess"></div>
+
+<div class="container">
+    <!-- Trigger the modal with a button -->
+    <button type="button" id="modalButton" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Legg til kommentar</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <textarea type="text" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
+                            <input type="button" value="Legg til" onclick="add()">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
 

@@ -115,7 +115,7 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET BLOGS
-        public IEnumerable<Blog> GetAllBlogs() 
+        public IEnumerable<Entities.Blog> GetAllBlogs() 
         {
            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
            return blogs;
@@ -347,7 +347,6 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
 
-
         //UPDATE / EDIT-----------------------------------------------------------------------
         //UPDATE BLOG
         public async Task UpdateBlog(Blog blog, IPrincipal principal)
@@ -423,6 +422,7 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
+
         //WEB API Functions---------------------------------
         public async Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet)
         {
@@ -444,12 +444,12 @@ namespace Oblig2_Blogg.Models.Repository
             await db.SaveChangesAsync();
         }
 
-        public async Task SaveComment(Comment comment)
+        public async Task<bool> SaveComment(Comment comment)
         {
             db.Comments.Add(comment);
-            await db.SaveChangesAsync();
+            return (await db.SaveChangesAsync() > 0);
         }
 
-        
+
     }
 }

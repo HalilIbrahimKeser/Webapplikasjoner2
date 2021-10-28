@@ -36,20 +36,19 @@ namespace Oblig2_Blogg.Controllers.API
             return await repository.GetAllComments();
         }
 
+
         [Produces(typeof(IEnumerable<Comment>))]
         [HttpGet("{postId:int}")]
-        [AllowAnonymous]
-        public async Task<IEnumerable<Comment>> GetComments([FromRoute] int PostId) 
+        public async Task<IEnumerable<Comment>> GetComments([FromRoute] int postId)
         {
-            var commentsOnPost = await repository.GetAllCommentsOnPost(PostId);
-            return commentsOnPost;
+            var commentsOnPost = await repository.GetAllCommentsOnPost(postId);
+            return commentsOnPost; 
         }
 
 
         //---------------------------PutComment------------------------------------------------------------
 
         // PUT: api/CommentsApi/5
-        // https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id:int}")]
         public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment)
         {
@@ -59,7 +58,7 @@ namespace Oblig2_Blogg.Controllers.API
             }
             try
             {
-                await repository.UpdateComment(comment)/*.Wait()*/;
+                await repository.UpdateComment(comment);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -72,35 +71,33 @@ namespace Oblig2_Blogg.Controllers.API
                     throw;
                 }
             }
-
-            return NoContent(); //StatusCode 204
+            return NoContent(); 
         }
 
         //---------------------------PostComment------------------------------------------------------------
 
         // POST: api/CommentsApi------------------------------------------------------------------------
-        // https://go.microsoft.com/fwlink/?linkid=2123754
-        //TODO
         [HttpPost]
-        [AllowAnonymous] //must be removed. User needs to login
+        //[AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Comment>> PostComment([FromBody] Comment comment)
         {
-            // Create new comment object containing required fields, ref createmethod mvc.
             var newComment = new Comment
             {
                 CommentText = comment.CommentText,
                 PostId = comment.PostId,
                 Created = DateTime.Now,
+                Owner = comment.Owner
             };
 
-            await repository.SaveComment(newComment); //must include User later
-
-            //return StatusCode(201);
-            return CreatedAtAction(nameof(GetComments), new { id = newComment.CommentId });
-            //return CreatedAtAction(nameof(GetSingleComment), new {id = newComment.CommentId} ,newComment); //with route specified
-
-            //https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio#prevent-over-posting-1
+            if (await repository.SaveComment(newComment))
+            {
+                return Ok(newComment);
+            }
+            else
+            {
+                return StatusCode(500);
+            }
         }
 
         //---------------------------DeleteComment------------------------------------------------------------

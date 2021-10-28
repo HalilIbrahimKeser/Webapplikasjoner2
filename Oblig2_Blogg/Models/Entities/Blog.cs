@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace Oblig2_Blogg.Models.Entities
 {
@@ -28,6 +29,11 @@ namespace Oblig2_Blogg.Models.Entities
         public virtual List<Post> Posts { get; set; }
 
         //EIER
+        [JsonIgnore]
         public virtual ApplicationUser Owner { get; set; }
+
+        //ABONNENTER
+        //public virtual ICollection<ApplicationUser> SubscribedUser { get; set; }
+
     }
 }

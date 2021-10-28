@@ -12,7 +12,7 @@ namespace Oblig2_Blogg.Models.Repository
     public interface IRepository
     {
         //USER
-        Task SubscribeToBlog(Blog blog, ApplicationUser userSubscriber);
+        Task SubscribeToBlog(Entities.Blog blog, ApplicationUser userSubscriber);
 
         //BLOGS
         IEnumerable<Blog> GetAllBlogs();
@@ -47,6 +47,6 @@ namespace Oblig2_Blogg.Models.Repository
         Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet);
         Task<IEnumerable<Comment>> GetAllComments();
         Task UpdateComment(Comment comment);
-        Task SaveComment(Comment comment);
+        Task<bool> SaveComment(Comment comment);
     }
 }
