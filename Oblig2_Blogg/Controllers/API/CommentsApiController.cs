@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oblig2_Blogg.Data;
@@ -18,12 +20,13 @@ namespace Oblig2_Blogg.Controllers.API
     {
         private readonly ApplicationDbContext context;
         private readonly IRepository repository;
+        private UserManager<ApplicationUser> userManager;
 
-
-        public CommentsApiController(ApplicationDbContext context, IRepository repository)
+        public CommentsApiController(ApplicationDbContext context, IRepository repository, UserManager<ApplicationUser> userManager1 = null)
         {
             this.context = context;
             this.repository = repository;
+            this.userManager = userManager1;
         }
 
         //---------------------------GetComments--------------------------------------------------------
@@ -82,12 +85,13 @@ namespace Oblig2_Blogg.Controllers.API
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Comment>> PostComment([FromBody] Comment comment)
         {
+            var user = await userManager.GetUserAsync(HttpContext.User);
             var newComment = new Comment
             {
                 CommentText = comment.CommentText,
                 PostId = comment.PostId,
                 Created = DateTime.Now,
-                Owner = comment.Owner
+                Owner = user,
             };
 
             if (await repository.SaveComment(newComment))

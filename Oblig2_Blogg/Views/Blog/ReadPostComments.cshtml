@@ -104,9 +104,10 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
-        //------------------------------------------JWT-------------------------------------------------------//
+
+        // JWT-------------------------------------------------------------------------------------------------------------------
         function handleError(xhr, textStatus, errorThrown){
-            if (xhr.status === 401) //not sure why this is better than ==. It wants to compare types as well
+            if (xhr.status === 401)
                 $('#responseContainer').html("Unauthorized request");
             else{
                 var message = "<p>Status code: " + xhr.status + "</p>";
@@ -114,7 +115,6 @@
                 $('#responseContainer').html(message);
             }
         }
-
         function isUserLoggedIn(){
             return localStorage.getItem("token") !== null;
         }
@@ -122,6 +122,7 @@
         function getSavedToken() {
             return localStorage.getItem("token");
         }
+
 
         $('#btLogout').click(function(){
             $.ajax ({
@@ -144,15 +145,15 @@
 
         function getToken(userName, userPassword) {
             $.ajax({
-                url: "/api/accounts/verifyLogin",
-                type: "POST",
-                data: JSON.stringify({
-                    username: userName,
-                    password: userPassword
-                }),
-                contentType: "application/json; charset=utf-8",
-                //dataType: "json" //Må kommenteres ut dersom jeg ikke ønsker ren tekst og for at funskjonen skal virke
-            })
+                    url: "/api/accounts/verifyLogin",
+                    type: "POST",
+                    data: JSON.stringify({
+                        username: userName,
+                        password: userPassword
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    //dataType: "json" 
+                })
                 .done(function (token) {
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", userName);
@@ -161,7 +162,7 @@
                     var message = "<p>Token received and saved in local storage under the key 'token'</p>";
                     message += "<p>Token Value: </p><p style='word-wrap:break-word'>" + token + "</p>";
                     $('#responseContainer').html(message);
-                    get(@TempData["chosenId"])
+                    get(@TempData["chosenId"]);
                     $("#modalButton").show();
                 })
                 .fail(function () {
@@ -178,7 +179,7 @@
                 var strComments = "";
                 $.each(comments,
                     function(index, comment) {
-                        strComments += `<tr><td>${comment.commentId} ${comment.text}</td></tr>`;
+                        strComments += `<tr><td>${comment.commentId} ${comment.commentText}</td></tr>`;
                     });
                 $("#comments").html(strComments);
 
@@ -205,7 +206,7 @@
                     var strComments = "";
                     $.each(comments,
                         function(index, comment) {
-                            strComments += `<tr><td>${comment.commentId} ${comment.text} @*${comment.Owner.UserName}*@ </td></tr>`;
+                            strComments += `<tr><td>---${comment.Owner}</td> <td>---${comment.created} </td> <td>---${comment.commentText}</td> <td>---${comment.modified}</td></tr>`;
                         });
                     $("#commentsOnPost").html(strComments);
                 }
@@ -244,32 +245,32 @@
             var innhold = document.getElementById('add').value;
 
             var comment = {
-                "text": innhold,
+                "CommentText": innhold,
                 "postId": @TempData["chosenId"],
                 "Owner": localStorage.getItem("username")
             };
-                $.ajax({
-                    type: "POST",
-                    url: "/Api/CommentsApi/",
-                    data: JSON.stringify(comment),
-                    contentType: "application/json;charset=utf-8",
-                    dataType: 'json',
-                    success: function (result) {
-                        //$("#update").html("<p>POST ferdig ok ..." + "</p>");
-                        swal({
-                            title: "Bra jobba!",
-                            text: "Kommentaren er lagreet!",
-                            icon: "success",
-                            button: "Aww yiss!",
-                        });
-                        $("#add").val('');
-                        get(@TempData["chosenId"]);
-                    },
+            $.ajax({
+                type: "POST",
+                url: "/Api/CommentsApi/",
+                data: JSON.stringify(comment),
+                contentType: "application/json;charset=utf-8",
+                dataType: 'json',
+                success: function (result) {
+                    //$("#update").html("<p>POST ferdig ok ..." + "</p>");
+                    swal({
+                        title: "Voila!",
+                        CommentText: "Kommentaren er lagret!",
+                        icon: "success",
+                        button: "Lukk",
+                    });
+                    $("#add").val('');
+                    get(@TempData["chosenId"]);
+                },
 
-                    error: function (req, status, error) {
-                        $("#update").html("AJAX error");
-                    }
-                });
+                error: function (req, status, error) {
+                    $("#update").html("AJAX error");
+                }
+            });
         }
 
         $(document).ready(function() {
@@ -285,7 +286,6 @@
             $("#modalButton").hide();
             //showAll(); //viser absolutt alle kommentarer
         });
-
 
 
     </script>
@@ -304,7 +304,7 @@
     </div>
 </div>
 
-<h5>Kommentarer på innlegg via WebApi: </h5>
+<h5>Kommentarer på innlegg fra webApi: </h5>
 <hr />
 <div id="commentsOnPost"></div>
 
@@ -332,7 +332,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <textarea type="text" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
+                            <textarea type="CommentText" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
                             <input type="button" value="Legg til" onclick="add()">
 
                         </div>

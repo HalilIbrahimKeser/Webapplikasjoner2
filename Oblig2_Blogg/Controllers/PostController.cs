@@ -131,6 +131,8 @@ namespace Oblig2_Blogg.Controllers
         //Hjelpe funskjon til metoden Create og Edit post, for å unngå duplicat kode
         public List<Tag> getTagsFromString(string tagsStrings)
         {
+            //https://stackoverflow.com/questions/37778489/how-to-make-check-box-list-in-asp-net-mvc/37779070
+
             char[] delimiterChars = { ',' };
             var tagsIdNumbers = tagsStrings.Split(delimiterChars).ToList();
 

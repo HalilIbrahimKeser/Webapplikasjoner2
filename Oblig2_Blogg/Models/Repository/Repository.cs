@@ -387,7 +387,7 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var user = await manager.FindByEmailAsync(principal.Identity.Name);
 
-            if (user.Id == comment.Owner.Id)
+            if (user == comment.Owner)
             {
                 db.Entry(comment).State = EntityState.Modified;
                 await db.SaveChangesAsync();
@@ -428,7 +428,11 @@ namespace Oblig2_Blogg.Models.Repository
         //WEB API Functions---------------------------------
         public async Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet)
         {
-            var post = await db.Posts.Include(c => c.Comments).FirstAsync(x => x.PostId == postIdToGet);
+            var post = await db.Posts.Include(c => c.Comments)
+                .Include(p => p.Tags)
+                .Include(p => p.Owner)
+                .OrderByDescending(p => p.Created)
+                .FirstAsync(p => p.PostId == postIdToGet);
             return post.Comments;
         }
 
