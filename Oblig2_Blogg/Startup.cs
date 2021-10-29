@@ -60,13 +60,9 @@ namespace Oblig2_Blogg
                 .AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-                
-            
-            //services.AddDefaultIdentity<ApplicationUser>()
-            //    .AddSignInManager<SignInManager<ApplicationUser>>()
+
+            //services.AddIdentity<ApplicationUser>()
             //    .AddDefaultUI()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>()
-            //    .AddDefaultTokenProviders(); ;
 
 
             var confKey = Configuration.GetSection("TokenSettings")["SecretKey"];
