@@ -49,10 +49,10 @@ namespace Oblig2_Blogg
             //MS SqlServer
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("DefaultConnection")));
-            
-            services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
+
+            // services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<ApplicationUser>()
                 //.AddRoleManager<RoleManager<IdentityRole>>()
@@ -68,8 +68,8 @@ namespace Oblig2_Blogg
             var confKey = Configuration.GetSection("TokenSettings")["SecretKey"];
             var key = Encoding.ASCII.GetBytes(confKey);
 
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                //.AddCookie(cfg => cfg.SlidingExpiration = true)
+            services.AddAuthentication()
+                .AddCookie(cfg => cfg.SlidingExpiration = true)
                 .AddJwtBearer(x =>
                 {
                     x.TokenValidationParameters = new TokenValidationParameters
@@ -80,16 +80,16 @@ namespace Oblig2_Blogg
                         ValidateAudience = false,
                         ValidateLifetime = true
                     };
-                })
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
+                });
+                //.AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
 
 
-            services.AddMvc(options =>
+            services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
+                config.Filters.Add(new AuthorizeFilter(policy));
             });
 
             services.AddRazorPages()
@@ -104,6 +104,11 @@ namespace Oblig2_Blogg
             //{
             //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoApi", Version = "v1" });
             //});
+
+            //TODO
+            //services.AddAutoMapper(typeof(Startup));
+
+            //services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -120,13 +125,15 @@ namespace Oblig2_Blogg
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
+            app.UseDefaultFiles();
             app.UseStaticFiles();
-
-            app.UseAuthentication();
-
+            
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {

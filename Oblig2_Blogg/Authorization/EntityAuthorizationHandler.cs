@@ -14,14 +14,12 @@ namespace Oblig2_Blogg.Authorization
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public EntityAuthorizationHandler(UserManager<ApplicationUser>
-            userManager)
+        public EntityAuthorizationHandler(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
 
-        protected override Task
-            HandleRequirementAsync(
+        protected override Task HandleRequirementAsync(
                 AuthorizationHandlerContext context,
                 OperationAuthorizationRequirement requirement,
                 IAuthorizationEntity resource)

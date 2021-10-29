@@ -12,9 +12,14 @@
     ViewData["Title"] = "ReadBlogPosts";
 }
 <hr />
-<p>Blog navn:</p>
+<p>Blog:</p>
 <h1>@Model.Name</h1>
+
+
 <hr />
+<p>Om: </p>
+<h4> @Model.Description</h4>
+
 <p>
     Created: @Model.Created,
     @if (@Model.Owner == null)
@@ -26,15 +31,6 @@
         <a> Created by: @Model.Owner.FirstName</a>
     }
 </p>
-@if (TempData["Feedback"] != null)
-{
-    <div class="success-centered text-info">
-        <h5>@TempData["Feedback"]</h5>
-    </div>
-}
-<hr />
-<p>Blog innhold: </p>
-<h4> @Model.Description</h4>
 
 <hr />
 @if (@Model.Owner != null)
@@ -44,24 +40,29 @@
         <p>@Html.ActionLink("Create new post", "CreatePost", "Post", new { blogId = @Model.BlogId })</p>
     }
 }
-<hr />
+@if (TempData["Feedback"] != null)
+{
+    <div class="success-centered text-info">
+        <h5>@TempData["Feedback"]</h5>
+    </div>
+}
 
 @if (Model.Tags != null)
 {
     <table class="table table-hover">
         <tr>
             <th>Tags</th>
-            <th> @Html.ActionLink("Fjern søk", "ReadBlogPosts", "Blog", new {id = Model.BlogId })</th>
+            <th> @Html.ActionLink("Fjern søk/filtrering", "ReadBlogPosts", "Blog", new { id = Model.BlogId })</th>
         </tr>
         @try
         {
             <tr>
-            @foreach (var item in Model.Tags)
-            {
-                <td>
-                    @Html.ActionLink(item.TagLabel, "FindPostsWithTag", "Post", new {tagId = item.TagId, blogId = Model.BlogId})
-                </td>
-            }
+                @foreach (var item in Model.Tags)
+                {
+                    <td>
+                        @Html.ActionLink(item.TagLabel, "ReadBlogPosts", "Blog", new { tagId = item.TagId, id = Model.BlogId })
+                    </td>
+                }
             </tr>
         }
         catch (NullReferenceException e)
@@ -99,20 +100,20 @@
                 </td>
                 <td>
 
-                    @Html.ActionLink("Read post", "ReadPostComments", "Blog",new { PostId = item.PostId })
+                    @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = item.PostId })
 
                     @if (signInManager.IsSignedIn(User))
                     {
                         @if ((await AuthorizationService.AuthorizeAsync(
-                   User, item,
-                   BlogOperations.Update)).Succeeded)
+                  User, item,
+                  BlogOperations.Update)).Succeeded)
                         {
                             @Html.ActionLink("| Edit ", "EditPost", "Post", new { PostId = item.PostId })
                         }
 
                         @if ((await AuthorizationService.AuthorizeAsync(
-                   User, item,
-                   BlogOperations.Delete)).Succeeded)
+                  User, item,
+                  BlogOperations.Delete)).Succeeded)
                         {
                             @Html.ActionLink(" | Delete", "DeletePost", "Post", new { PostId = item.PostId })
                         }
@@ -129,7 +130,7 @@
 </table>
 
 <div>
-    <a asp-action="Index", asp-controller="Blog">Back to List</a>
+    <a asp-action="Index" , asp-controller="Blog">Back to List</a>
 </div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

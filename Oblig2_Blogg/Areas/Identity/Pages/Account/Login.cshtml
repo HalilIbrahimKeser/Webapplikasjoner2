@@ -82,4 +82,36 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @*<script>
+        $(document).ready(function () {
+            $("#loginButton").on("click",
+                function () {
+                    const email = $("#Input_Email").val();
+                    const password = $("#Input_Password").val();
+                    console.log(password);
+                    console.log(email);
+                    getToken(email, password);
+                });
+        });
+        function getToken(userName, userPassword) {
+            $.ajax({
+                url: "/api/accounts/verifyLogin",
+                type: "POST",
+                data: JSON.stringify({
+                    username: userName,
+                    password: userPassword
+                }),
+                contentType: "application/json; charset=utf-8",
+                //dataType: "json"
+            })
+                .done(function (result) {
+                    localStorage.setItem("token", result);
+                    $('#account').submit();
+                })
+                .fail(function () {
+                    console.log("Login error");
+                });
+        }
+    </script>-->*@
+
 }

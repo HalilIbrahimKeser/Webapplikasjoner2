@@ -74,10 +74,12 @@ namespace Oblig2_Blogg.Controllers
             }
 
             List<Tag> tags = repository.GetAllTags().ToList();
+            List<string> selectedTags = new List<string>();
             PostViewModel postViewModel = new PostViewModel()
             {
                 Tags = tags,
-                AvailableTags = tags
+                AvailableTags = tags,
+                SelectedTags = selectedTags,
             };
             return View(postViewModel);
         }
@@ -109,7 +111,7 @@ namespace Oblig2_Blogg.Controllers
                         };
                         repository.SavePost(post, User).Wait();
 
-                        TempData["Feedback"] = $"{post.PostId} har blitt opprettet";
+                        TempData["Feedback"] = string.Format("Kommentar \"{0}\" har blitt opprettet", post.PostText);
                         return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
                     } else {
                         TempData["Feedback"] = "Låst for endringer";
@@ -126,6 +128,7 @@ namespace Oblig2_Blogg.Controllers
             return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
         }
 
+        //Hjelpe funskjon til metoden Create og Edit post, for å unngå duplicat kode
         public List<Tag> getTagsFromString(string tagsStrings)
         {
             char[] delimiterChars = { ',' };
@@ -203,7 +206,7 @@ namespace Oblig2_Blogg.Controllers
                         var result = await repository.UpdatePost(post, User);
                         if (result != null)
                         {
-                            TempData["Feedback"] = string.Format("{0} is updated", post.PostText);
+                            TempData["Feedback"] = string.Format("Kommentar \"{0}\" er oppdatert", post.PostText);
                             return RedirectToAction("ReadBlogPosts", "Blog", new { id = post.BlogId });
                         }
                     }
@@ -278,35 +281,6 @@ namespace Oblig2_Blogg.Controllers
 
         //TAGS CRUD OPERATIONS and VIEW------------------------------------------------------------------------
 
-        [AllowAnonymous]
-        public ActionResult FindPostsWithTag(int tagId, int blogId)
-        {
-            Blog blog = repository.GetBlog(blogId);
-            List<Post> posts = repository.GetAllPostsInThisBlogWithThisTag(tagId, blogId).ToList();
-            List<Tag> tagsForThisBlog = repository.GetAllTagsForBlog(blog.BlogId).ToList();
-
-            if (ModelState.IsValid)
-            {
-                BlogViewModel blogViewModel = new BlogViewModel()
-                {
-                    BlogId = blog.BlogId,
-                    Name = blog.Name,
-                    Description = blog.Description,
-                    Created = blog.Created,
-                    Modified = blog.Modified,
-                    Closed = blog.Closed,
-                    Owner = blog.Owner,
-                    Posts = posts,
-                    Tags = tagsForThisBlog
-                };
-                return View(blogViewModel);
-            }
-            else
-            {
-                TempData["Feedback"] = "Feil ved søk, feil i Model: " + blog.BlogId;
-                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
-            }
-        }
 
         
         ////TODO

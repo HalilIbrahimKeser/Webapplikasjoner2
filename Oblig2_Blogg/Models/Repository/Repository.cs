@@ -131,19 +131,7 @@ namespace Oblig2_Blogg.Models.Repository
                                   select blog;
             return singleBlogQuery.FirstOrDefault();
         }
-
-        //SUBSCRIBE TO BLOG
-        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
-        {
-            Blog blog = blogToSubscribe;
-
-            userSubscriber.SubscribedBlogs.Add(blog);
-
-            db.Users.Update(userSubscriber);
-            await db.SaveChangesAsync();
-          
-        }
-
+        
         //GET POSTS
         public IEnumerable<Post> GetAllPosts(int blogIdToGet)
         {
@@ -169,7 +157,6 @@ namespace Oblig2_Blogg.Models.Repository
             return postQuery.FirstOrDefault();
         }
 
-            
 
         //GET POSTVIEWMODEL
         public PostViewModel GetPostViewModel(int? id)
@@ -205,6 +192,8 @@ namespace Oblig2_Blogg.Models.Repository
             }
             return p;
         }
+
+
         //GET COMMENTS
         public IEnumerable<Comment> GetAllComments(int? postIdToGet)
         {
@@ -354,7 +343,20 @@ namespace Oblig2_Blogg.Models.Repository
             db.Entry(blog).State = EntityState.Modified;
             await db.SaveChangesAsync();
         }
-         
+
+
+        //SUBSCRIBE TO BLOG
+        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        {
+            Blog blog = blogToSubscribe;
+
+            userSubscriber.SubscribedBlogs.Add(blog);
+
+            db.Users.Update(userSubscriber);
+            await db.SaveChangesAsync();
+        }
+
+
         //UPDATE POST
         public async Task<Post> UpdatePost(Post post, IPrincipal principal)
         {

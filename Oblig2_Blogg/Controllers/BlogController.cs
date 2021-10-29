@@ -19,15 +19,16 @@ namespace Oblig2_Blogg.Controllers
         private readonly IRepository repository;
         private UserManager<ApplicationUser> userManager;
         IAuthorizationService authorizationService;
+        private IRepository @object;
         private IAuthorizationService authService;
 
 
         //CONSTRUCTOR-----------------------------------------------
         // UserManager<ApplicationUser> userManager1 = null,
-        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager1, IAuthorizationService authorizationService1 = null)
+        public BlogController(IRepository repository, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
-            this.userManager = userManager1;
+            //this.userManager = userManager1;
             this.authorizationService = authorizationService1;
         }
 
@@ -48,12 +49,20 @@ namespace Oblig2_Blogg.Controllers
 
         //VIEW
         [AllowAnonymous]
-        public ActionResult ReadBlogPosts(int id)
+        public ActionResult ReadBlogPosts(int? tagId, int id)
         {
+            //Hvis ingen søk ingen filtrering. Ellers filtering på tags
+            List<Post> posts = new List<Post>();
+            if (tagId != null)
+            {
+                posts = repository.GetAllPostsInThisBlogWithThisTag((int)tagId, id).ToList();
+            }
+            else
+            {
+                posts = repository.GetAllPosts(id).ToList();
+            }
            
             Blog blog = repository.GetBlog(id);
-            List<Post> posts = new List<Post>();
-            posts = repository.GetAllPosts(id).ToList();
             List<Tag> tagsForThisBlog = repository.GetAllTagsForBlog(blog.BlogId).ToList();
 
             if (ModelState.IsValid)
@@ -77,6 +86,7 @@ namespace Oblig2_Blogg.Controllers
                 return View();
             }
         }
+
 
         //VIEW
         [AllowAnonymous]
@@ -118,26 +128,25 @@ namespace Oblig2_Blogg.Controllers
             return View();
         }
 
-        public ActionResult SubscribeToBlog(int id) {
+        //[HttpGet]
+        //public ActionResult SubscribeToBlog(int id)
+        //{
+        //    return RedirectToAction(nameof(Index));
+        //    //return View();
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SubscribeToBlog(int id)
+        {
+
             Blog blog = repository.GetBlog(id);
-            //var userId = userManager.GetUserId(User);
-            var userTemp = userManager.GetUserAsync(User);
+            //repository.SubscribeToBlog(blog, User);
 
-            ApplicationUser user = userTemp.Result;
-            try
-            {
-                repository.SubscribeToBlog(blog, user);
-                TempData["Feedback"] = $"Du er abonnert på blog nr: {blog.BlogId}";
-                return RedirectToAction("Index", "Blog");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return RedirectToAction("Index", "Blog");
-            }
-
-            return RedirectToAction("Index", "Blog");
+            TempData["Feedback"] = "Du er abonnert på, blogg id: " + blog.BlogId;
+            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
         }
-      
+
+
     }
 }
