@@ -18,16 +18,15 @@ namespace Oblig2_Blogg.Controllers
     {
         private readonly IRepository repository;
         private UserManager<ApplicationUser> userManager;
-        private IRepository @object;
         private IAuthorizationService authService;
 
 
         //CONSTRUCTOR-----------------------------------------------
         // UserManager<ApplicationUser> userManager1 = null,
-        public BlogController(IRepository repository, IAuthorizationService authorizationService1 = null)
+        public BlogController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
-            //this.userManager = userManager1;
+            this.userManager = userManager1;
             this.authService = authorizationService1;
         }
 
@@ -38,7 +37,19 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult Index()
         {
-            return View(repository.GetAllBlogs());
+            var blogs = repository.GetAllBlogs();
+            var posts = repository.GetAllLastPostsWhitBlog();
+            var tags = repository.GetAllTags();
+
+
+            IndexViewModel indexViewModel = new IndexViewModel()
+            {
+                Blogs = blogs,
+                Posts = posts,
+                Tags = tags
+            };
+
+            return View(indexViewModel);
         }
 
         //VIEW
@@ -53,7 +64,7 @@ namespace Oblig2_Blogg.Controllers
             }
             else
             {
-                posts = repository.GetAllPosts(id).ToList();
+                posts = repository.GetAllPostsInBlog(id).ToList();
             }
            
             Blog blog = repository.GetBlog(id);
@@ -113,7 +124,7 @@ namespace Oblig2_Blogg.Controllers
                     };
                     repository.SaveBlog(blog, User).Wait();
                     TempData["Feedback"] = string.Format("{0} har blitt opprettet", blog.Name);
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index", "Blog"); ;
                 }
             } catch (Exception e)
             { Console.WriteLine(e);
@@ -122,25 +133,32 @@ namespace Oblig2_Blogg.Controllers
             return View();
         }
 
-        //[HttpGet]
-        //public ActionResult SubscribeToBlog(int id)
-        //{
-        //    return RedirectToAction(nameof(Index));
-        //    //return View();
-        //}
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public ActionResult SubscribeToBlog(int id)
         {
-
+            var user =  userManager.GetUserAsync(User).Result;
+            
             Blog blog = repository.GetBlog(id);
-            //repository.SubscribeToBlog(blog, User);
-
-            TempData["Feedback"] = "Du er abonnert på, blogg id: " + blog.BlogId;
-            return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
+            var result = repository.SubscribeToBlog(blog, user);
+            if (result != null)
+            {
+                TempData["Feedback"] = string.Format("Bruker \"{0}\" er abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
+            }
+            return RedirectToAction("Index", "Blog");
         }
 
+        [HttpGet]
+        public ActionResult UnSubscribeToBlog(int id)
+        {
+            var user = userManager.GetUserAsync(User).Result;
 
+            Blog blog = repository.GetBlog(id);
+            var result = repository.UnSubscribeToBlog(blog, user);
+            if (result != null)
+            {
+                TempData["Feedback"] = string.Format("Bruker \"{0}\" er ikke lenger abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
+            }
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

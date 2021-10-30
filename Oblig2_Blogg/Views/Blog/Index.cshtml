@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using System.Security.Principal
 @using Oblig2_Blogg.Models.Entities
+@using Oblig2_Blogg.Models.ViewModels
 
-@model IEnumerable<Oblig2_Blogg.Models.Entities.Blog>
+@model Oblig2_Blogg.Models.ViewModels.IndexViewModel
 
 @inject SignInManager<ApplicationUser> signInManager
 @inject UserManager<ApplicationUser> userManager
@@ -16,78 +17,115 @@
 <hr />
 @if (TempData["Feedback"] != null)
 {
-    <div class="success-centered">
-        @TempData["Feedback"]
+    <div class="success-centered text-info">
+        <h5>@TempData["Feedback"]</h5>
     </div>
 }
 <p>
     @if (signInManager.IsSignedIn(User))
     {
-        <a asp-action="Create">Create New</a>
+    <a asp-action="Create" , asp-controller="Blog">Create New Blog</a>
     }
     else
     {
         <a>You are currently not logged in, log in to create a new Blog</a>
     }
 </p>
+
 <table class="table table-hover">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Closed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-
-            <th></th>
-        </tr>
+    <tr>
+        <th>User</th>
+        <th>Blog name</th>
+        <th>Description</th>
+        <th>Closed</th>
+        <th>Created</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
+    @foreach (var blog in Model.Blogs)
+    {
         <tr>
-            @if (item.Owner != null)
+            @if (blog.Owner != null)
             {
-                <td>
-                    @Html.DisplayFor(modelItem => item.Owner.FirstName)
-                </td>
-
+                <td>@Html.DisplayFor(modelItem => blog.Owner.FirstName)</td>
             }
             else
             {
-                <td>
-                    No user
-                </td>
+                <td>No user</td>
             }
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @Html.DisplayFor(modelItem => blog.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @Html.DisplayFor(modelItem => blog.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Closed)
+                @Html.DisplayFor(modelItem => blog.Closed)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Created)
+                @Html.DisplayFor(modelItem => blog.Created)
             </td>
             <td>
-                @Html.ActionLink("Enter the blog", "ReadBlogPosts", new { id = item.BlogId })
+                @Html.ActionLink("Enter the blog", "ReadBlogPosts", new { id = blog.BlogId })
             </td>
             <td>
-                @Html.ActionLink("Subscribe ⚝", "SubscribeToBlog", "Blog", new { id = item.BlogId })
+                @Html.ActionLink("Subscribe ⚝", "SubscribeToBlog", "Blog", new { id = blog.BlogId })
             </td>
         </tr>
-        }
+    }
     </tbody>
 </table>
+
+<hr />
+<h4>Siste 10 innlegg aktiviteter:</h4>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Created</th>
+            <th>Modified</th>
+            <th>Blog</th>
+            <th>PostText</th>
+            <th>Options</th>
+
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var post in Model.Posts)
+    {
+        <tr>
+            @if (post.Owner != null)
+            {
+                <td>@Html.DisplayFor(modelItem => post.Owner.FirstName)</td>
+            }
+            else
+            {
+                <td>No user</td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => post.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.Modified)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.BlogId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.PostText)
+            </td>
+
+            <td>
+                @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = post.PostId })
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+
+
+
+
+

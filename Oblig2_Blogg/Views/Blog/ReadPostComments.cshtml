@@ -89,29 +89,27 @@
     }
 </table>
 
-<div>
-    <a asp-controller="Blog" asp-action="Index">Back to List</a> |
-    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
-</div>
+
 <hr />
 
 
 @section scripts{
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
 
         // JWT-------------------------------------------------------------------------------------------------------------------
-        function handleError(xhr, textStatus, errorThrown){
+        function handleError(xhr, textStatus, errorThrown) {
             if (xhr.status === 401)
                 $('#responseContainer').html("Unauthorized request");
-            else{
+            else {
                 var message = "<p>Status code: " + xhr.status + "</p>";
                 message += "<pre>" + xhr.responseText + "</pre>";
                 $('#responseContainer').html(message);
             }
         }
-        function isUserLoggedIn(){
+
+        function isUserLoggedIn() {
             return localStorage.getItem("token") !== null;
         }
 
@@ -120,12 +118,12 @@
         }
 
 
-        $('#btLogout').click(function(){
-            $.ajax ({
+        $('#btLogout').click(function() {
+            $.ajax({
                     url: "/identity/account/logout",
                     type: "GET"
                 })
-                .done(function(){
+                .done(function() {
                     $('#responseContainer').html("<p>Cookie deleted and token deleted from local storage</p>");
                     localStorage.removeItem("token");
                     localStorage.removeItem("username");
@@ -150,7 +148,7 @@
                     contentType: "application/json; charset=utf-8",
                     //dataType: "json" 
                 })
-                .done(function (token) {
+                .done(function(token) {
                     console.log(token);
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", userName);
@@ -162,7 +160,7 @@
                     get(@TempData["chosenId"]);
                     $("#modalButton").show();
                 })
-                .fail(function () {
+                .fail(function() {
                     console.log("Login error");
                 });
         }
@@ -198,7 +196,7 @@
         //---------------------------View all comments on post-------------------------------------//
         function get(id) {
 
-            listCommentOnPost(function (comments) {
+            listCommentOnPost(function(comments) {
                 if (isUserLoggedIn()) {
                     var strComments = `<table class="table table-hover">
                                             <tr>
@@ -213,7 +211,7 @@
                                     <tr>
                                         <td>${comment.Owner}</td>
                                         <td>${formatDate(comment.created)}</td>
-                                        <td>${comment.modified}</td>
+                                        <td>${formatDate(comment.modified)}</td>
                                         <td>${comment.commentText}</td> 
                                     </tr>`;
                         });
@@ -224,6 +222,8 @@
             });
 
             function formatDate(date) {
+                //https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
+                //endret en del på koden, fjernet de med år 1970. Lagt inn time og minutter. Endret format til norsk.
                 var d = new Date(date),
                     month = '' + (d.getMonth() + 1),
                     day = '' + d.getDate(),
@@ -232,11 +232,14 @@
                     hour = '' + d.getHours(),
                     minutes = '' + d.getMinutes();
 
-                if (month.length < 2) 
+                if (month.length < 2)
                     month = '0' + month;
-                if (day.length < 2) 
+                if (day.length < 2)
                     day = '0' + day;
 
+                if (year === 1970) {
+                    return "";
+                }
                 return [day, month, year, hour, minutes].join('-');
             }
 
@@ -256,10 +259,10 @@
                 });
             }
 
-            if (isUserLoggedIn()){
+            if (isUserLoggedIn()) {
                 $('#btLoginContainer').hide();
                 $('#btLogoutContainer').show();
-            }else {
+            } else {
                 $('#btLoginContainer').show();
                 $('#btLogoutContainer').hide();
             }
@@ -282,7 +285,7 @@
                 data: JSON.stringify(comment),
                 contentType: "application/json;charset=utf-8",
                 dataType: 'json',
-                success: function (result) {
+                success: function(result) {
                     //$("#update").html("<p>POST ferdig ok ..." + "</p>");
                     swal({
                         title: "Voila!",
@@ -294,7 +297,7 @@
                     get(@TempData["chosenId"]);
                 },
 
-                error: function (req, status, error) {
+                error: function(req, status, error) {
                     $("#update").html("AJAX error");
                 }
             });
@@ -306,7 +309,7 @@
             get(@TempData["chosenId"]);
 
             $("#loginToCreateToken").on("click",
-                function () {
+                function() {
                     const email = $("#InputEmail").val();
                     const password = $("#InputPassword").val();
 
@@ -379,6 +382,11 @@
         </div>
     </div>
 
+</div>
+<hr />
+<div>
+    <a asp-controller="Blog" asp-action="Index">Back to List</a> |
+    @Html.ActionLink("Gå tilbake til innlegg", "ReadBlogPosts", "Blog", new { id = Model.BlogId })
 </div>
 
 

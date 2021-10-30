@@ -68,7 +68,7 @@
 //        public void IndexReturnsAllPosts()
 //        {
 //            // Arrange
-//            repository.Setup(x => x.GetAllPosts(1)).Returns(fakePosts);
+//            repository.Setup(x => x.GetAllPostsInBlog(1)).Returns(fakePosts);
 //            var controller = new BlogController(repository.Object);
 
 //            // Act

@@ -39,6 +39,12 @@
     <PackageReference Include="Moq" Version="4.16.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Blog\Index.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
 
 

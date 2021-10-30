@@ -7,23 +7,43 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Oblig2_Blogg.Models.Entities;
+using Oblig2_Blogg.Models.Repository;
+using Oblig2_Blogg.Models.ViewModels;
 
 namespace Oblig2_Blogg.Controllers
 {
-    [AllowAnonymous]
-    //[Authorize]
+  
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IRepository repository;
+        private UserManager<ApplicationUser> userManager;
+        private IAuthorizationService authService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
-            _logger = logger;
+            this.repository = repository;
+            this.userManager = userManager1;
+            this.authService = authorizationService1;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var user = userManager.GetUserAsync(User).Result;
+
+            var blogs = repository.GetAllSubscribedBlogs(user);
+            var posts = repository.GetAllLastPostsWhitBlog();
+            var tags = repository.GetAllTags();
+            
+            IndexViewModel indexViewModel = new IndexViewModel()
+            {
+                Blogs = blogs,
+                Posts = posts,
+                Tags = tags
+            };
+
+            return View(indexViewModel);
         }
 
         public IActionResult Privacy()

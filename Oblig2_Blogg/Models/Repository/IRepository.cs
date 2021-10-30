@@ -12,17 +12,20 @@ namespace Oblig2_Blogg.Models.Repository
     public interface IRepository
     {
         //USER
-        Task SubscribeToBlog(Entities.Blog blog, ApplicationUser userSubscriber);
+        Task SubscribeToBlog(Blog blog, ApplicationUser userSubscriber); 
+        Task UnSubscribeToBlog(Blog blog, ApplicationUser userSubscriber); 
 
-        //BLOGS
-        IEnumerable<Blog> GetAllBlogs();
-        /*Task<IEnumerable<Blog>> GetAllBlogs();*/
+         //BLOGS
+         IEnumerable<Blog> GetAllBlogs();
+        IEnumerable<Blog> GetAllLastBlogs();
         Blog GetBlog(int blogIdToGet);
         Task SaveBlog(Blog blog, IPrincipal principal);
+        IEnumerable<Blog> GetAllSubscribedBlogs(ApplicationUser userSubscriber);
 
         //POSTS
         IEnumerable<Post> GetAllPostsWhitBlog();
-        IEnumerable<Post> GetAllPosts(int blogIdToGet);
+        IEnumerable<Post> GetAllLastPostsWhitBlog();
+        IEnumerable<Post> GetAllPostsInBlog(int blogIdToGet);
         PostViewModel GetPostViewModel(int? id);
         Post GetPost(int postIdToGet);
         Task SavePost(Post post, IPrincipal principal);

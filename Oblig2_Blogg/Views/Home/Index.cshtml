@@ -1,8 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Principal
+@using Oblig2_Blogg.Models.Entities
+@using Oblig2_Blogg.Models.ViewModels
+
+@model Oblig2_Blogg.Models.ViewModels.IndexViewModel
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+
+@{
+    ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Oversikt over mine abonnerte blogger:</h2>
+<hr />
+@if (TempData["Feedback"] != null)
+{
+    <div class="success-centered text-info">
+        <h5>@TempData["Feedback"]</h5>
+    </div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Blog name</th>
+            <th>Description</th>
+            <th>Closed</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var blog in Model.Blogs)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => blog.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => blog.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => blog.Closed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => blog.Created)
+            </td>
+            <td>
+                @Html.ActionLink("Enter the blog", "ReadBlogPosts", "Blog", new { id = blog.BlogId })
+            </td>
+            @*https://www.i2symbol.com/symbols/smileys*@
+            <td> @Html.ActionLink("Unsubscribe ㋛", "UnSubscribeToBlog", "Blog", new { id = blog.BlogId })</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<hr />
+<h4>Siste 10 innlegg aktiviteter:</h4>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th>User</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Blog</th>
+        <th>PostText</th>
+        <th>Options</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var post in Model.Posts)
+    {
+        <tr>
+            @if (post.Owner != null)
+            {
+                <td>@Html.DisplayFor(modelItem => post.Owner.FirstName)</td>
+            }
+            else
+            {
+                <td>No user</td>
+            }
+            <td>
+                @Html.DisplayFor(modelItem => post.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.Modified)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.BlogId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => post.PostText)
+            </td>
+
+            <td>
+                @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = post.PostId })
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

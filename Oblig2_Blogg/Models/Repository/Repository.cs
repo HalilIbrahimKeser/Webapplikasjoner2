@@ -31,9 +31,10 @@ namespace Oblig2_Blogg.Models.Repository
             //SeedManyToMany_OnlyOneTime(); //kjøres kun en gang
         }
 
-        // For å seede mange til mange relasjonen mellom Tag og Post. Kjøres kun en gang ved ny database.
+       
         private void SeedManyToMany_OnlyOneTime()
-        { 
+        {
+            // For å seede mange til mange relasjonen mellom Tag og Post. Kjøres kun en gang ved ny database.
             var post1 = new Post
             {
                 PostText = "Sydney hadde kjempefin natur rundt byen og fine fjell. Vi tok oss en gåtur.",
@@ -115,25 +116,73 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET BLOGS
-        public IEnumerable<Entities.Blog> GetAllBlogs() 
+        public IEnumerable<Blog> GetAllBlogs() 
         {
-           IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner);
+           IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(o => o.BlogApplicationUsers);
            return blogs;
         }
 
+        public IEnumerable<Blog> GetAllLastBlogs()
+        {
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(o => o.BlogApplicationUsers)
+                .Take(10).OrderByDescending(p=>p.Modified);
+            return blogs;
+        }
+
+        public IEnumerable<Blog> GetAllSubscribedBlogs(ApplicationUser userSubscriber)
+        {
+            var currentUser = userSubscriber;
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(o => o.BlogApplicationUsers)
+                .OrderByDescending(p => p.Modified);
+
+            List<Blog> blogList = new List<Blog>();
+            
+            foreach (var blog in blogs)
+            {
+                foreach (var applicationUser in blog.BlogApplicationUsers)
+                {
+                    if (applicationUser.OwnerId == currentUser.Id)
+                    {
+                        blogList.Add(blog);
+                    }
+                }
+            }
+            return blogList;
+        }
 
         //GET BLOG
         public Blog GetBlog(int blogIdToGet)
         {
-            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(b=>b.Posts);
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(b => b.Posts);
             var singleBlogQuery = from blog in blogs
-                                  where blog.BlogId == blogIdToGet
-                                  select blog;
+                where blog.BlogId == blogIdToGet
+                select blog;
             return singleBlogQuery.FirstOrDefault();
         }
+
+        //SUBSCRIBE TO BLOG
+        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        {
+            BlogApplicationUser blogApplicationUser = new BlogApplicationUser();
+            blogApplicationUser.Blog = blogToSubscribe;
+            blogApplicationUser.Owner = userSubscriber;
+            db.BlogApplicationUser.AddRange(blogApplicationUser);
+            await db.SaveChangesAsync();
+        }
+        //UNSUBSCRIBE TO BLOG
+        public async Task UnSubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        {
+            BlogApplicationUser blogApplicationUser = new BlogApplicationUser();
+            blogApplicationUser.Blog = blogToSubscribe;
+            blogApplicationUser.Owner = userSubscriber;
+            
+            db.BlogApplicationUser.RemoveRange(blogApplicationUser);
+            await db.SaveChangesAsync();
+        }
         
+
         //GET POSTS
-        public IEnumerable<Post> GetAllPosts(int blogIdToGet)
+        public IEnumerable<Post> GetAllPostsInBlog(int blogIdToGet)
         {
             IEnumerable<Post> posts = db.Posts.Include(o => o.Owner);
             var postQuery = from post in posts
@@ -145,15 +194,20 @@ namespace Oblig2_Blogg.Models.Repository
 
         public IEnumerable<Post> GetAllPostsWhitBlog()
         {
-            return db.Posts.Include(p => p.Blog).Include(p => p.BlogId);
+            return db.Posts.Include(p => p.Blog).Include(p => p.Owner);
+        }
+        
+        public IEnumerable<Post> GetAllLastPostsWhitBlog()
+        {
+            return db.Posts.Include(p => p.Blog).Include(p => p.Owner)
+                .Take(10).OrderByDescending(p => p.Created); 
         }
 
         //GET POST
         public Post GetPost(int postIdToGet)
         {
-            var postQuery = (from post in db.Posts
-                where post.PostId == postIdToGet
-                select post).Include(o => o.Owner).Include(o => o.Tags).Include(o => o.Comments);
+            var postQuery = (from post in db.Posts where post.PostId == postIdToGet select post).Include(o => o.Owner)
+                .Include(o => o.Tags).Include(o => o.Comments);
             return postQuery.FirstOrDefault();
         }
 
@@ -163,11 +217,12 @@ namespace Oblig2_Blogg.Models.Repository
         {
             List<Comment> comments = new();
             List<Tag> tags = new();
-            if (id != null) {
+            if (id != null)
+            {
                 comments = GetAllComments(id).ToList();
                 tags = GetTagsForPost(id).ToList();
             }
-           
+
             PostViewModel p;
             if (id == null)
             {
@@ -175,24 +230,20 @@ namespace Oblig2_Blogg.Models.Repository
             }
             else
             {
-                p = (db.Posts
-                    .Include(o => o.Comments)
-                    .Include(o => o.Owner)
-                    .Include(o => o.Tags)
-                    .Where(o => o.PostId == id)
-                    .Select(o => new PostViewModel()
-                        {
-                            PostId = o.PostId,
-                            PostText = o.PostText,
-                            Created = o.Created,
-                            Modified = o.Modified,
-                            BlogId = o.BlogId,
-                            Comments = comments,
-                            Tags = tags,
-                            Owner = o.Owner
-                        }
-                    ).FirstOrDefault());
+                p = (db.Posts.Include(o => o.Comments).Include(o => o.Owner).Include(o => o.Tags)
+                    .Where(o => o.PostId == id).Select(o => new PostViewModel()
+                    {
+                        PostId = o.PostId,
+                        PostText = o.PostText,
+                        Created = o.Created,
+                        Modified = o.Modified,
+                        BlogId = o.BlogId,
+                        Comments = comments,
+                        Tags = tags,
+                        Owner = o.Owner
+                    }).FirstOrDefault());
             }
+
             return p;
         }
 
@@ -203,18 +254,16 @@ namespace Oblig2_Blogg.Models.Repository
         {
             IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
             var commentsQuery = from comment in comments
-                                            where comment.PostId == postIdToGet
-                                            orderby comment.Created descending 
-                                            select comment;
+                where comment.PostId == postIdToGet
+                orderby comment.Created descending
+                select comment;
             return commentsQuery;
         }
         //GET COMMENT
         public Comment GetComment(int commentIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
-            var singleCommentQuery = from comment in comments
-                                  where comment.CommentId == commentIdToGet
-                                  select comment;
+            var singleCommentQuery = from comment in comments where comment.CommentId == commentIdToGet select comment;
             return singleCommentQuery.FirstOrDefault();
         }
 
@@ -224,32 +273,30 @@ namespace Oblig2_Blogg.Models.Repository
         
         public IEnumerable<Tag> GetTagsForPost(int? PostId) 
         {
-            if (PostId == null) {
+            if (PostId == null)
+            {
                 return null;
             }
+
             IEnumerable<Post> posts = db.Posts.Include(p => p.Tags).Where(p => p.PostId == PostId);
-
             List<Tag> tagsForPost = new();
-
             foreach (var post in posts)
             {
                 foreach (var tag in post.Tags)
                 {
                     tagsForPost.Add(tag);
-                } 
+                }
             }
+
             return tagsForPost;
         }
 
         public IEnumerable<Tag> GetAllTagsForBlog(int BlogId)
         {
-            //IEnumerable<Blog> blogs = db.Blogs;
-           // IEnumerable<Post> posts = db.Posts.Include(p => p.Tags);
-
             List<Tag> tagsToShow = new List<Tag>();
             foreach (var tag in db.Tags.Distinct().Include(a => a.Posts)) //Henter alle tags
             {
-                foreach (var tagPost in tag.Posts.Distinct())  //Går gjennom alle post inne i hver tag
+                foreach (var tagPost in tag.Posts.Distinct()) //Går gjennom alle post inne i hver tag
                 {
                     if (tagPost.BlogId == BlogId) //Legger i lista de som tilhører denne blogggen
                     {
@@ -260,6 +307,7 @@ namespace Oblig2_Blogg.Models.Repository
                     }
                 }
             }
+
             return tagsToShow;
         }
 
@@ -272,20 +320,14 @@ namespace Oblig2_Blogg.Models.Repository
 
         public Tag GetTag(int tagIdToGet)
         {
-            var tagQuery = (from tag in db.Tags
-                                        where tag.TagId == tagIdToGet
-                                        select tag).Include(o => o.Posts);
+            var tagQuery = (from tag in db.Tags where tag.TagId == tagIdToGet select tag).Include(o => o.Posts);
             return tagQuery.FirstOrDefault();
         }
 
         public IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
         {
-            List<Post> posts = (from p in db.Posts.Include(p=>p.Tags)
-                where p.BlogId == blogId
-                select p).ToList();
-
+            List<Post> posts = (from p in db.Posts.Include(p => p.Tags) where p.BlogId == blogId select p).ToList();
             List<Post> postsToShow = new();
-
             foreach (var post in posts)
             {
                 foreach (var postTags in post.Tags)
@@ -299,11 +341,9 @@ namespace Oblig2_Blogg.Models.Repository
                     }
                 }
             }
+
             return postsToShow;
         }
-    
-
-
 
         //SAVE-----------------------------------------------------------------------
         //SAVE BLOG
@@ -311,7 +351,6 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             blog.Owner = currentUser;
-
             db.Blogs.Add(blog);
             await db.SaveChangesAsync();
         }
@@ -321,7 +360,6 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             post.Owner = currentUser;
-
             if (currentUser.Id == post.Owner.Id)
             {
                 db.Posts.Add(post);
@@ -334,11 +372,9 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity?.Name);
             comment.Owner = currentUser;
-
             db.Comments.Add(comment);
             await db.SaveChangesAsync();
         }
-
 
         //UPDATE / EDIT-----------------------------------------------------------------------
         //UPDATE BLOG
@@ -348,24 +384,10 @@ namespace Oblig2_Blogg.Models.Repository
             await db.SaveChangesAsync();
         }
 
-
-        //SUBSCRIBE TO BLOG
-        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
-        {
-            ///BlogApplicationUser blog = blogToSubscribe;
-
-            //userSubscriber.BlogApplicationUsers.Add(blog);
-
-            db.Users.Update(userSubscriber);
-            await db.SaveChangesAsync();
-        }
-
-
         //UPDATE POST
         public async Task<Post> UpdatePost(Post post, IPrincipal principal)
         {
             var user = await manager.FindByEmailAsync(principal.Identity.Name);
-
             if (user.Id == post.Owner.Id)
             {
                 db.Posts.Update(post);
@@ -383,6 +405,7 @@ namespace Oblig2_Blogg.Models.Repository
             {
                 return null;
             }
+
             return post;
         }
 
@@ -390,7 +413,6 @@ namespace Oblig2_Blogg.Models.Repository
         public async Task UpdateComment(Comment comment, IPrincipal principal)
         {
             var user = await manager.FindByEmailAsync(principal.Identity.Name);
-
             if (user == comment.Owner)
             {
                 db.Entry(comment).State = EntityState.Modified;
@@ -398,25 +420,20 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
-
         //DELETE-----------------------------------------------------------------------
         //DELETE POST
         public async Task DeletePost(Post post, IPrincipal principal)
         {
             var user = await manager.FindByEmailAsync(principal.Identity.Name);
-            Post post1 = (from p in db.Posts
-                where p.PostId == post.PostId
-                          select p).FirstOrDefault();
-            Blog blog = (from b in db.Blogs
-                where b.BlogId == post1.BlogId
-                select b).FirstOrDefault();
-
+            Post post1 = (from p in db.Posts where p.PostId == post.PostId select p).FirstOrDefault();
+            Blog blog = (from b in db.Blogs where b.BlogId == post1.BlogId select b).FirstOrDefault();
             if (user.Id == blog.Owner.Id)
             {
                 db.Posts.Remove(post);
                 await db.SaveChangesAsync();
             }
         }
+
         //DELETE COMMENT
         public async Task DeleteComment(Comment comment, IPrincipal principal)
         {
@@ -428,31 +445,24 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
-
         //WEB API Functions---------------------------------
         public async Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet)
         {
-            var post = await db.Posts.Include(c => c.Comments)
-                .Include(p => p.Tags)
-                .Include(p => p.Owner)
-                .OrderByDescending(p=>p.Created)
-                .FirstAsync(p => p.PostId == postIdToGet);
-
+            var post = await db.Posts.Include(c => c.Comments).Include(p => p.Tags).Include(p => p.Owner)
+                .OrderByDescending(p => p.Created).FirstAsync(p => p.PostId == postIdToGet);
             return post.Comments.OrderByDescending(p => p.Created).ToList();
         }
 
         public async Task<IEnumerable<Comment>> GetAllComments()
         {
-            IEnumerable<Comment> comments = await db.Comments
-                .Include(p => p.Owner)
-                .ToListAsync(); ;
-            return comments;  
+            IEnumerable<Comment> comments = await db.Comments.Include(p => p.Owner).ToListAsync();
+            ;
+            return comments;
             //https://www.c-sharpcorner.com/UploadFile/ff2f08/entity-framework-and-asnotracking/
         }
 
         public async Task UpdateComment(Comment comment)
         {
-
             db.Entry(comment).State = EntityState.Modified;
             await db.SaveChangesAsync();
         }
