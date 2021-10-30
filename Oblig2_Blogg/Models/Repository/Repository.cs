@@ -352,9 +352,9 @@ namespace Oblig2_Blogg.Models.Repository
         //SUBSCRIBE TO BLOG
         public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
         {
-            Blog blog = blogToSubscribe;
+            ///BlogApplicationUser blog = blogToSubscribe;
 
-            userSubscriber.SubscribedBlogs.Add(blog);
+            //userSubscriber.BlogApplicationUsers.Add(blog);
 
             db.Users.Update(userSubscriber);
             await db.SaveChangesAsync();

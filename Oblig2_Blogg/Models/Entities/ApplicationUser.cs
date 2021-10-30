@@ -25,7 +25,6 @@ namespace Oblig2_Blogg.Models.Entities
         public String FirstName { get; set; }
 
         public String LastName { get; set; }
-
         public String Password { get; set; }
 
         public string Token { get; set; }
@@ -36,6 +35,6 @@ namespace Oblig2_Blogg.Models.Entities
 
         public bool? IsAdmin { get; set; }
 
-        public virtual ICollection<Blog> SubscribedBlogs { get; set; }
+        public virtual ICollection<BlogApplicationUser> BlogApplicationUsers { get; set; }
     }
 }

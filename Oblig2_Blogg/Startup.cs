@@ -68,8 +68,8 @@ namespace Oblig2_Blogg
 
             var confKey = Configuration.GetSection("TokenSettings")["SecretKey"];
             var key = Encoding.ASCII.GetBytes(confKey);
-            Console.WriteLine("confKey" + confKey);
-            Console.WriteLine("key" + key);
+            //Console.WriteLine("confKey" + confKey);
+            //Console.WriteLine("key" + key);
 
             services.AddAuthentication()
                 .AddCookie(cfg => cfg.SlidingExpiration = true)

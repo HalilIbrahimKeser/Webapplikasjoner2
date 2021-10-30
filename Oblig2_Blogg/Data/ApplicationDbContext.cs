@@ -22,19 +22,29 @@ namespace Oblig2_Blogg.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<BlogApplicationUser> BlogApplicationUser { get; set; }
 
 
-
+        //https://www.entityframeworktutorial.net/code-first/configure-many-to-many-relationship-in-code-first.aspx
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            //https://www.entityframeworktutorial.net/code-first/configure-many-to-many-relationship-in-code-first.aspx
-
+            
             modelBuilder.Entity<BlogViewModel>().HasNoKey();
 
-            modelBuilder.Entity<ApplicationUser>().HasMany<Blog>();
-            modelBuilder.Entity<Blog>().HasMany<ApplicationUser>();
+            modelBuilder.Entity<BlogApplicationUser>()
+                .HasKey(b => new { b.BlogId, b.OwnerId });
+            
+            modelBuilder.Entity<BlogApplicationUser>()
+                .HasOne(b => b.Blog)
+                .WithMany(b => b.BlogApplicationUsers)
+                .HasForeignKey(b => b.BlogId);
+            modelBuilder.Entity<BlogApplicationUser>()
+                .HasOne(b => b.Owner)
+                .WithMany(b => b.BlogApplicationUsers)
+                .HasForeignKey(b => b.OwnerId);
+
 
 
             // Seeding
@@ -79,55 +89,8 @@ namespace Oblig2_Blogg.Data
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
 
 
-           // modelBuilder.Entity<ApplicationUser>()
-              //  .HasData(u => new {u.BlogId, u.OwnerId});
+            
 
-
-            ////TAG
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 1, TagLabel = "Natur", Created = DateTime.Now});
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 2, TagLabel = "Fjell", Created = DateTime.Now });
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 3, TagLabel = "Ørken", Created = DateTime.Now});
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 4, TagLabel = "Farlig", Created = DateTime.Now});
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 5, TagLabel = "Løping", Created = DateTime.Now});
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 6, TagLabel = "Sykling", Created = DateTime.Now});
-            //modelBuilder.Entity<Tag>()
-            //    .HasData(
-            //        new Tag { TagId = 7, TagLabel = "Gåtur", Created = DateTime.Now});
-
-            //    ////TAG
-            //    modelBuilder.Entity<PostTag>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 1, PostId = 1 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 2, PostId = 1 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 3, PostId = 2 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 4, PostId = 2 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 5, PostId = 3 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 6, PostId = 3 });
-            //    modelBuilder.Entity<PostsAndTags>()
-            //        .HasData(
-            //            new PostsAndTags { TagId = 7, PostId = 1 });
         }
 
         public DbSet<BlogViewModel> BlogViewModel { get; set; }

@@ -33,7 +33,8 @@ namespace Oblig2_Blogg.Models.Entities
         public virtual ApplicationUser Owner { get; set; }
 
         //ABONNENTER
-        //public virtual ICollection<ApplicationUser> SubscribedUser { get; set; }
+        public virtual ICollection<BlogApplicationUser> BlogApplicationUsers { get; set; } =
+            new List<BlogApplicationUser>();
 
     }
 }
