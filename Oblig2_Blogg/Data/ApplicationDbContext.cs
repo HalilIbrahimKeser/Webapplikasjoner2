@@ -79,9 +79,8 @@ namespace Oblig2_Blogg.Data
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
 
 
-            //modelBuilder.Entity<ApplicationUser>()
-            //    .HasData(
-            //        new ApplicationUser { FirstName = "Seher", LastName = "Keser", UserName = "seher@keser.no", PasswordHash = "seher1234"});
+           // modelBuilder.Entity<ApplicationUser>()
+              //  .HasData(u => new {u.BlogId, u.OwnerId});
 
 
             ////TAG

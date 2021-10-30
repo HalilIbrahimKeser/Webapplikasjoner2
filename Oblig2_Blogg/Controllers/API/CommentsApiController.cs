@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +25,7 @@ namespace Oblig2_Blogg.Controllers.API
         {
             this.context = context;
             this.repository = repository;
-            this.userManager = userManager1;
+            userManager = userManager1;
         }
 
         //---------------------------GetComments--------------------------------------------------------
@@ -39,18 +38,16 @@ namespace Oblig2_Blogg.Controllers.API
             return await repository.GetAllComments();
         }
 
-
         [Produces(typeof(IEnumerable<Comment>))]
         [HttpGet("{postId:int}")]
         public async Task<IEnumerable<Comment>> GetComments([FromRoute] int postId)
         {
             var commentsOnPost = await repository.GetAllCommentsOnPost(postId);
-            return commentsOnPost; 
+            return commentsOnPost;
         }
 
-
+        #region PutComment
         //---------------------------PutComment------------------------------------------------------------
-
         // PUT: api/CommentsApi/5
         [HttpPut("{id:int}")]
         public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment)
@@ -74,11 +71,13 @@ namespace Oblig2_Blogg.Controllers.API
                     throw;
                 }
             }
-            return NoContent(); 
+
+            return NoContent();
         }
+        #endregion
 
+        #region PostComment
         //---------------------------PostComment------------------------------------------------------------
-
         // POST: api/CommentsApi------------------------------------------------------------------------
         [HttpPost]
         //[AllowAnonymous]
@@ -88,12 +87,8 @@ namespace Oblig2_Blogg.Controllers.API
             var user = await userManager.GetUserAsync(HttpContext.User);
             var newComment = new Comment
             {
-                CommentText = comment.CommentText,
-                PostId = comment.PostId,
-                Created = DateTime.Now,
-                Owner = user,
+                CommentText = comment.CommentText, PostId = comment.PostId, Created = DateTime.Now, Owner = user,
             };
-
             if (await repository.SaveComment(newComment))
             {
                 return Ok(newComment);
@@ -103,10 +98,10 @@ namespace Oblig2_Blogg.Controllers.API
                 return StatusCode(500);
             }
         }
+        #endregion
 
+        #region DeleteComment
         //---------------------------DeleteComment------------------------------------------------------------
-
-
         // DELETE: api/CommentsApi/5------------------------------------------------------------------------
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteComment([FromRoute] int id)
@@ -119,7 +114,6 @@ namespace Oblig2_Blogg.Controllers.API
 
             context.Comments.Remove(comment);
             await context.SaveChangesAsync();
-
             return NoContent();
         }
 
@@ -127,5 +121,6 @@ namespace Oblig2_Blogg.Controllers.API
         {
             return context.Comments.Any(e => e.CommentId == id);
         }
+        #endregion
     }
 }

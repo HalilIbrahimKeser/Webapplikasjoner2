@@ -37,44 +37,58 @@ namespace Oblig2_Blogg.Controllers
         
         // GET: Comment/CreateComment/5
         [HttpGet]
-        public ActionResult CreateComment(int PostId)
+        public async Task<ActionResult> CreateComment(int PostId)
         {
             var post = _repository.GetPost(PostId);
-            var blog = _repository.GetBlog(post.BlogId);
-            if (blog.Closed)
+            post.Blog = _repository.GetBlog(post.BlogId);
+
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
+                User, post, BlogOperations.Create);
+
+
+            if (post.Blog.Closed)
             {
-                TempData["Feedback"] = "Blog steng for kommentarer: " + blog.BlogId;
-                return RedirectToAction("ReadBlogPosts", "Blog", new { id = blog.BlogId });
+                TempData["Feedback"] = "Blog steng for kommentarer: " + post.Blog.BlogId;
+                return RedirectToAction("ReadBlogPosts", "Blog", new { id = post.Blog.BlogId });
             }
-            return View();
+
+            CommentViewModel commentViewModel = new()
+            {
+                Post = post,
+                PostId = post.PostId
+            };
+            return View(commentViewModel);
         }
 
         // POST: Comment/CreateComment/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateComment(int PostId, [Bind("CommentId, CommentText, Created, PostId, Owner")] CommentViewModel newCommentViewModel)
+        public ActionResult CreateComment(int PostId, [Bind("CommentId, CommentText, Created, PostId")] CommentViewModel newCommentViewModel)
         {
             try
             {
+                var post = _repository.GetPost(PostId);
+
                 if (ModelState.IsValid)
                 {
                     var comment = new Comment()
                     {
                         CommentText = newCommentViewModel.CommentText,
                         Created = DateTime.Now,
-                        PostId = PostId,
+                        PostId = newCommentViewModel.PostId,
+                        Post = post
                     };
                     _repository.SaveComment(comment, User).Wait();
 
                     TempData["Feedback"] = $"{comment.PostId} har blitt opprettet";
-                    return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
+                    return RedirectToAction("ReadPostComments", "Blog", new { PostId = comment.PostId });
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 TempData["Feedback"] = "Feil kan ikke legge inn kommentar" + e;
-                return RedirectToAction("ReadPostComments", "Blog", new { id = PostId });
+                return RedirectToAction("ReadPostComments", "Blog", new { PostId = newCommentViewModel.PostId });
             }
             return View();
         }
@@ -109,27 +123,27 @@ namespace Oblig2_Blogg.Controllers
             {
                 return NotFound();
             }
-            var postId = comment.PostId;
-            var created = comment.Created;
+            var commentToUpdate = _repository.GetComment(comment.CommentId);
+            var postId = commentToUpdate.PostId;
 
             try
             {
                 if (ModelState.IsValid)
                 {
-                    comment.Modified = DateTime.Now;
-                    comment.Created = created;
+                    commentToUpdate.Modified = DateTime.Now;
+                    commentToUpdate.CommentText = comment.CommentText;
 
-                    _repository.UpdateComment(comment, User).Wait();
+                    _repository.UpdateComment(commentToUpdate, User).Wait();
 
-                    TempData["Feedback"] = $"{comment.CommentText} has been updated";
-                    return RedirectToAction("ReadPostComments", "Blog", new {id = postId});
+                    TempData["Feedback"] = $"{commentToUpdate.CommentText} has been updated";
+                    return RedirectToAction("ReadPostComments", "Blog", new { PostId = postId});
                 } 
                 else { return new ChallengeResult();}
             } 
             catch (Exception e) { 
                 Console.WriteLine(e.ToString());
                 TempData["Feedback"] = "Fikk ikke endret kommentar, Feil: \n" + e;
-                return RedirectToAction("ReadPostComments", "Blog", new {id = postId});
+                return RedirectToAction("ReadPostComments", "Blog", new { PostId = postId});
             }
         }
 
@@ -176,7 +190,7 @@ namespace Oblig2_Blogg.Controllers
                 _repository.DeleteComment(commentToDelete, User).Wait();
                 TempData["Feedback"] = "Kommentaren er slettet";
 
-                return RedirectToAction("ReadPostComments", "Blog", new { id = postId });
+                return RedirectToAction("ReadPostComments", "Blog", new { PostId = postId });
 
             } 
             catch (Exception e) {

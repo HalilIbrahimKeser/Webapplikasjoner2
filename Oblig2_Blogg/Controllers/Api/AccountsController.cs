@@ -37,7 +37,7 @@ namespace Oblig2_Blogg.Controllers
 
             if (res == null)
             {
-                return Ok(new { res = "Brukernavn/Passord er feil" });
+                return StatusCode(401, new { res = "Brukernavn/Passord er feil" });
             }
 
             return new ObjectResult(_accountsRepo.GenerateJwtToken(res));

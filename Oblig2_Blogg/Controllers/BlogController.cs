@@ -18,7 +18,6 @@ namespace Oblig2_Blogg.Controllers
     {
         private readonly IRepository repository;
         private UserManager<ApplicationUser> userManager;
-        IAuthorizationService authorizationService;
         private IRepository @object;
         private IAuthorizationService authService;
 
@@ -29,14 +28,9 @@ namespace Oblig2_Blogg.Controllers
         {
             this.repository = repository;
             //this.userManager = userManager1;
-            this.authorizationService = authorizationService1;
+            this.authService = authorizationService1;
         }
 
-        //public BlogController(IRepository @object, IAuthorizationService authService)
-        //{
-        //    this.@object = @object;
-        //    this.authService = authService;
-        //}
 
         //VIEWS---------------------------------------------------
 

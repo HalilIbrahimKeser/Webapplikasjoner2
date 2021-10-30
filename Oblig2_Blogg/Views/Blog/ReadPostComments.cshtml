@@ -12,12 +12,9 @@
 @{
     ViewData["Title"] = "ReadPostComments"; }
 
+<h5>Post:</h5>
 <h1>@Model.PostText</h1>
-<hr />
 <div>
-    <h4>Post</h4>
-
-    <hr />
     @if (TempData["Feedback"] != null)
     {
         <div class="success-centered text-info">
@@ -37,7 +34,6 @@
     <p>@Html.ActionLink("Create new comment", "CreateComment", "Comment", new { PostId = @Model.PostId, id = @Model.PostId })</p>
     <hr />
     <p>Comments:....</p>
-    <hr />
 </div>
 
 <table class="table table-hover">
@@ -155,6 +151,7 @@
                     //dataType: "json" 
                 })
                 .done(function (token) {
+                    console.log(token);
                     localStorage.setItem("token", token);
                     localStorage.setItem("username", userName);
                     $('#btLoginContainer').hide();
@@ -191,7 +188,7 @@
                     url: "/Api/CommentsApi/",
                     data: {},
                     type: "GET",
-                    contentType: "application/json;charset=utf-8",
+                    contentType: "application/json;charset=utf-8"
                 }).then(function(comments) {
                     callback(comments);
                 });
@@ -203,15 +200,45 @@
 
             listCommentOnPost(function (comments) {
                 if (isUserLoggedIn()) {
-                    var strComments = "";
+                    var strComments = `<table class="table table-hover">
+                                            <tr>
+                                            <th>User</th> 
+                                            <th>Created</th>
+                                            <th>Modified</th>
+                                            <th>Comment</th>
+                                        </tr >`;
                     $.each(comments,
                         function(index, comment) {
-                            strComments += `<tr><td>---${comment.Owner}</td> <td>---${comment.created} </td> <td>---${comment.commentText}</td> <td>---${comment.modified}</td></tr>`;
+                            strComments += `
+                                    <tr>
+                                        <td>${comment.Owner}</td>
+                                        <td>${formatDate(comment.created)}</td>
+                                        <td>${comment.modified}</td>
+                                        <td>${comment.commentText}</td> 
+                                    </tr>`;
                         });
+                    strComments += `</table >`;
                     $("#commentsOnPost").html(strComments);
                 }
 
             });
+
+            function formatDate(date) {
+                var d = new Date(date),
+                    month = '' + (d.getMonth() + 1),
+                    day = '' + d.getDate(),
+                    year = d.getFullYear(),
+
+                    hour = '' + d.getHours(),
+                    minutes = '' + d.getMinutes();
+
+                if (month.length < 2) 
+                    month = '0' + month;
+                if (day.length < 2) 
+                    day = '0' + day;
+
+                return [day, month, year, hour, minutes].join('-');
+            }
 
             function listCommentOnPost(callback) {
                 $.ajax({
@@ -277,35 +304,41 @@
 
             $("#commentsOnPost").html("<p>Må logge inn for se innlegg..." + "</p>");
             get(@TempData["chosenId"]);
+
             $("#loginToCreateToken").on("click",
                 function () {
                     const email = $("#InputEmail").val();
                     const password = $("#InputPassword").val();
+
                     getToken(email, password);
                 });
-            $("#modalButton").hide();
-            //showAll(); //viser absolutt alle kommentarer
+            //$("#modalButton").hide();
         });
 
 
     </script>
 }
 
-<div style="margin: 50px auto; width:600px;">
-    <div id="btLoginContainer">
-        <label>Oppgi gyldig brukernavn og passord for å se kommentarer</label>
-        <input type="text" name="username" id="InputEmail" placeholder="Username" />
-        <input type="password" name="password" id="InputPassword" placeholder="Password" />
-        <button id="loginToCreateToken">Login</button><br>
-
+<div class="col-md-4 align-content-lg-start">
+    <div class="form-group" id="btLoginContainer">
+        <label class="control-label">Log inn for å se kommentarer</label>
+        <div class="form-group">
+            <input class="form-control" type="text" name="username" id="InputEmail" placeholder="Username" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" name="password" id="InputPassword" placeholder="Password" />
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-success" id="loginToCreateToken">Login JWT</button><br>
+        </div>
     </div>
     <div id="btLogoutContainer">
-        <button id="btLogout">Logout</button>
+        <button type="button" class="btn btn-info" id="btLogout">Logout JWT</button>
     </div>
 </div>
-
-<h5>Kommentarer på innlegg fra webApi: </h5>
 <hr />
+<h5>Comments from WebAPI controller </h5>
+
 <div id="commentsOnPost"></div>
 
 <div style="margin: 50px; background: lightgray" id="responseContainer">
@@ -316,8 +349,9 @@
 <div id="noAccess"></div>
 
 <div class="container">
-    <!-- Trigger the modal with a button -->
-    <button type="button" id="modalButton" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Legg til kommentar</button>
+
+    <!-- Button -->
+    <button type="button" id="modalButton" class="btn btn-success btn-lg" data-toggle="modal" data-target="#myModal">Create new comment</button>
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog">
@@ -332,9 +366,8 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <textarea type="CommentText" id="add" rows="4" cols="50" placeholder="legg inn ny kommentar..."></textarea>
+                            <textarea type="CommentText" id="add" rows="4" cols="50" placeholder="new comment.."></textarea>
                             <input type="button" value="Legg til" onclick="add()">
-
                         </div>
                     </div>
                 </div>

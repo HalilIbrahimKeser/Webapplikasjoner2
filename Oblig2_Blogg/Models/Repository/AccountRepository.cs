@@ -33,15 +33,9 @@ namespace Oblig2_Blogg.Models
             _userManager = userManager;
         }
 
-        /// <summary>
-        /// Verifies user login
-        /// </summary>
-        /// <see cref="ApplicationUser"/>
-        /// <param name="user">User object to be verified</param>
-        /// <returns>User object with a jwt bearer token</returns>
         public async Task<ApplicationUser> VerifyCredentials(ApplicationUser user)
         {
-            if (user.UserName == null || user.PasswordHash == null || user.UserName.Length == 0 || user.PasswordHash.Length == 0)
+            if (user.UserName == null || user.Password == null || user.UserName.Length == 0 || user.Password.Length == 0)
             {
                 return null;
             }
@@ -50,22 +44,16 @@ namespace Oblig2_Blogg.Models
             if (thisUser == null)
                 return (null);
             
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, user.PasswordHash, false, lockoutOnFailure: true);
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, false, lockoutOnFailure: true);
             if (!result.Succeeded)
             {
                 return null;
             }
             
-            //var role = await _userManager.GetRolesAsync(thisUser);
             return new ApplicationUser()
-                {Id = thisUser.Id, UserName = user.UserName }; //, Role = role.FirstOrDefault()};
+                {Id = thisUser.Id, UserName = user.UserName };
         }
 
-        /// <summary>
-        /// Generates a token for a user
-        /// </summary>
-        /// <param name="user">User token will be generated for</param>
-        /// <returns>Jwt token string</returns>
         public string GenerateJwtToken(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -76,11 +64,8 @@ namespace Oblig2_Blogg.Models
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Name, user.UserName),
-                    //new Claim(ClaimTypes.Role, user.Role)
-                    //new Claim("roles", user.Role)
                 });
 
-            //claims.AddRange(roles.Select(role => new Claim(ClaimsIdentity.DefaultRoleClaimType, role)));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

@@ -22,26 +22,12 @@ namespace Oblig2_Blogg.Controllers
         private IRepository @object;
         private IAuthorizationService authService;
 
-        //UserManager<ApplicationUser> userManager1 = null,
         public PostController(IRepository repository,  IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
             this.authorizationService = authorizationService1;
             //this.userManager = userManager1;
         }
-
-        ////TODO? pga testing
-        //public PostController(IRepository @object, IAuthorizationService authService)
-        //{
-        //    this.@object = @object;
-        //    this.authService = authService;
-        //}
-
-        //public PostController(IRepository @object, IAuthorizationService authService)
-        //{
-        //    this.@object = @object;
-        //    this.authService = authService;
-        //}
 
         public IActionResult Index(int id)
         {

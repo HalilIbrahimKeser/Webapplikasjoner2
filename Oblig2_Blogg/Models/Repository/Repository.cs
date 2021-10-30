@@ -175,7 +175,10 @@ namespace Oblig2_Blogg.Models.Repository
             }
             else
             {
-                p = (db.Posts.Include(o => o.Comments).Include(o => o.Owner)
+                p = (db.Posts
+                    .Include(o => o.Comments)
+                    .Include(o => o.Owner)
+                    .Include(o => o.Tags)
                     .Where(o => o.PostId == id)
                     .Select(o => new PostViewModel()
                         {
@@ -195,6 +198,7 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET COMMENTS
+        //TODO rename GetAllPostComments
         public IEnumerable<Comment> GetAllComments(int? postIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
@@ -431,14 +435,17 @@ namespace Oblig2_Blogg.Models.Repository
             var post = await db.Posts.Include(c => c.Comments)
                 .Include(p => p.Tags)
                 .Include(p => p.Owner)
-                .OrderByDescending(p => p.Created)
+                .OrderByDescending(p=>p.Created)
                 .FirstAsync(p => p.PostId == postIdToGet);
-            return post.Comments;
+
+            return post.Comments.OrderByDescending(p => p.Created).ToList();
         }
 
         public async Task<IEnumerable<Comment>> GetAllComments()
         {
-            IEnumerable<Comment> comments = await db.Comments.ToListAsync(); ;
+            IEnumerable<Comment> comments = await db.Comments
+                .Include(p => p.Owner)
+                .ToListAsync(); ;
             return comments;  
             //https://www.c-sharpcorner.com/UploadFile/ff2f08/entity-framework-and-asnotracking/
         }

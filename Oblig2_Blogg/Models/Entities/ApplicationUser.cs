@@ -21,9 +21,12 @@ namespace Oblig2_Blogg.Models.Entities
         {
             UserName = userName;
         }
+
         public String FirstName { get; set; }
 
         public String LastName { get; set; }
+
+        public String Password { get; set; }
 
         public string Token { get; set; }
 
