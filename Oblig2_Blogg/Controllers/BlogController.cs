@@ -29,8 +29,7 @@ namespace Oblig2_Blogg.Controllers
             this.userManager = userManager1;
             this.authService = authorizationService1;
         }
-
-
+        
         //VIEWS---------------------------------------------------
 
         //VIEW

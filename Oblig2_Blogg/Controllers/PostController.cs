@@ -17,15 +17,12 @@ namespace Oblig2_Blogg.Controllers
     public class PostController : Controller
     {
         private readonly IRepository repository;
-        private UserManager<ApplicationUser> userManager;
-        IAuthorizationService authorizationService;
-        private IAuthorizationService authService;
+        private readonly IAuthorizationService authorizationService;
 
-        public PostController(IRepository repository,  IAuthorizationService authorizationService1 = null)
+        public PostController(IRepository repository1,  IAuthorizationService authorizationService1 = null)
         {
-            this.repository = repository;
+            this.repository = repository1;
             this.authorizationService = authorizationService1;
-            //this.userManager = userManager1;
         }
 
         public IActionResult Index(int id)
@@ -50,7 +47,7 @@ namespace Oblig2_Blogg.Controllers
                 User, blog, BlogOperations.Create);
 
             //Kun eier av blog kan legge inn poster. Resten kan kun kommentere
-            if (!isAuthorized.Succeeded && User.Identity == null && blog.Owner.Id != userManager.GetUserId(User)) {
+            if (!isAuthorized.Succeeded && User.Identity == null) {
                 TempData["Feedback"] = "Ingen tilgang";
                 return RedirectToAction("ReadBlogPosts", "Blog", new { id = blogId });
                 //return Forbid();

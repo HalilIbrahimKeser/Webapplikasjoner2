@@ -25,6 +25,9 @@ namespace Oblig2_Blogg.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<BlogApplicationUser> BlogApplicationUser { get; set; }
 
+        public DbSet<BlogViewModel> BlogViewModel { get; set; }
+
+
 
         //https://www.entityframeworktutorial.net/code-first/configure-many-to-many-relationship-in-code-first.aspx
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,6 +35,7 @@ namespace Oblig2_Blogg.Data
             base.OnModelCreating(modelBuilder);
             
             modelBuilder.Entity<BlogViewModel>().HasNoKey();
+         
 
             modelBuilder.Entity<BlogApplicationUser>()
                 .HasKey(b => new { b.BlogId, b.OwnerId });
@@ -44,8 +48,7 @@ namespace Oblig2_Blogg.Data
                 .HasOne(b => b.Owner)
                 .WithMany(b => b.BlogApplicationUsers)
                 .HasForeignKey(b => b.OwnerId);
-
-
+            
 
             // Seeding
 
@@ -87,12 +90,6 @@ namespace Oblig2_Blogg.Data
             modelBuilder.Entity<Comment>()
                 .HasData(
                     new Comment { CommentId = 4, CommentText = "Husk å ikke gi mat til apene..)", Created = DateTime.Now, PostId = 4 });
-
-
-            
-
         }
-
-        public DbSet<BlogViewModel> BlogViewModel { get; set; }
     }
 }

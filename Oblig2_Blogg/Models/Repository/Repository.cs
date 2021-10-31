@@ -413,8 +413,6 @@ namespace Oblig2_Blogg.Models.Repository
             {
                 return null;
             }
-
-            return post;
         }
 
         //UPDATE COMMENT

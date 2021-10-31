@@ -11,8 +11,6 @@ namespace Oblig2_Blogg.Models.ViewModels
 {
     public class PostViewModel
     {
-        private List<Tag> emptyList;
-
         public PostViewModel()
         {
             SelectedTags = new List<string>();
