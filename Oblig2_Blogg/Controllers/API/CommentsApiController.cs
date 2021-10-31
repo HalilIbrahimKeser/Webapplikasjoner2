@@ -35,7 +35,7 @@ namespace Oblig2_Blogg.Controllers.API
         [AllowAnonymous]
         public async Task<IEnumerable<Comment>> GetComments()
         {
-            return await repository.GetAllComments();
+            return await repository.GetAllPostComments();
         }
 
         [Produces(typeof(IEnumerable<Comment>))]

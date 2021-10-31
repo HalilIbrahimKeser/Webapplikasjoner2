@@ -114,7 +114,8 @@ namespace Oblig2_Blogg.Models.Repository
             db.SaveChanges();
         }
 
-
+        //GET----------------------------------------------------------------------------------------------------------------------------------------
+        
         //GET BLOGS
         public IEnumerable<Blog> GetAllBlogs() 
         {
@@ -153,31 +154,32 @@ namespace Oblig2_Blogg.Models.Repository
         //GET BLOG
         public Blog GetBlog(int blogIdToGet)
         {
-            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(b => b.Posts);
-            var singleBlogQuery = from blog in blogs
-                where blog.BlogId == blogIdToGet
-                select blog;
+            IEnumerable<Blog> blogs = db.Blogs.Include(o => o.Owner).Include(b => b.Posts)
+                .Include(b => b.BlogApplicationUsers);
+            var singleBlogQuery = blogs.Where(blog => blog.BlogId == blogIdToGet);
             return singleBlogQuery.FirstOrDefault();
         }
 
+
         //SUBSCRIBE TO BLOG
-        public async Task SubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        public BlogApplicationUser GetBlogApplicationUser(Blog blogToSubscribe, ApplicationUser userSubscriber)
         {
-            BlogApplicationUser blogApplicationUser = new BlogApplicationUser();
-            blogApplicationUser.Blog = blogToSubscribe;
-            blogApplicationUser.Owner = userSubscriber;
-            db.BlogApplicationUser.AddRange(blogApplicationUser);
+            var blogApplicationUser = db.BlogApplicationUser
+                .Include(b => b.Owner)
+                .Include(b => b.Blog)
+                .Where(bu => bu.Owner == userSubscriber).Where(bu => bu.Blog == blogToSubscribe);
+            return blogApplicationUser.FirstOrDefault();
+        }
+        public async Task SubscribeToBlog(BlogApplicationUser userSubscriber1)
+        {
+            db.BlogApplicationUser.AddRange(userSubscriber1);
             await db.SaveChangesAsync();
         }
-        //UNSUBSCRIBE TO BLOG
-        public async Task UnSubscribeToBlog(Blog blogToSubscribe, ApplicationUser userSubscriber)
+        public async Task UnSubscribeToBlog(BlogApplicationUser userSubscriber1)
         {
-            BlogApplicationUser blogApplicationUser = new BlogApplicationUser();
-            blogApplicationUser.Blog = blogToSubscribe;
-            blogApplicationUser.Owner = userSubscriber;
-            
-            db.BlogApplicationUser.RemoveRange(blogApplicationUser);
+            db.BlogApplicationUser.RemoveRange(userSubscriber1);
             await db.SaveChangesAsync();
+            return;
         }
         
 
@@ -185,10 +187,7 @@ namespace Oblig2_Blogg.Models.Repository
         public IEnumerable<Post> GetAllPostsInBlog(int blogIdToGet)
         {
             IEnumerable<Post> posts = db.Posts.Include(o => o.Owner);
-            var postQuery = from post in posts
-                                        where post.BlogId == blogIdToGet
-                                        orderby post.Created descending
-                                        select post; 
+            var postQuery = posts.Where(post => post.BlogId == blogIdToGet).OrderByDescending(post => post.Created); 
             return postQuery;
         }
 
@@ -206,7 +205,7 @@ namespace Oblig2_Blogg.Models.Repository
         //GET POST
         public Post GetPost(int postIdToGet)
         {
-            var postQuery = (from post in db.Posts where post.PostId == postIdToGet select post).Include(o => o.Owner)
+            var postQuery = (db.Posts.Where(post => post.PostId == postIdToGet)).Include(o => o.Owner)
                 .Include(o => o.Tags).Include(o => o.Comments);
             return postQuery.FirstOrDefault();
         }
@@ -219,7 +218,7 @@ namespace Oblig2_Blogg.Models.Repository
             List<Tag> tags = new();
             if (id != null)
             {
-                comments = GetAllComments(id).ToList();
+                comments = GetAllPostComments(id).ToList();
                 tags = GetTagsForPost(id).ToList();
             }
 
@@ -249,28 +248,32 @@ namespace Oblig2_Blogg.Models.Repository
 
 
         //GET COMMENTS
-        //TODO rename GetAllPostComments
-        public IEnumerable<Comment> GetAllComments(int? postIdToGet)
+        public IEnumerable<Comment> GetAllComments()
         {
-            IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
-            var commentsQuery = from comment in comments
-                where comment.PostId == postIdToGet
-                orderby comment.Created descending
-                select comment;
-            return commentsQuery;
+            IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner)
+                .OrderByDescending(comment => comment.Created);
+            return comments;
         }
+
+        //GET COMMENTS WITH POST ID
+        public IEnumerable<Comment> GetAllPostComments(int? postIdToGet)
+        {
+            IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner)
+                .Where(comment => comment.PostId == postIdToGet)
+                .OrderByDescending(comment => comment.Created);
+            return comments;
+        }
+
         //GET COMMENT
         public Comment GetComment(int commentIdToGet)
         {
             IEnumerable<Comment> comments = db.Comments.Include(o => o.Owner);
-            var singleCommentQuery = from comment in comments where comment.CommentId == commentIdToGet select comment;
+            var singleCommentQuery = comments.Where(comment => comment.CommentId == commentIdToGet);
             return singleCommentQuery.FirstOrDefault();
         }
 
-
         //GET TAGS
 
-        
         public IEnumerable<Tag> GetTagsForPost(int? PostId) 
         {
             if (PostId == null)
@@ -291,6 +294,7 @@ namespace Oblig2_Blogg.Models.Repository
             return tagsForPost;
         }
 
+        //GET ALL TAGS FOR BLOG
         public IEnumerable<Tag> GetAllTagsForBlog(int BlogId)
         {
             List<Tag> tagsToShow = new List<Tag>();
@@ -311,19 +315,21 @@ namespace Oblig2_Blogg.Models.Repository
             return tagsToShow;
         }
 
-
+        //GET ALL TAGS
         public IEnumerable<Tag> GetAllTags()
         {
             List<Tag> tags = db.Tags.Include(t => t.Posts).ToList();
             return tags;
         }
 
+        //GET TAG
         public Tag GetTag(int tagIdToGet)
         {
-            var tagQuery = (from tag in db.Tags where tag.TagId == tagIdToGet select tag).Include(o => o.Posts);
+            var tagQuery = (db.Tags.Where(tag => tag.TagId == tagIdToGet)).Include(o => o.Posts);
             return tagQuery.FirstOrDefault();
         }
 
+        //GET ALL POST FOR THIS BLOG WITH THIS TAG
         public IEnumerable<Post> GetAllPostsInThisBlogWithThisTag(int tagId, int blogId)
         {
             List<Post> posts = (from p in db.Posts.Include(p => p.Tags) where p.BlogId == blogId select p).ToList();
@@ -345,7 +351,8 @@ namespace Oblig2_Blogg.Models.Repository
             return postsToShow;
         }
 
-        //SAVE-----------------------------------------------------------------------
+        //SAVE------------------------------------------------------------------------------------------------------------------------
+
         //SAVE BLOG
         public async Task SaveBlog(Blog blog, IPrincipal principal)
         {
@@ -377,6 +384,7 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
         //UPDATE / EDIT-----------------------------------------------------------------------
+
         //UPDATE BLOG
         public async Task UpdateBlog(Blog blog, IPrincipal principal)
         {
@@ -420,7 +428,8 @@ namespace Oblig2_Blogg.Models.Repository
             }
         }
 
-        //DELETE-----------------------------------------------------------------------
+        //DELETE--------------------------------------------------------------------------------------------------
+
         //DELETE POST
         public async Task DeletePost(Post post, IPrincipal principal)
         {
@@ -446,6 +455,7 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
         //WEB API Functions---------------------------------
+
         public async Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet)
         {
             var post = await db.Posts.Include(c => c.Comments).Include(p => p.Tags).Include(p => p.Owner)
@@ -453,7 +463,7 @@ namespace Oblig2_Blogg.Models.Repository
             return post.Comments.OrderByDescending(p => p.Created).ToList();
         }
 
-        public async Task<IEnumerable<Comment>> GetAllComments()
+        public async Task<IEnumerable<Comment>> GetAllPostComments()
         {
             IEnumerable<Comment> comments = await db.Comments.Include(p => p.Owner).ToListAsync();
             ;

@@ -11,5 +11,6 @@ namespace Oblig2_Blogg.Models.ViewModels
         public IEnumerable<Post> Posts { get; set; }
         public IEnumerable<Blog> Blogs { get; set; }
         public IEnumerable<Tag> Tags { get; set; }
+        public IEnumerable<Comment> Comments { get; set; }
     }
 }

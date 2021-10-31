@@ -38,15 +38,17 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult Index()
         {
             var blogs = repository.GetAllBlogs();
-            var posts = repository.GetAllLastPostsWhitBlog();
+            var posts = repository.GetAllPostsWhitBlog();
             var tags = repository.GetAllTags();
+            var comments = repository.GetAllComments();
 
 
             IndexViewModel indexViewModel = new IndexViewModel()
             {
                 Blogs = blogs,
                 Posts = posts,
-                Tags = tags
+                Tags = tags,
+                Comments = comments
             };
 
             return View(indexViewModel);
@@ -137,13 +139,18 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult SubscribeToBlog(int id)
         {
             var user =  userManager.GetUserAsync(User).Result;
-            
             Blog blog = repository.GetBlog(id);
-            var result = repository.SubscribeToBlog(blog, user);
-            if (result != null)
+            BlogApplicationUser blogApplicationUser1 = new BlogApplicationUser()
             {
-                TempData["Feedback"] = string.Format("Bruker \"{0}\" er abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
-            }
+                Owner = user,
+                OwnerId = user.Id,
+                Blog = blog,
+                BlogId = blog.BlogId
+            };
+
+            repository.SubscribeToBlog(blogApplicationUser1);
+            TempData["Feedback"] = string.Format("Bruker \"{0}\" er abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
+            
             return RedirectToAction("Index", "Blog");
         }
 
@@ -151,13 +158,12 @@ namespace Oblig2_Blogg.Controllers
         public ActionResult UnSubscribeToBlog(int id)
         {
             var user = userManager.GetUserAsync(User).Result;
+            Blog blog1 = repository.GetBlog(id);
+            BlogApplicationUser blogApplicationUser1 = repository.GetBlogApplicationUser(blog1, user);
 
-            Blog blog = repository.GetBlog(id);
-            var result = repository.UnSubscribeToBlog(blog, user);
-            if (result != null)
-            {
-                TempData["Feedback"] = string.Format("Bruker \"{0}\" er ikke lenger abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
-            }
+            repository.UnSubscribeToBlog(blogApplicationUser1);
+            TempData["Feedback"] = string.Format("Bruker \"{0}\" er ikke lenger abonnert på blogg id: \"{1}\"", user.FirstName, blog1.BlogId);
+            
             return RedirectToAction("Index", "Home");
         }
     }

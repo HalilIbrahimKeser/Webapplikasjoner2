@@ -12,11 +12,12 @@ namespace Oblig2_Blogg.Models.Repository
     public interface IRepository
     {
         //USER
-        Task SubscribeToBlog(Blog blog, ApplicationUser userSubscriber); 
-        Task UnSubscribeToBlog(Blog blog, ApplicationUser userSubscriber); 
+        Task SubscribeToBlog(BlogApplicationUser subscriber); 
+        Task UnSubscribeToBlog(BlogApplicationUser subscriber);
+        BlogApplicationUser GetBlogApplicationUser(Blog blogToSubscribe, ApplicationUser userSubscriber);
 
          //BLOGS
-         IEnumerable<Blog> GetAllBlogs();
+        IEnumerable<Blog> GetAllBlogs();
         IEnumerable<Blog> GetAllLastBlogs();
         Blog GetBlog(int blogIdToGet);
         Task SaveBlog(Blog blog, IPrincipal principal);
@@ -33,7 +34,8 @@ namespace Oblig2_Blogg.Models.Repository
         Task DeletePost(Post post, IPrincipal principal);
 
         //COMMENTS
-        IEnumerable<Comment> GetAllComments(int? postIdToGet);
+        IEnumerable<Comment> GetAllPostComments(int? postIdToGet);
+        IEnumerable<Comment> GetAllComments();
         Comment GetComment(int commentIdToGet);
         Task SaveComment(Comment comment, IPrincipal principal);
         Task UpdateComment(Comment comment, IPrincipal principal);
@@ -48,7 +50,7 @@ namespace Oblig2_Blogg.Models.Repository
 
         //WEB API
         Task<IEnumerable<Comment>> GetAllCommentsOnPost(int postIdToGet);
-        Task<IEnumerable<Comment>> GetAllComments();
+        Task<IEnumerable<Comment>> GetAllPostComments();
         Task UpdateComment(Comment comment);
         Task<bool> SaveComment(Comment comment);
     }

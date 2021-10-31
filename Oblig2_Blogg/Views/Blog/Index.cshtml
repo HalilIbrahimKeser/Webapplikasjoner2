@@ -14,6 +14,19 @@
 
 
 <h2>Oversikt over blogger:</h2>
+@if (@Model.Blogs != null && @Model.Posts != null && @Model.Comments != null)
+{
+<h5 class="text-info">
+    Antall blogg: @Model.Blogs.Count()......
+    Antall innlegg på blogg: @Model.Posts.Count() , siste aktivitet på @Model.Posts.First().Created.DayOfWeek ......
+
+</h5>
+    <h5 class="text-info">
+        Antall kommentarer: @Model.Comments.Count()
+        . Siste kommentar på : @Model.Comments.First().Created.DayOfWeek
+    </h5>
+}
+
 <hr />
 @if (TempData["Feedback"] != null)
 {
@@ -24,7 +37,7 @@
 <p>
     @if (signInManager.IsSignedIn(User))
     {
-    <a asp-action="Create" , asp-controller="Blog">Create New Blog</a>
+        <a asp-action="Create" , asp-controller="Blog">Create New Blog</a>
     }
     else
     {
@@ -34,46 +47,46 @@
 
 <table class="table table-hover">
     <thead>
-    <tr>
-        <th>User</th>
-        <th>Blog name</th>
-        <th>Description</th>
-        <th>Closed</th>
-        <th>Created</th>
-    </tr>
+        <tr>
+            <th>User</th>
+            <th>Blog name</th>
+            <th>Description</th>
+            <th>Closed</th>
+            <th>Created</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var blog in Model.Blogs)
-    {
-        <tr>
-            @if (blog.Owner != null)
-            {
-                <td>@Html.DisplayFor(modelItem => blog.Owner.FirstName)</td>
-            }
-            else
-            {
-                <td>No user</td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => blog.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => blog.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => blog.Closed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => blog.Created)
-            </td>
-            <td>
-                @Html.ActionLink("Enter the blog", "ReadBlogPosts", new { id = blog.BlogId })
-            </td>
-            <td>
-                @Html.ActionLink("Subscribe ⚝", "SubscribeToBlog", "Blog", new { id = blog.BlogId })
-            </td>
-        </tr>
-    }
+        @foreach (var blog in Model.Blogs)
+        {
+            <tr>
+                @if (blog.Owner != null)
+                {
+                    <td>@Html.DisplayFor(modelItem => blog.Owner.FirstName)</td>
+                }
+                else
+                {
+                    <td>No user</td>
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => blog.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => blog.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => blog.Closed)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => blog.Created)
+                </td>
+                <td>
+                    @Html.ActionLink("Enter the blog", "ReadBlogPosts", new { id = blog.BlogId })
+                </td>
+                <td>
+                    @Html.ActionLink("Subscribe ⚝", "SubscribeToBlog", "Blog", new { id = blog.BlogId })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -92,35 +105,35 @@
         </tr>
     </thead>
     <tbody>
-    @foreach (var post in Model.Posts)
-    {
-        <tr>
-            @if (post.Owner != null)
-            {
-                <td>@Html.DisplayFor(modelItem => post.Owner.FirstName)</td>
-            }
-            else
-            {
-                <td>No user</td>
-            }
-            <td>
-                @Html.DisplayFor(modelItem => post.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => post.Modified)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => post.BlogId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => post.PostText)
-            </td>
+        @foreach (var post in Model.Posts)
+        {
+            <tr>
+                @if (post.Owner != null)
+                {
+                    <td>@Html.DisplayFor(modelItem => post.Owner.FirstName)</td>
+                }
+                else
+                {
+                    <td>No user</td>
+                }
+                <td>
+                    @Html.DisplayFor(modelItem => post.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => post.Modified)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => post.BlogId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => post.PostText)
+                </td>
 
-            <td>
-                @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = post.PostId })
-            </td>
-        </tr>
-    }
+                <td>
+                    @Html.ActionLink("Read post", "ReadPostComments", "Blog", new { PostId = post.PostId })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 

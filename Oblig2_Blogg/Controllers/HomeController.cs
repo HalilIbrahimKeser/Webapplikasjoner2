@@ -35,12 +35,14 @@ namespace Oblig2_Blogg.Controllers
             var blogs = repository.GetAllSubscribedBlogs(user);
             var posts = repository.GetAllLastPostsWhitBlog();
             var tags = repository.GetAllTags();
-            
+            var comments = repository.GetAllComments();
+
             IndexViewModel indexViewModel = new IndexViewModel()
             {
                 Blogs = blogs,
                 Posts = posts,
-                Tags = tags
+                Tags = tags,
+                Comments = comments
             };
 
             return View(indexViewModel);
