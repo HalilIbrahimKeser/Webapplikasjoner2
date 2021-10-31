@@ -115,7 +115,21 @@ namespace Oblig2_Blogg.Models.Repository
         }
 
         //GET----------------------------------------------------------------------------------------------------------------------------------------
-        
+
+        public IndexViewModel GetIndexViewModell()
+        {
+            //For bruk i test metode
+            IndexViewModel indexViewModel = new IndexViewModel()
+            {
+                Blogs = new List<Blog>{new() {BlogId = 1, Name = "Australia", Closed = false}},
+                Posts = new List<Post>{ new() {PostId = 1, BlogId = 1, PostText = "Fint tur"}},
+                Tags = new List<Tag>{new() {TagId = 1, TagLabel = "Natur"}},
+                Comments = new List<Comment>{new() {CommentId = 1, PostId = 1, CommentText = "Så fint"}}
+            };
+
+            return indexViewModel;
+        }
+
         //GET BLOGS
         public IEnumerable<Blog> GetAllBlogs() 
         {

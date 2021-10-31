@@ -34,8 +34,11 @@ namespace BlogUnitTest
         private List<Tag> _fakeTags;
         private List<Comment> _fakeComments;
         private IndexViewModel _fakeIndexViewModel;
+        private BlogViewModel _fakeBlogViewModel;
+        private PostViewModel _fakePostViewModel;
         private IAuthorizationService _authService;
         private ClaimsPrincipal _user;
+        private ApplicationUser _appUser;
         private PostController _postController;
         private BlogController _blogController;
         private CommentController _commentController;
@@ -76,37 +79,62 @@ namespace BlogUnitTest
             });
 
             _postController = new PostController(_repository.Object, _authService);
-            _blogController = new BlogController(_repository.Object, _authService);
+            _blogController = new BlogController(_repository.Object, _mockUserManager.Object, _authService);
             _commentController = new CommentController(_repository.Object, _authService);
 
-            _fakeBlogs = new List<Blog>{
+            _fakeBlogs = new List<Blog>
+            {
                 new() {BlogId = 1, Name = "Australia", Closed = false},
                 new() {BlogId = 2, Name = "Thailand", Closed = false},
                 new() {BlogId = 3, Name = "Forente Stater", Closed = false}
             };
 
-            _fakePosts = new List<Post>{
+            _fakePosts = new List<Post>
+            {
                 new() {PostId = 1, BlogId = 1, PostText = "Fint tur"},
                 new() {PostId = 2, BlogId = 1, PostText = "God tur"},
                 new() {PostId = 3, BlogId = 1, PostText = "Faen du reiser mye"}
             };
-            _fakeComments = new List<Comment>{
+            _fakeComments = new List<Comment>
+            {
                 new() {CommentId = 1, PostId = 1, CommentText = "Så fint"},
                 new() {CommentId = 2, PostId = 1, CommentText = "Så flott"},
                 new() {CommentId = 3, PostId = 1, CommentText = "Supert!"},
             };
 
-            _fakeTags = new List<Tag>{
+            _fakeTags = new List<Tag>
+            {
                 new() {TagId = 1, TagLabel = "Natur"},
                 new() {TagId = 1, TagLabel = "Skog"},
                 new() {TagId = 1, TagLabel = "Skitur"},
             };
 
-            _fakeIndexViewModel = new IndexViewModel(){
+            _fakeIndexViewModel = new IndexViewModel()
+            {
                 Blogs = _fakeBlogs,
                 Posts = _fakePosts,
                 Tags = _fakeTags,
                 Comments = _fakeComments
+            };
+
+            _fakeBlogViewModel = new BlogViewModel()
+            {
+                BlogId = 2,
+                Name = "Blognavn",
+                Description = "Opplevelser",
+            };
+
+
+            _fakePostViewModel = new PostViewModel()
+            {
+                PostId = 1,
+                PostText = "Postteksten",
+            };
+
+            _appUser = new ApplicationUser()
+            {
+                UserName = "Halldalf",
+                Password = "Postteksten",
             };
         }
 
@@ -114,7 +142,7 @@ namespace BlogUnitTest
         public async Task BlogIndexReturnsNotNullResult()
         {
             // Arrange
-            _blogController= new BlogController(_repository.Object, _authService);
+            _blogController = new BlogController(_repository.Object, _mockUserManager.Object, _authService);
 
             // Act
             var result = (ViewResult) _blogController.Index();
@@ -171,9 +199,10 @@ namespace BlogUnitTest
             // Arrange
             _blogController.ControllerContext = MockHelpers.FakeControllerContext(false);
 
-            var tempData = new TempDataDictionary(_blogController.ControllerContext.HttpContext, Mock.Of<ITempDataProvider>());
+            var tempData = new TempDataDictionary(_blogController.ControllerContext.HttpContext,
+                Mock.Of<ITempDataProvider>());
             _blogController.TempData = tempData;
-           
+
             var viewModel = new CreateBlogViewModel()
             {
                 Name = "Tur til Somalia",
@@ -193,7 +222,7 @@ namespace BlogUnitTest
         public void CreateReturnsNotNullResult()
         {
             // Act
-            var result = (ViewResult)_blogController.Create();
+            var result = (ViewResult) _blogController.Create();
 
             // Assert
             Assert.IsNotNull(result, "View Result is null");
@@ -204,7 +233,7 @@ namespace BlogUnitTest
         {
             // Arrange
             //Ikke logget inn
-            _blogController.ControllerContext = MockHelpers.FakeControllerContext(false); 
+            _blogController.ControllerContext = MockHelpers.FakeControllerContext(false);
 
             // Act
             var result = _blogController.Create() as ViewResult;
@@ -214,61 +243,82 @@ namespace BlogUnitTest
             Assert.IsNull(result.ViewName);
         }
 
-        //[TestMethod]
-        //public void DeltePost_RedirectsToNotAllowed()
-        //{
-
-        //    //Arrange
-        //    var owner = new ApplicationUser()
-        //    {
-        //        Id = "12345"
-        //    };
-        //    var fakePost = new Post
-        //    {
-        //        BlogId = 3,
-        //        PostId = 6,
-        //        PostText = "Dette er en posttekst",
-        //        Owner = owner,
-        //        Blog = new Blog()
-        //        {
-        //            Name = "Navnet på bloggen",
-        //            Closed = false
-        //        }
-        //    };
-
-        //    _repository.Setup(x => x.GetPost(fakePost.PostId)).Returns(fakePost);
-        //    //var user = new ApplicationUser("testuser");
-        //    //user.Id = "1";
-        //    _postController.ControllerContext = MockHelpers.FakeControllerContext(/*true, user.Id, user.UserName*/);
-        //    var tempData = new TempDataDictionary(
-        //        _postController.ControllerContext.HttpContext,
-        //        Mock.Of<ITempDataProvider>()
-        //    );
-
-        //    _postController.TempData = tempData;
-
-        //    var result = _postController.DeletePost(fakePost.PostId).Result as RedirectToActionResult;
-        //    Assert.IsNotNull(result, "Should not be null");
-        //    Assert.AreEqual("NotAllowed", result.ActionName);
-        //}
-
         [TestMethod]
-        public async Task IndexReturnsIndexViewModelOfCorrectType()
+        public async Task IndexReturnsIndexViewModel()
         {
             // Arrange
-            _repository.Setup(x => x.GetAllBlogs()).Returns(_fakeIndexViewModel.Blogs.AsEnumerable());
-            
+            _repository.Setup(x => x.GetIndexViewModell()).Returns(_fakeIndexViewModel);
+
             // Act
             var result = _blogController.Index() as ViewResult;
-            
+            var IndexViewModel = result.ViewData.Model as IndexViewModel;
+
             // Assert
             Assert.IsNotNull(result, "View Result is null");
-            CollectionAssert.AllItemsAreInstancesOfType((ICollection)result.ViewData.Model, typeof(IndexViewModel));
-            
-            var IndexViewModel = result.ViewData.Model as List<IndexViewModel>;
-            Assert.AreNotEqual(_fakeBlogs.Count, IndexViewModel.Count, "Forskjellig antall blogger");
+            Assert.AreEqual(_fakeIndexViewModel.GetType(), IndexViewModel.GetType(), "Samme viewmodell");
         }
 
+        [TestMethod]
+        public void ReadBlogPostsReturnsViewModel()
+        {
+            // Arrange
+            //_repository.Setup(x => x.GetIndexViewModell()).Returns(_fakeIndexViewModel);
+            var blogViewModel = _fakeBlogViewModel;
 
+            // Act
+            var result = (ViewResult) _blogController.ReadBlogPosts(1, 2);
+            var blogViewModel1 = result.ViewData.Model as BlogViewModel;
+
+            // Assert
+            Assert.IsNotNull(result, "View Result is null");
+            //Assert.AreEqual(blogViewModel.GetType(), blogViewModel1.GetType(), "Samme viewmodell");
+        }
+        [TestMethod]
+        public void ReadPostCommentsReturnsViewModel()
+        {
+            // Arrange
+            _blogController.ControllerContext = MockHelpers.FakeControllerContext(false);
+
+            var tempData = new TempDataDictionary(_blogController.ControllerContext.HttpContext,
+                Mock.Of<ITempDataProvider>());
+            _blogController.TempData = tempData;
+
+            _repository.Setup(x => x.GetPostViewModel(1)).Returns(_fakePostViewModel);
+
+            // Act
+            var result = (ViewResult)_blogController.ReadPostComments(1);
+            var readPostComments = result.ViewData.Model as PostViewModel;
+
+            // Assert
+            Assert.IsNotNull(result, "View Result is null");
+            Assert.AreEqual(readPostComments.GetType(), _fakePostViewModel.GetType(), "Samme viewmodell");
+        }
+
+        [TestMethod]
+        public void SubscribeToBlogReturnsRedirectAction()
+        {
+            // Arrange
+            _blogController.ControllerContext = MockHelpers.FakeControllerContext(false);
+            var tempData = new TempDataDictionary(_blogController.ControllerContext.HttpContext,
+                Mock.Of<ITempDataProvider>());
+            _blogController.TempData = tempData;
+
+            _repository.Setup(x => x.GetPostViewModel(1)).Returns(_fakePostViewModel);
+
+            BlogApplicationUser blogApplicationUser = new BlogApplicationUser()
+            {
+                Owner = _appUser,
+                Blog = _fakeBlogs.First(),
+                BlogId = _fakeBlogs.First().BlogId
+            };
+
+            // Act
+            var result = _blogController.SubscribeToBlog(1) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result, "RedirectToIndex needs to redirect to the Index action");
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("Blog", result.ControllerName);
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Oblig2_Blogg.Models.Repository
         Blog GetBlog(int blogIdToGet);
         Task SaveBlog(Blog blog, IPrincipal principal);
         IEnumerable<Blog> GetAllSubscribedBlogs(ApplicationUser userSubscriber);
+        IndexViewModel GetIndexViewModell();
 
         //POSTS
         IEnumerable<Post> GetAllPostsWhitBlog();
