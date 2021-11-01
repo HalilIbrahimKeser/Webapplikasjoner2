@@ -30,6 +30,7 @@ namespace BlogUnitTest
         private Mock<IRepository> _repository;
         private Mock<UserManager<ApplicationUser>> _mockUserManager;
         private List<Blog> _fakeBlogs;
+        private Blog _fakeBlog;
         private List<Post> _fakePosts;
         private List<Tag> _fakeTags;
         private List<Comment> _fakeComments;
@@ -38,7 +39,8 @@ namespace BlogUnitTest
         private PostViewModel _fakePostViewModel;
         private IAuthorizationService _authService;
         private ClaimsPrincipal _user;
-        private ApplicationUser _appUser;
+        private ApplicationUser _appUser; 
+        private BlogApplicationUser _blogApplicationUser; 
         private PostController _postController;
         private BlogController _blogController;
         private CommentController _commentController;
@@ -89,6 +91,12 @@ namespace BlogUnitTest
                 new() {BlogId = 3, Name = "Forente Stater", Closed = false}
             };
 
+            _fakeBlog = new Blog
+            {
+                BlogId = 1, Name = "Australia", Closed = false
+            };
+
+
             _fakePosts = new List<Post>
             {
                 new() {PostId = 1, BlogId = 1, PostText = "Fint tur"},
@@ -122,6 +130,7 @@ namespace BlogUnitTest
                 BlogId = 2,
                 Name = "Blognavn",
                 Description = "Opplevelser",
+                Posts = _fakePosts
             };
 
 
@@ -129,12 +138,22 @@ namespace BlogUnitTest
             {
                 PostId = 1,
                 PostText = "Postteksten",
+                BlogId = 1,
+                Tags = _fakeTags,
+                Comments = _fakeComments
             };
 
             _appUser = new ApplicationUser()
             {
                 UserName = "Halldalf",
                 Password = "Postteksten",
+            };
+
+            _blogApplicationUser = new BlogApplicationUser()
+            {
+                Owner  = _appUser,
+                Blog   = _fakeBlog,
+                BlogId = _fakeBlog.BlogId
             };
         }
 
@@ -262,8 +281,7 @@ namespace BlogUnitTest
         public void ReadBlogPostsReturnsViewModel()
         {
             // Arrange
-            //_repository.Setup(x => x.GetIndexViewModell()).Returns(_fakeIndexViewModel);
-            var blogViewModel = _fakeBlogViewModel;
+            _repository.Setup(x => x.GetBlog(2)).Returns(_fakeBlog);
 
             // Act
             var result = (ViewResult) _blogController.ReadBlogPosts(1, 2);
@@ -271,7 +289,7 @@ namespace BlogUnitTest
 
             // Assert
             Assert.IsNotNull(result, "View Result is null");
-            //Assert.AreEqual(blogViewModel.GetType(), blogViewModel1.GetType(), "Samme viewmodell");
+            Assert.AreEqual(_fakeBlogViewModel.GetType(), blogViewModel1.GetType(), "Samme viewmodell");
         }
         [TestMethod]
         public void ReadPostCommentsReturnsViewModel()
@@ -286,12 +304,12 @@ namespace BlogUnitTest
             _repository.Setup(x => x.GetPostViewModel(1)).Returns(_fakePostViewModel);
 
             // Act
-            var result = (ViewResult)_blogController.ReadPostComments(1);
+            var result = (ViewResult) _blogController.ReadPostComments(1);
             var readPostComments = result.ViewData.Model as PostViewModel;
 
             // Assert
             Assert.IsNotNull(result, "View Result is null");
-            Assert.AreEqual(readPostComments.GetType(), _fakePostViewModel.GetType(), "Samme viewmodell");
+            Assert.AreEqual(readPostComments.Tags.Count, _fakePostViewModel.Tags.Count, "Samme viewmodell, med samme antall tag");
         }
 
         [TestMethod]
@@ -304,13 +322,9 @@ namespace BlogUnitTest
             _blogController.TempData = tempData;
 
             _repository.Setup(x => x.GetPostViewModel(1)).Returns(_fakePostViewModel);
-
-            BlogApplicationUser blogApplicationUser = new BlogApplicationUser()
-            {
-                Owner = _appUser,
-                Blog = _fakeBlogs.First(),
-                BlogId = _fakeBlogs.First().BlogId
-            };
+            _repository.Setup(x => x.GetBlog(1)).Returns(_fakeBlog);
+            _mockUserManager.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .Returns(Task.FromResult(new ApplicationUser { Id = "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f" }));
 
             // Act
             var result = _blogController.SubscribeToBlog(1) as RedirectToActionResult;
@@ -319,6 +333,28 @@ namespace BlogUnitTest
             Assert.IsNotNull(result, "RedirectToIndex needs to redirect to the Index action");
             Assert.AreEqual("Index", result.ActionName);
             Assert.AreEqual("Blog", result.ControllerName);
+        }
+        [TestMethod]
+        public void UnSubscribeToBlogReturnsRedirectAction()
+        {
+            // Arrange
+            _blogController.ControllerContext = MockHelpers.FakeControllerContext(false);
+            var tempData = new TempDataDictionary(_blogController.ControllerContext.HttpContext,
+                Mock.Of<ITempDataProvider>());
+            _blogController.TempData = tempData;
+
+            _repository.Setup(x => x.GetBlogApplicationUser(_fakeBlog, _appUser)).Returns(_blogApplicationUser);
+            _repository.Setup(x => x.GetBlog(1)).Returns(_fakeBlog);
+            _mockUserManager.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .Returns(Task.FromResult(new ApplicationUser { Id = "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f" }));
+
+            // Act
+            var result = _blogController.UnSubscribeToBlog(1) as RedirectToActionResult;
+
+            // Assert
+            Assert.IsNotNull(result, "RedirectToIndex needs to redirect to the Index action");
+            Assert.AreEqual("Index", result.ActionName);
+            Assert.AreEqual("Home", result.ControllerName);
         }
     }
 }

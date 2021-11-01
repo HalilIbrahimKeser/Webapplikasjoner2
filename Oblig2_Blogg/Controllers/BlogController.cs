@@ -20,9 +20,8 @@ namespace Oblig2_Blogg.Controllers
         private UserManager<ApplicationUser> userManager;
         private IAuthorizationService authService;
 
-
         //CONSTRUCTOR-----------------------------------------------
-        // UserManager<ApplicationUser> userManager1 = null,
+        
         public BlogController(IRepository repository, UserManager<ApplicationUser> userManager1 = null, IAuthorizationService authorizationService1 = null)
         {
             this.repository = repository;
@@ -41,7 +40,6 @@ namespace Oblig2_Blogg.Controllers
             var tags = repository.GetAllTags();
             var comments = repository.GetAllComments();
 
-
             IndexViewModel indexViewModel = new IndexViewModel()
             {
                 Blogs = blogs,
@@ -57,7 +55,6 @@ namespace Oblig2_Blogg.Controllers
         [AllowAnonymous]
         public ActionResult ReadBlogPosts(int? tagId, int id)
         {
-            //Hvis ingen søk ingen filtrering. Ellers filtering på tags
             List<Post> posts = new List<Post>();
             if (tagId != null)
             {
@@ -139,13 +136,12 @@ namespace Oblig2_Blogg.Controllers
         {
             var user =  userManager.GetUserAsync(User).Result;
             Blog blog = repository.GetBlog(id);
-            BlogApplicationUser blogApplicationUser1 = new BlogApplicationUser()
-            {
-                Owner = user,
-                OwnerId = user.Id,
-                Blog = blog,
-                BlogId = blog.BlogId
-            };
+
+            BlogApplicationUser blogApplicationUser1 = new BlogApplicationUser();
+            blogApplicationUser1.Owner = user;
+            blogApplicationUser1.OwnerId = user.Id;
+            blogApplicationUser1.Blog = blog;
+            blogApplicationUser1.BlogId = blog.BlogId;
 
             repository.SubscribeToBlog(blogApplicationUser1);
             TempData["Feedback"] = string.Format("Bruker \"{0}\" er abonnert på blogg id: \"{1}\"", user.FirstName, blog.BlogId);
