@@ -51,6 +51,10 @@ namespace Oblig2_Blogg
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("DefaultConnection")));
 
+            //Swagger
+            //https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-5.0&tabs=visual-studio
+            services.AddSwaggerGen();
+
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
 
             // services.AddDatabaseDeveloperPageExceptionFilter();
@@ -103,15 +107,10 @@ namespace Oblig2_Blogg
 
 
             //https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-5.0&tabs=visual-studio#overview-1
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoApi", Version = "v1" });
-            //});
 
-            //TODO
             //services.AddAutoMapper(typeof(Startup));
 
-            //services.AddSignalR();
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -119,8 +118,8 @@ namespace Oblig2_Blogg
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                //app.UseSwagger();
-                //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoApi v1"));
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api v1"));
             }
             else
             {

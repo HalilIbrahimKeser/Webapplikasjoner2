@@ -379,11 +379,11 @@ namespace Oblig2_Blogg.Models.Repository
         {
             var currentUser = await manager.FindByNameAsync(principal.Identity.Name);
             post.Owner = currentUser;
-            if (currentUser.Id == post.Owner.Id)
-            {
+            //if (currentUser.Id == post.Owner.Id)
+            //{
                 db.Posts.Add(post);
                 await db.SaveChangesAsync();
-            }
+            //}
         }
 
         //SAVE COMMENT

@@ -58,6 +58,7 @@ namespace Oblig2_Blogg.Controllers
             List<string> selectedTags = new List<string>();
             PostViewModel postViewModel = new PostViewModel()
             {
+                BlogId = blogId,
                 Tags = tags,
                 AvailableTags = tags,
                 SelectedTags = selectedTags,

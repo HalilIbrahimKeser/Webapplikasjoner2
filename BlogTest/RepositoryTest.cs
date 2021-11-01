@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Oblig2_Blogg;
 using Oblig2_Blogg.Data;
 using Oblig2_Blogg.Models.Entities;
@@ -206,10 +207,10 @@ namespace BlogTest
             var result = await repository.GetAllCommentsOnPost(2);
             
             //Assert
-            Assert.Equal(2, result.Count()); 
-            var comments = result as List<Comment>;
-            Assert.Equal("Jalla tar oss en tur?", comments[0].CommentText);
-            Assert.Equal("Flott dette her", comments[1].CommentText);
+            Assert.Equal(1, result.Count());
+
+            var comments = result.ToList();
+            Assert.Equal("God tur", comments[0].CommentText);
 
         }
 
@@ -302,7 +303,8 @@ namespace BlogTest
 
             //Act
             //https://stackoverflow.com/questions/38323895/how-to-add-claims-in-a-mock-claimsprincipal
-            repository.SaveBlog(blog, new TestPrincipal(new Claim("name", "John Doe"))).Wait();
+            repository.SaveBlog(blog, new TestPrincipal(
+                new Claim("name", "John Doe", "id", "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f"))).Wait();
             
             //Assert
             Assert.NotEqual(0, blog.BlogId);
@@ -317,10 +319,13 @@ namespace BlogTest
             var mockUserManager = MockHelpers.MockUserManager<ApplicationUser>();
             var repository = new Repository(context, mockUserManager.Object);
             var post = new Post { PostText = "Nytt", Created = DateTime.Now, BlogId = 2, };
+            mockUserManager.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .Returns(Task.FromResult(new ApplicationUser { Id = "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f" }));
 
             //Act
             //https://stackoverflow.com/questions/38323895/how-to-add-claims-in-a-mock-claimsprincipal
-            repository.SavePost(post, new TestPrincipal(new Claim("name",  "John Doe"))).Wait();
+            repository.SavePost(post, new TestPrincipal(
+                new Claim("name",  "John Doe","id", "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f"))).Wait();
             
             //Assert
             Assert.NotEqual(0, post.BlogId);
@@ -338,8 +343,8 @@ namespace BlogTest
 
             //Act
             //https://stackoverflow.com/questions/38323895/how-to-add-claims-in-a-mock-claimsprincipal
-            repository.SaveComment(comment, new TestPrincipal(new Claim("name", "John Doe"))).Wait();
-            
+            repository.SaveComment(comment, new TestPrincipal(
+                new Claim("name", "John Doe", "id", "53f02aab-27d8-4173-a1d6-e4a0c2a3a77f"))).Wait();
             //Assert
             Assert.NotEqual(0, comment.CommentId);
         }
