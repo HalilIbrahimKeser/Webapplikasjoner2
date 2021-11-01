@@ -22,12 +22,10 @@ namespace Oblig2_Blogg.Models.Repository
         private readonly IAuthorizationService authorizationService;
 
         //COSNTRUCTOR
-        public Repository(ApplicationDbContext db, UserManager<ApplicationUser> userManager1 = null, 
-            IAuthorizationService authorizationService1 = null)
+        public Repository(ApplicationDbContext db, UserManager<ApplicationUser> userManager1 = null)
         {
             this.db = db;
             this.manager = userManager1;
-            this.authorizationService = authorizationService1;
             //SeedManyToMany_OnlyOneTime(); //kjøres kun en gang
         }
 
